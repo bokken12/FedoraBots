@@ -3,6 +3,7 @@
  */
 package sim;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -23,6 +24,7 @@ public class BasicWorld extends World {
 	 */
 	public BasicWorld(double x, double y, double width, double height, World parent) {
 		super(x, y, width, height, parent);
+		things = new HashSet<Entity>();
 	}
 
 	/* (non-Javadoc)

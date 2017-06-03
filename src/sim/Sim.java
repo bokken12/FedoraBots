@@ -8,7 +8,30 @@ package sim;
  *
  */
 public class Sim {
+	private World world;
+	
 	public static void main(String[] args){
-		World w = World.generateWorld(0, 0, 500, 500, null);
+		
+	}
+	public Sim(World world){
+		
+	}
+	
+	public void run(){
+		for(int tick = 0; true; tick++){
+			world.forEach((e) -> e.tick());
+		}
+	}
+	/**
+	 * @return the world
+	 */
+	public World getWorld() {
+		return world;
+	}
+	/**
+	 * @param world the world to set
+	 */
+	public void setWorld(World world) {
+		this.world = world;
 	}
 }

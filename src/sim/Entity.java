@@ -22,6 +22,8 @@ public abstract class Entity {
 		this.y = y;
 		this.radius = radius;
 	}
+	
+	public void tick(){}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()

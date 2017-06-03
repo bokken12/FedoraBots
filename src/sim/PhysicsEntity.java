@@ -26,6 +26,13 @@ public abstract class PhysicsEntity extends Entity {
 	public boolean collidesWith(PhysicsEntity other){
 		return false;
 	}
+	
+	@Override
+	public void tick(){
+		vx += ax;
+		vy += ay;
+		setPosition(getX() + vx, getY() + vy);
+	}
 
 	/**
 	 * @return the vx
