@@ -12,9 +12,10 @@ import java.util.function.Predicate;
  * @author joelmanning
  *
  */
-public class BasicWorld extends World {
+public class InfiniteWorld extends World {
 	
 	private Set<Entity> things;
+	private World child;
 	
 	/**
 	 * @param x
@@ -22,8 +23,9 @@ public class BasicWorld extends World {
 	 * @param width
 	 * @param height
 	 */
-	public BasicWorld(double x, double y, double width, double height, World parent) {
-		super(x, y, width, height, parent);
+	public InfiniteWorld(World child) {
+		super(Double.NaN, Double.NaN, Double.NaN, Double.NaN, null);
+		this.child = child;
 		things = new HashSet<Entity>();
 	}
 	
@@ -37,6 +39,7 @@ public class BasicWorld extends World {
 		for(Entity e : things) {
 			consumer.accept(e);
 		}
+		child.forEachUnsafe(consumer);
 	}
 	
 	/*
@@ -52,6 +55,7 @@ public class BasicWorld extends World {
 				consumer.accept(e);
 			}
 		}
+		child.forCollidingUnsafe(source, consumer);
 	}
 	
 	/*
@@ -61,8 +65,8 @@ public class BasicWorld extends World {
 	 */
 	@Override
 	public Entity closest(Entity source) {
-		Entity closest = null;
-		double dmin = Double.MAX_VALUE;
+		Entity closest = child.closest(source);
+		double dmin = closest == null ? Double.MAX_VALUE : Math.pow(source.getX() - closest.getX(), 2) + Math.pow(source.getY() - closest.getY(), 2);
 		for(Entity e : things) {
 			double d = Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2);
 			if(d < dmin) {
@@ -80,8 +84,8 @@ public class BasicWorld extends World {
 	 */
 	@Override
 	public Entity closest(Entity source, Predicate<Entity> condition) {
-		Entity closest = null;
-		double dmin = Double.MAX_VALUE;
+		Entity closest = child.closest(source, condition);
+		double dmin = closest == null ? Double.MAX_VALUE : Math.pow(source.getX() - closest.getX(), 2) + Math.pow(source.getY() - closest.getY(), 2);
 		for(Entity e : things) {
 			if(condition.test(e)) {
 				double d = Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2);
@@ -101,8 +105,8 @@ public class BasicWorld extends World {
 	 */
 	@Override
 	public void add(Entity entity) {
-		if(!fullyContains(entity)) {
-			getParent().add(entity);
+		if(child.fullyContains(entity)) {
+			child.add(entity);
 		} else {
 			things.add(entity);
 			entity.setWorld(this);
@@ -116,7 +120,8 @@ public class BasicWorld extends World {
 	 */
 	@Override
 	public void remove(Entity entity) {
-		things.remove(entity);
+		if(!things.remove(entity))
+			child.remove(entity);
 	}
 	
 	/*
@@ -132,5 +137,14 @@ public class BasicWorld extends World {
 				consumer.accept(e);
 			}
 		}
+		child.forCollidingUnsafe(x, y, width, height, consumer);
+	}
+
+	/* (non-Javadoc)
+	 * @see sim.World#fullyContains(sim.Entity)
+	 */
+	@Override
+	public boolean fullyContains(Entity entity) {
+		return true;
 	}
 }

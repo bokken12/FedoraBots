@@ -3,6 +3,8 @@
  */
 package sim;
 
+import java.awt.Graphics2D;
+
 /**
  * @author joelmanning
  *
@@ -23,7 +25,9 @@ public abstract class Entity {
 		this.radius = radius;
 	}
 	
-	public void tick(){}
+	public void tick(int millis, World world){}
+	
+	public void paint(Graphics2D g){}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
@@ -102,13 +106,8 @@ public abstract class Entity {
 		this.x = x;
 		this.y = y;
 		if(world != null){
-			if(!world.fullyContains(this)){
-				world.remove(this);
-				while(!world.fullyContains(this)){
-					world = world.getParent();
-				}
-				world.add(this);
-			}
+			world.remove(this);
+			world.add(this);
 		}
 	}
 

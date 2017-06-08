@@ -6,13 +6,11 @@ package sim;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import gui.Visible;
-
 /**
  * @author joelmanning
  *
  */
-public class TestEntity extends Entity implements Visible {
+public class TestEntity extends PhysicsEntity {
 
 	/**
 	 * @param x
@@ -29,6 +27,6 @@ public class TestEntity extends Entity implements Visible {
 	@Override
 	public void paint(Graphics2D graphics) {
 		graphics.setColor(Color.GREEN);
-		Visible.super.paint(graphics);
+		graphics.drawOval((int)(getX() - getRadius()), (int)(getY() - getRadius()), (int)(getRadius() * 2), (int)(getRadius() * 2));
 	}
 }

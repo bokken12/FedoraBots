@@ -3,6 +3,8 @@
  */
 package sim;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -24,6 +26,12 @@ public abstract class World {
 		this.width = width;
 		this.height = height;
 		this.parent = parent;
+	}
+	
+	public static World generateWorld(double x, double y, double width, double height) {
+		World w = generateWorld(x, y, width, height, null);
+		w.setParent(new InfiniteWorld(w));
+		return w;
 	}
 	
 	public static World generateWorld(double x, double y, double width, double height, World parent) {
@@ -57,19 +65,51 @@ public abstract class World {
 		this.parent = parent;
 	}
 	
-	public abstract void forEach(Consumer<Entity> consumer);
+	public abstract void forEachUnsafe(Consumer<Entity> consumer);
 	
-	public void forCondition(Predicate<Entity> condition, Consumer<Entity> consumer) {
-		forEach((e) -> {
+	public void forEach(Consumer<Entity> consumer){
+		List<Entity> safeIterable = new ArrayList<Entity>();
+		forEachUnsafe(e -> safeIterable.add(e));
+		for(Entity e: safeIterable){
+			consumer.accept(e);
+		}
+	}
+	
+	public void forConditionUnsafe(Predicate<Entity> condition, Consumer<Entity> consumer) {
+		forEachUnsafe((e) -> {
 			if(condition.test(e)) {
 				consumer.accept(e);
 			}
 		});
 	}
 	
-	public abstract void forColliding(Entity source, Consumer<Entity> consumer);
+	public void forCondition(Predicate<Entity> condition, Consumer<Entity> consumer){
+		List<Entity> safeIterable = new ArrayList<Entity>();
+		forConditionUnsafe(condition, e -> safeIterable.add(e));
+		for(Entity e: safeIterable){
+			consumer.accept(e);
+		}
+	}
 	
-	public abstract void forColliding(double x, double y, double width, double height, Consumer<Entity> consumer);
+	public abstract void forCollidingUnsafe(Entity source, Consumer<Entity> consumer);
+	
+	public void forColliding(Entity source, Consumer<Entity> consumer){
+		List<Entity> safeIterable = new ArrayList<Entity>();
+		forCollidingUnsafe(source, e -> safeIterable.add(e));
+		for(Entity e: safeIterable){
+			consumer.accept(e);
+		}
+	}
+	
+	public abstract void forCollidingUnsafe(double x, double y, double width, double height, Consumer<Entity> consumer);
+	
+	public void forColliding(double x, double y, double width, double height, Consumer<Entity> consumer){
+		List<Entity> safeIterable = new ArrayList<Entity>();
+		forCollidingUnsafe(x, y, width, height, e -> safeIterable.add(e));
+		for(Entity e: safeIterable){
+			consumer.accept(e);
+		}
+	}
 	
 	public abstract Entity closest(Entity source);
 	

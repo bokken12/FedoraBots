@@ -37,12 +37,12 @@ public class VerticalSplitWorld extends World {
 	 * @see sim.World#forEach(java.util.function.Consumer)
 	 */
 	@Override
-	public void forEach(Consumer<Entity> consumer) {
+	public void forEachUnsafe(Consumer<Entity> consumer) {
 		for(Entity e : things) {
 			consumer.accept(e);
 		}
-		left.forEach(consumer);
-		right.forEach(consumer);
+		left.forEachUnsafe(consumer);
+		right.forEachUnsafe(consumer);
 	}
 	
 	/*
@@ -51,11 +51,11 @@ public class VerticalSplitWorld extends World {
 	 * @see sim.World#forColliding(sim.Entity, java.util.function.Consumer)
 	 */
 	@Override
-	public void forColliding(Entity source, Consumer<Entity> consumer) {
+	public void forCollidingUnsafe(Entity source, Consumer<Entity> consumer) {
 		if(left.fullyContains(source)) {
-			left.forColliding(source, consumer);
+			left.forCollidingUnsafe(source, consumer);
 		} else if(right.fullyContains(source)) {
-			right.forColliding(source, consumer);
+			right.forCollidingUnsafe(source, consumer);
 		} else {
 			for(Entity e : things) {
 				if(Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2) <= Math.pow(
@@ -64,10 +64,10 @@ public class VerticalSplitWorld extends World {
 				}
 			}
 			if(source.getX() - source.getRadius() < getX() + getWidth() / 2) {
-				left.forColliding(source, consumer);
+				left.forCollidingUnsafe(source, consumer);
 			}
 			if(source.getX() + source.getRadius() > getX() + getWidth() / 2) {
-				right.forColliding(source, consumer);
+				right.forCollidingUnsafe(source, consumer);
 			}
 		}
 	}
@@ -147,7 +147,9 @@ public class VerticalSplitWorld extends World {
 	 */
 	@Override
 	public void add(Entity entity) {
-		if(entity.getX() + entity.getRadius() < getX() + getWidth() / 2) {
+		if(!fullyContains(entity)) {
+			getParent().add(entity);
+		} else if(entity.getX() + entity.getRadius() < getX() + getWidth() / 2) {
 			left.add(entity);
 		} else if(entity.getX() - entity.getRadius() > getX() + getWidth() / 2) {
 			right.add(entity);
@@ -169,22 +171,25 @@ public class VerticalSplitWorld extends World {
 			right.remove(entity);
 		}
 	}
-
-	/* (non-Javadoc)
-	 * @see sim.World#forColliding(int, int, int, int, java.util.function.Consumer)
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see sim.World#forColliding(int, int, int, int,
+	 * java.util.function.Consumer)
 	 */
 	@Override
-	public void forColliding(double x, double y, double width, double height, Consumer<Entity> consumer) {
-		for(Entity e: things){
-			if(World.intersects(e, x, y, width, height)){
+	public void forCollidingUnsafe(double x, double y, double width, double height, Consumer<Entity> consumer) {
+		for(Entity e : things) {
+			if(World.intersects(e, x, y, width, height)) {
 				consumer.accept(e);
 			}
 		}
-		if(x < getX() + getWidth()/2){
-			left.forColliding(x,  y, width, height, consumer);
+		if(x < getX() + getWidth() / 2) {
+			left.forCollidingUnsafe(x, y, width, height, consumer);
 		}
-		if(x + width > getX() + getWidth()/2){
-			right.forColliding(x, y, width, height, consumer);
+		if(x + width > getX() + getWidth() / 2) {
+			right.forCollidingUnsafe(x, y, width, height, consumer);
 		}
 	}
 }
