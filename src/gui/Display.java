@@ -58,8 +58,10 @@ public class Display extends JComponent {
 		} catch(InterruptedException e1) {
 			e1.printStackTrace();
 		}
+		
 		g.dispose();
 	}
+	
 	/**
 	 * @return the world
 	 */

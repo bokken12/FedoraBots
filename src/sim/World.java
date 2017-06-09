@@ -17,8 +17,8 @@ public abstract class World {
 	private double x, y, width, height;
 	private World parent;
 	
-	public static final int MIN_WIDTH = 1;
-	public static final int MIN_HEIGHT = 1;
+	public static final int MIN_WIDTH = 40;
+	public static final int MIN_HEIGHT = 40;
 	
 	protected World(double x, double y, double width, double height, World parent) {
 		this.x = x;
@@ -204,5 +204,13 @@ public abstract class World {
 		double cornerDistance_sq = Math.pow(circleDistancex - width / 2, 2) + Math.pow(circleDistancey - height / 2, 2);
 		
 		return cornerDistance_sq <= Math.pow(circle.getRadius(), 2);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "World [x=" + x + ", y=" + y + ", width=" + width + ", height=" + height + "]";
 	}
 }

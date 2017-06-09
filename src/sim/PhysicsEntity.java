@@ -11,16 +11,18 @@ public abstract class PhysicsEntity extends Entity {
 	
 	private double vx, vy, ax, ay, mass, restitution;
 	
-	public PhysicsEntity(double x, double y, double radius, double vx, double vy, double ax, double ay) {
+	public PhysicsEntity(double x, double y, double radius, double mass, double restitution, double vx, double vy, double ax, double ay) {
 		super(x, y, radius);
+		this.mass = mass;
+		this.restitution = restitution;
 		this.vx = vx;
 		this.vy = vy;
 		this.ax = ax;
 		this.ay = ay;
 	}
 	
-	public PhysicsEntity(double x, double y, double radius) {
-		this(x, y, radius, 0, 0, 0, 0);
+	public PhysicsEntity(double x, double y, double radius, double mass, double restitution) {
+		this(x, y, radius, mass, restitution, 0, 0, 0, 0);
 	}
 	
 	public boolean collidesWith(PhysicsEntity other) {
@@ -28,6 +30,9 @@ public abstract class PhysicsEntity extends Entity {
 	}
 	
 	public void resolveCollision(PhysicsEntity other) {
+		System.out.println("Resolving a collision between");
+		System.out.println(this);
+		System.out.println(other);
 		double rvx = other.vx - vx;
 		double rvy = other.vy - vy;
 		double nx = other.getX() - getX();
@@ -44,6 +49,9 @@ public abstract class PhysicsEntity extends Entity {
 		vy -= 1 / mass * iy;
 		other.vx += 1 / other.mass * ix;
 		other.vy += 1 / other.mass * iy;
+		System.out.println("Collision resolved, now");
+		System.out.println(this);
+		System.out.println(other);
 	}
 	
 	@Override
@@ -118,27 +126,32 @@ public abstract class PhysicsEntity extends Entity {
 		this.ay = ay;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
+	/**
+	 * @return the mass
 	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		long temp;
-		temp = Double.doubleToLongBits(ax);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(ay);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(mass);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(restitution);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(vx);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(vy);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		return result;
+	public double getMass() {
+		return mass;
+	}
+
+	/**
+	 * @return the restitution
+	 */
+	public double getRestitution() {
+		return restitution;
+	}
+
+	/**
+	 * @param mass the mass to set
+	 */
+	public void setMass(double mass) {
+		this.mass = mass;
+	}
+
+	/**
+	 * @param restitution the restitution to set
+	 */
+	public void setRestitution(double restitution) {
+		this.restitution = restitution;
 	}
 
 	/* (non-Javadoc)
@@ -174,6 +187,6 @@ public abstract class PhysicsEntity extends Entity {
 	@Override
 	public String toString() {
 		return "PhysicsEntity [vx=" + vx + ", vy=" + vy + ", ax=" + ax + ", ay=" + ay + ", mass=" + mass
-				+ ", restitution=" + restitution + "]";
+				+ ", restitution=" + restitution + ", toString()=" + super.toString() + "]";
 	}
 }

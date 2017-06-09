@@ -18,7 +18,7 @@ public class TestEntity extends PhysicsEntity {
 	 * @param radius
 	 */
 	public TestEntity(double x, double y, double radius) {
-		super(x, y, radius);
+		super(x, y, radius, 10, 0);
 	}
 
 	/* (non-Javadoc)
@@ -36,7 +36,7 @@ public class TestEntity extends PhysicsEntity {
 	@Override
 	public void tick(int length, World world) {
 		super.tick(length, world);
-		System.out.println(toString());
+		//System.out.println("(" + getX() + ", " + getY() + ")");
 	}
 	
 	

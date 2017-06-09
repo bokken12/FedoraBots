@@ -152,8 +152,7 @@ public class HorizontalSplitWorld extends World {
 	public void add(Entity entity) {
 		if(!fullyContains(entity)) {
 			getParent().add(entity);
-		}
-		if(entity.getY() + entity.getRadius() < getY() + getHeight() / 2) {
+		} else if(entity.getY() + entity.getRadius() < getY() + getHeight() / 2) {
 			top.add(entity);
 		} else if(entity.getY() - entity.getRadius() > getY() + getHeight() / 2) {
 			bottom.add(entity);

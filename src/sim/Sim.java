@@ -23,7 +23,7 @@ public class Sim {
 	public void run(IntConsumer tick) {
 		long prev = System.currentTimeMillis();
 		while(true) {
-			int length = Math.max(MAX_TICK_LENGTH, (int) (System.currentTimeMillis() - prev));
+			int length = Math.min(MAX_TICK_LENGTH, (int) (System.currentTimeMillis() - prev));
 			try {
 				lock.acquire();
 				world.forEach((e) -> e.tick(length, world));
@@ -33,6 +33,7 @@ public class Sim {
 			}
 			prev += length;
 			tick.accept(length);
+			//System.out.println("tick of length: " + length);
 		}
 	}
 	

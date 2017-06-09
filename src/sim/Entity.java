@@ -103,10 +103,10 @@ public abstract class Entity {
 	}
 	
 	public void setPosition(double x, double y){
-		this.x = x;
-		this.y = y;
 		if(world != null){
 			world.remove(this);
+			this.x = x;
+			this.y = y;
 			world.add(this);
 		}
 	}

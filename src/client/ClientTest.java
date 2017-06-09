@@ -24,9 +24,12 @@ public class ClientTest {
 	public static void main(String[] args) {
 		World w = World.generateWorld(0, 0, 2000, 1000);
 		TestEntity phys = new TestEntity(16, 17, 10);
-		//phys.setVx(0);
+		phys.setVx(0.01);
+		TestEntity phys2 = new TestEntity(63, 20, 10);
+		phys2.setVx(-0.01);
 		//phys.setVy(0);
 		w.add(phys);
+		w.add(phys2);
 		//w.add(new TestEntity(40, 70, 23));
 		//w.add(new TestEntity(40, 60, 29));
 		Semaphore lock = new Semaphore(1);
