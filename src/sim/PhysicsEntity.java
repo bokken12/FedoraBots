@@ -167,4 +167,13 @@ public abstract class PhysicsEntity extends Entity {
 			return false;
 		return true;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "PhysicsEntity [vx=" + vx + ", vy=" + vy + ", ax=" + ax + ", ay=" + ay + ", mass=" + mass
+				+ ", restitution=" + restitution + "]";
+	}
 }

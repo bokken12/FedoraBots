@@ -29,4 +29,15 @@ public class TestEntity extends PhysicsEntity {
 		graphics.setColor(Color.GREEN);
 		graphics.drawOval((int)(getX() - getRadius()), (int)(getY() - getRadius()), (int)(getRadius() * 2), (int)(getRadius() * 2));
 	}
+
+	/* (non-Javadoc)
+	 * @see sim.PhysicsEntity#tick(int, sim.World)
+	 */
+	@Override
+	public void tick(int length, World world) {
+		super.tick(length, world);
+		System.out.println(toString());
+	}
+	
+	
 }

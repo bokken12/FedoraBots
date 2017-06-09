@@ -24,8 +24,8 @@ public class ClientTest {
 	public static void main(String[] args) {
 		World w = World.generateWorld(0, 0, 2000, 1000);
 		TestEntity phys = new TestEntity(16, 17, 10);
-		phys.setVx(0);
-		phys.setVy(0);
+		//phys.setVx(0);
+		//phys.setVy(0);
 		w.add(phys);
 		//w.add(new TestEntity(40, 70, 23));
 		//w.add(new TestEntity(40, 60, 29));

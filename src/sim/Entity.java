@@ -131,4 +131,12 @@ public abstract class Entity {
 	void setWorld(World world) {
 		this.world = world;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Entity [x=" + x + ", y=" + y + ", radius=" + radius + ", world=" + world + "]";
+	}
 }

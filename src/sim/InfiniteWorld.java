@@ -50,8 +50,9 @@ public class InfiniteWorld extends World {
 	@Override
 	public void forCollidingUnsafe(Entity source, Consumer<Entity> consumer) {
 		for(Entity e : things) {
-			if(Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2) <= Math.pow(
-					source.getRadius() + e.getRadius(), 2)) {
+			if(!source.equals(e)
+					&& Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2) <= Math.pow(
+							source.getRadius() + e.getRadius(), 2)) {
 				consumer.accept(e);
 			}
 		}
@@ -66,12 +67,15 @@ public class InfiniteWorld extends World {
 	@Override
 	public Entity closest(Entity source) {
 		Entity closest = child.closest(source);
-		double dmin = closest == null ? Double.MAX_VALUE : Math.pow(source.getX() - closest.getX(), 2) + Math.pow(source.getY() - closest.getY(), 2);
+		double dmin = closest == null ? Double.MAX_VALUE : Math.pow(source.getX() - closest.getX(), 2)
+				+ Math.pow(source.getY() - closest.getY(), 2);
 		for(Entity e : things) {
-			double d = Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2);
-			if(d < dmin) {
-				dmin = d;
-				closest = e;
+			if(!source.equals(e)) {
+				double d = Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2);
+				if(d < dmin) {
+					dmin = d;
+					closest = e;
+				}
 			}
 		}
 		return closest;
@@ -85,9 +89,10 @@ public class InfiniteWorld extends World {
 	@Override
 	public Entity closest(Entity source, Predicate<Entity> condition) {
 		Entity closest = child.closest(source, condition);
-		double dmin = closest == null ? Double.MAX_VALUE : Math.pow(source.getX() - closest.getX(), 2) + Math.pow(source.getY() - closest.getY(), 2);
+		double dmin = closest == null ? Double.MAX_VALUE : Math.pow(source.getX() - closest.getX(), 2)
+				+ Math.pow(source.getY() - closest.getY(), 2);
 		for(Entity e : things) {
-			if(condition.test(e)) {
+			if(!source.equals(e) && condition.test(e)) {
 				double d = Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2);
 				if(d < dmin) {
 					dmin = d;
@@ -139,8 +144,10 @@ public class InfiniteWorld extends World {
 		}
 		child.forCollidingUnsafe(x, y, width, height, consumer);
 	}
-
-	/* (non-Javadoc)
+	
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see sim.World#fullyContains(sim.Entity)
 	 */
 	@Override

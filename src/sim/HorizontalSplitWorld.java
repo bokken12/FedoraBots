@@ -58,8 +58,9 @@ public class HorizontalSplitWorld extends World {
 			bottom.forCollidingUnsafe(source, consumer);
 		} else {
 			for(Entity e : things) {
-				if(Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2) <= Math.pow(
-						source.getRadius() + e.getRadius(), 2)) {
+				if(!source.equals(e)
+						&& Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2) <= Math.pow(
+								source.getRadius() + e.getRadius(), 2)) {
 					consumer.accept(e);
 				}
 			}
@@ -96,10 +97,12 @@ public class HorizontalSplitWorld extends World {
 			dmin = Double.MAX_VALUE;
 		}
 		for(Entity e : things) {
-			double d = Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2);
-			if(d < dmin) {
-				dmin = d;
-				closest = e;
+			if(!source.equals(e)) {
+				double d = Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2);
+				if(d < dmin) {
+					dmin = d;
+					closest = e;
+				}
 			}
 		}
 		return closest;
@@ -129,7 +132,7 @@ public class HorizontalSplitWorld extends World {
 			dmin = Double.MAX_VALUE;
 		}
 		for(Entity e : things) {
-			if(condition.test(e)) {
+			if(!source.equals(e) && condition.test(e)) {
 				double d = Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2);
 				if(d < dmin) {
 					dmin = d;
@@ -147,9 +150,10 @@ public class HorizontalSplitWorld extends World {
 	 */
 	@Override
 	public void add(Entity entity) {
-		if(!fullyContains(entity)){
+		if(!fullyContains(entity)) {
 			getParent().add(entity);
-		} if(entity.getY() + entity.getRadius() < getY() + getHeight() / 2) {
+		}
+		if(entity.getY() + entity.getRadius() < getY() + getHeight() / 2) {
 			top.add(entity);
 		} else if(entity.getY() - entity.getRadius() > getY() + getHeight() / 2) {
 			bottom.add(entity);
