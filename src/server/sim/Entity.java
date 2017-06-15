@@ -1,15 +1,16 @@
 /**
- * 
+ *
  */
-package sim;
+package server.sim;
 
-import java.awt.Graphics2D;
+import javafx.scene.canvas.GraphicsContext;
 
 /**
  * @author joelmanning
  *
  */
 public abstract class Entity {
+	private short id;
 	private double x, y, radius;
 	private World world;
 
@@ -18,16 +19,17 @@ public abstract class Entity {
 	 * @param y
 	 * @param radius
 	 */
-	public Entity(double x, double y, double radius) {
+	public Entity(short id, double x, double y, double radius) {
 		super();
+		this.id = id;
 		this.x = x;
 		this.y = y;
 		this.radius = radius;
 	}
-	
+
 	public void tick(int millis, World world){}
-	
-	public void paint(Graphics2D g){}
+
+	public void paint(GraphicsContext g){}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
@@ -68,6 +70,13 @@ public abstract class Entity {
 	}
 
 	/**
+	 * @return the id
+	 */
+	public short getId() {
+		return id;
+	}
+
+	/**
 	 * @return the x
 	 */
 	public double getX() {
@@ -101,7 +110,7 @@ public abstract class Entity {
 	public void setY(double y) {
 		setPosition(x, y);
 	}
-	
+
 	public void setPosition(double x, double y){
 		if(world != null){
 			world.remove(this);

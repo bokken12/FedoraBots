@@ -1,7 +1,7 @@
 /**
- * 
+ *
  */
-package sim;
+package server.sim;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,9 +13,9 @@ import java.util.function.Predicate;
  *
  */
 public class BasicWorld extends World {
-	
+
 	private Set<Entity> things;
-	
+
 	/**
 	 * @param x
 	 * @param y
@@ -26,10 +26,10 @@ public class BasicWorld extends World {
 		super(x, y, width, height, parent);
 		things = new HashSet<Entity>();
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see sim.World#forEach(java.util.function.Consumer)
 	 */
 	@Override
@@ -38,10 +38,10 @@ public class BasicWorld extends World {
 			consumer.accept(e);
 		}
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see sim.World#forColliding(sim.Entity, java.util.function.Consumer)
 	 */
 	@Override
@@ -54,10 +54,10 @@ public class BasicWorld extends World {
 			}
 		}
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see sim.World#closest(sim.Entity)
 	 */
 	@Override
@@ -75,10 +75,10 @@ public class BasicWorld extends World {
 		}
 		return closest;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see sim.World#closest(sim.Entity, java.util.function.Predicate)
 	 */
 	@Override
@@ -96,10 +96,10 @@ public class BasicWorld extends World {
 		}
 		return closest;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see sim.World#add(sim.Entity)
 	 */
 	@Override
@@ -111,20 +111,20 @@ public class BasicWorld extends World {
 			entity.setWorld(this);
 		}
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see sim.World#remove(sim.Entity)
 	 */
 	@Override
 	public void remove(Entity entity) {
 		things.remove(entity);
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see sim.World#forColliding(int, int, int, int,
 	 * java.util.function.Consumer)
 	 */

@@ -1,7 +1,7 @@
 /**
- * 
+ *
  */
-package sim;
+package server.sim;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,10 +13,10 @@ import java.util.function.Predicate;
  *
  */
 public class InfiniteWorld extends World {
-	
+
 	private Set<Entity> things;
 	private World child;
-	
+
 	/**
 	 * @param x
 	 * @param y
@@ -28,10 +28,10 @@ public class InfiniteWorld extends World {
 		this.child = child;
 		things = new HashSet<Entity>();
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see sim.World#forEach(java.util.function.Consumer)
 	 */
 	@Override
@@ -41,10 +41,10 @@ public class InfiniteWorld extends World {
 		}
 		child.forEachUnsafe(consumer);
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see sim.World#forColliding(sim.Entity, java.util.function.Consumer)
 	 */
 	@Override
@@ -58,10 +58,10 @@ public class InfiniteWorld extends World {
 		}
 		child.forCollidingUnsafe(source, consumer);
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see sim.World#closest(sim.Entity)
 	 */
 	@Override
@@ -80,10 +80,10 @@ public class InfiniteWorld extends World {
 		}
 		return closest;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see sim.World#closest(sim.Entity, java.util.function.Predicate)
 	 */
 	@Override
@@ -102,10 +102,10 @@ public class InfiniteWorld extends World {
 		}
 		return closest;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see sim.World#add(sim.Entity)
 	 */
 	@Override
@@ -117,10 +117,10 @@ public class InfiniteWorld extends World {
 			entity.setWorld(this);
 		}
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see sim.World#remove(sim.Entity)
 	 */
 	@Override
@@ -128,10 +128,10 @@ public class InfiniteWorld extends World {
 		if(!things.remove(entity))
 			child.remove(entity);
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see sim.World#forColliding(int, int, int, int,
 	 * java.util.function.Consumer)
 	 */
@@ -144,10 +144,10 @@ public class InfiniteWorld extends World {
 		}
 		child.forCollidingUnsafe(x, y, width, height, consumer);
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see sim.World#fullyContains(sim.Entity)
 	 */
 	@Override
