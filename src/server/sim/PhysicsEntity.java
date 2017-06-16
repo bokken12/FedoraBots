@@ -9,20 +9,19 @@ package server.sim;
  */
 public abstract class PhysicsEntity extends Entity {
 
-	private double vx, vy, ax, ay, mass, restitution;
+	private double vx, vy, ax, ay, mass;
 
-	public PhysicsEntity(short id, double x, double y, double radius, double mass, double restitution, double vx, double vy, double ax, double ay) {
+	public PhysicsEntity(short id, double x, double y, double radius, double mass, double vx, double vy, double ax, double ay) {
 		super(id, x, y, radius);
 		this.mass = mass;
-		this.restitution = restitution;
 		this.vx = vx;
 		this.vy = vy;
 		this.ax = ax;
 		this.ay = ay;
 	}
 
-	public PhysicsEntity(short id, double x, double y, double radius, double mass, double restitution) {
-		this(id, x, y, radius, mass, restitution, 0, 0, 0, 0);
+	public PhysicsEntity(short id, double x, double y, double radius, double mass) {
+		this(id, x, y, radius, mass, 0, 0, 0, 0);
 	}
 
 	public boolean collidesWith(PhysicsEntity other) {
@@ -33,22 +32,11 @@ public abstract class PhysicsEntity extends Entity {
 		System.out.println("Resolving a collision between");
 		System.out.println(this);
 		System.out.println(other);
-		double rvx = other.vx - vx;
-		double rvy = other.vy - vy;
-		double nx = other.getX() - getX();
-		double ny = other.getY() - getY();
-		double vnorm = rvx * nx + rvy * ny;
-		if(vnorm > 0)
-			return;
-		double e = Math.min(other.restitution, restitution);
-		double j = -(1 + e) * vnorm;
-		j /= 1 / mass + 1/ other.mass;
-		double ix = nx * j;
-		double iy = ny * j;
-		vx -= 1 / mass * ix;
-		vy -= 1 / mass * iy;
-		other.vx += 1 / other.mass * ix;
-		other.vy += 1 / other.mass * iy;
+		double oldvx = vx, oldvy = vy;
+		vx = (vx * (mass - other.mass) + (2 * other.mass * other.vx)) / (mass + other.mass);
+		vy = (vy * (mass - other.mass) + (2 * other.mass * other.vy)) / (mass + other.mass);
+		other.vx = (other.vx * (other.mass - mass) + (2 * mass * oldvx)) / (mass + other.mass);
+		other.vy = (other.vy * (other.mass - mass) + (2 * mass * oldvy)) / (mass + other.mass);
 		System.out.println("Collision resolved, now");
 		System.out.println(this);
 		System.out.println(other);
@@ -134,24 +122,10 @@ public abstract class PhysicsEntity extends Entity {
 	}
 
 	/**
-	 * @return the restitution
-	 */
-	public double getRestitution() {
-		return restitution;
-	}
-
-	/**
 	 * @param mass the mass to set
 	 */
 	public void setMass(double mass) {
 		this.mass = mass;
-	}
-
-	/**
-	 * @param restitution the restitution to set
-	 */
-	public void setRestitution(double restitution) {
-		this.restitution = restitution;
 	}
 
 	/* (non-Javadoc)
@@ -172,8 +146,6 @@ public abstract class PhysicsEntity extends Entity {
 			return false;
 		if(Double.doubleToLongBits(mass) != Double.doubleToLongBits(other.mass))
 			return false;
-		if(Double.doubleToLongBits(restitution) != Double.doubleToLongBits(other.restitution))
-			return false;
 		if(Double.doubleToLongBits(vx) != Double.doubleToLongBits(other.vx))
 			return false;
 		if(Double.doubleToLongBits(vy) != Double.doubleToLongBits(other.vy))
@@ -187,6 +159,6 @@ public abstract class PhysicsEntity extends Entity {
 	@Override
 	public String toString() {
 		return "PhysicsEntity [vx=" + vx + ", vy=" + vy + ", ax=" + ax + ", ay=" + ay + ", mass=" + mass
-				+ ", restitution=" + restitution + ", toString()=" + super.toString() + "]";
+				+ ", toString()=" + super.toString() + "]";
 	}
 }

@@ -18,7 +18,7 @@ public class TestEntity extends PhysicsEntity {
 	 * @param radius
 	 */
 	public TestEntity(short id, double x, double y, double radius) {
-		super(id, x, y, radius, 10, 0);
+		super(id, x, y, radius, 10);
 	}
 
 	/* (non-Javadoc)
