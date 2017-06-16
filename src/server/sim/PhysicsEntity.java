@@ -1,18 +1,18 @@
 /**
- * 
+ *
  */
-package sim;
+package server.sim;
 
 /**
  * @author joelmanning
  *
  */
 public abstract class PhysicsEntity extends Entity {
-	
+
 	private double vx, vy, ax, ay, mass, restitution;
-	
-	public PhysicsEntity(double x, double y, double radius, double mass, double restitution, double vx, double vy, double ax, double ay) {
-		super(x, y, radius);
+
+	public PhysicsEntity(short id, double x, double y, double radius, double mass, double restitution, double vx, double vy, double ax, double ay) {
+		super(id, x, y, radius);
 		this.mass = mass;
 		this.restitution = restitution;
 		this.vx = vx;
@@ -20,15 +20,15 @@ public abstract class PhysicsEntity extends Entity {
 		this.ax = ax;
 		this.ay = ay;
 	}
-	
-	public PhysicsEntity(double x, double y, double radius, double mass, double restitution) {
-		this(x, y, radius, mass, restitution, 0, 0, 0, 0);
+
+	public PhysicsEntity(short id, double x, double y, double radius, double mass, double restitution) {
+		this(id, x, y, radius, mass, restitution, 0, 0, 0, 0);
 	}
-	
+
 	public boolean collidesWith(PhysicsEntity other) {
 		return true;
 	}
-	
+
 	public void resolveCollision(PhysicsEntity other) {
 		System.out.println("Resolving a collision between");
 		System.out.println(this);
@@ -53,7 +53,7 @@ public abstract class PhysicsEntity extends Entity {
 		System.out.println(this);
 		System.out.println(other);
 	}
-	
+
 	@Override
 	public void tick(int length, World world) {
 		setPosition(getX() + vx * length + ax * length * length / 2, getY() + vy * length + ay * length * length / 2);
@@ -65,35 +65,35 @@ public abstract class PhysicsEntity extends Entity {
 			}
 		});
 	}
-	
+
 	/**
 	 * @return the vx
 	 */
 	public double getVx() {
 		return vx;
 	}
-	
+
 	/**
 	 * @return the vy
 	 */
 	public double getVy() {
 		return vy;
 	}
-	
+
 	/**
 	 * @return the ax
 	 */
 	public double getAx() {
 		return ax;
 	}
-	
+
 	/**
 	 * @return the ay
 	 */
 	public double getAy() {
 		return ay;
 	}
-	
+
 	/**
 	 * @param vx
 	 *            the vx to set
@@ -101,7 +101,7 @@ public abstract class PhysicsEntity extends Entity {
 	public void setVx(double vx) {
 		this.vx = vx;
 	}
-	
+
 	/**
 	 * @param vy
 	 *            the vy to set
@@ -109,7 +109,7 @@ public abstract class PhysicsEntity extends Entity {
 	public void setVy(double vy) {
 		this.vy = vy;
 	}
-	
+
 	/**
 	 * @param ax
 	 *            the ax to set
@@ -117,7 +117,7 @@ public abstract class PhysicsEntity extends Entity {
 	public void setAx(double ax) {
 		this.ax = ax;
 	}
-	
+
 	/**
 	 * @param ay
 	 *            the ay to set

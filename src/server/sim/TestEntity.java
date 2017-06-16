@@ -1,10 +1,10 @@
 /**
- * 
+ *
  */
-package sim;
+package server.sim;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 /**
  * @author joelmanning
@@ -17,17 +17,17 @@ public class TestEntity extends PhysicsEntity {
 	 * @param y
 	 * @param radius
 	 */
-	public TestEntity(double x, double y, double radius) {
-		super(x, y, radius, 10, 0);
+	public TestEntity(short id, double x, double y, double radius) {
+		super(id, x, y, radius, 10, 0);
 	}
 
 	/* (non-Javadoc)
 	 * @see gui.Visible#paint(java.awt.Graphics2D)
 	 */
 	@Override
-	public void paint(Graphics2D graphics) {
-		graphics.setColor(Color.GREEN);
-		graphics.drawOval((int)(getX() - getRadius()), (int)(getY() - getRadius()), (int)(getRadius() * 2), (int)(getRadius() * 2));
+	public void paint(GraphicsContext graphics) {
+		graphics.setFill(Color.GREEN);
+		graphics.fillOval((int)(getX() - getRadius()), (int)(getY() - getRadius()), (int)(getRadius() * 2), (int)(getRadius() * 2));
 	}
 
 	/* (non-Javadoc)
@@ -38,6 +38,6 @@ public class TestEntity extends PhysicsEntity {
 		super.tick(length, world);
 		//System.out.println("(" + getX() + ", " + getY() + ")");
 	}
-	
-	
+
+
 }
