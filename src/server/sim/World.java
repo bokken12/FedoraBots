@@ -28,10 +28,16 @@ public abstract class World {
 		this.parent = parent;
 	}
 
-	public static World generateWorld(double x, double y, double width, double height) {
+	public static World generateInfiniteWorld(double x, double y, double width, double height) {
 		World w = generateWorld(x, y, width, height, null);
 		w.setParent(new InfiniteWorld(w));
 		return w;
+	}
+
+	public static World generateScrollingWorld(double x, double y, double width, double height) {
+		World w = generateWorld(x, y, width, height, null);
+		w.setParent(new ScrollingWorld(x, y, width, height, w));
+		return w.getParent();
 	}
 
 	public static World generateWorld(double x, double y, double width, double height, World parent) {
@@ -224,7 +230,8 @@ public abstract class World {
 		state[1] = (byte) num[0];
 
 		num[0] = 2;
-		forEach(entity -> {
+		forEachUnsafe(entity -> {
+			// System.out.print(entity.getX() + " " + entity.getY() + "        ");
 			state[num[0] + 0] = (byte) (entity.getId() >> 8);
 			state[num[0] + 1] = (byte) (entity.getId() & 0xFF);
 			state[num[0] + 2] = (byte) ((int) entity.getX() >> 4);
@@ -233,6 +240,7 @@ public abstract class World {
 			state[num[0] + 5] = (byte) (Math.atan2(entity.getY(), entity.getX()) / 2 / Math.PI * 255);
 			num[0] += offset;
 		});
+		// System.out.println();
 
 		return state;
 	}

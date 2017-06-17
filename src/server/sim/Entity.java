@@ -27,7 +27,7 @@ public abstract class Entity {
 		this.radius = radius;
 	}
 
-	public void tick(int millis, World world){}
+	public void tick(double millis, World world){}
 
 	public void paint(GraphicsContext g){}
 
@@ -118,6 +118,18 @@ public abstract class Entity {
 			this.y = y;
 			world.add(this);
 		}
+	}
+
+	/**
+	 * Updates the entity's internal x and y
+	 *
+	 * Caution: This does not handle jumps between sub-worlds. This method
+	 * should only be used if the entity is guaranteed to end up in the same
+	 * world after the move.
+	 */
+	public void setPositionUnsafe(double x, double y) {
+		this.x = x;
+		this.y = y;
 	}
 
 	/**

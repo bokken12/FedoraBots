@@ -43,8 +43,8 @@ public abstract class PhysicsEntity extends Entity {
 	}
 
 	@Override
-	public void tick(int length, World world) {
-		setPosition(getX() + vx * length + ax * length * length / 2, getY() + vy * length + ay * length * length / 2);
+	public void tick(double length, World world) {
+		setPosition(getX() + vx * length, getY() + vy * length);
 		vx += ax * length;
 		vy += ay * length;
 		world.forCollidingUnsafe(this, (e) -> {

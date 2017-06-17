@@ -34,7 +34,7 @@ public class TestEntity extends PhysicsEntity {
 	 * @see sim.PhysicsEntity#tick(int, sim.World)
 	 */
 	@Override
-	public void tick(int length, World world) {
+	public void tick(double length, World world) {
 		super.tick(length, world);
 		//System.out.println("(" + getX() + ", " + getY() + ")");
 	}

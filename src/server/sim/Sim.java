@@ -3,7 +3,7 @@
  */
 package server.sim;
 
-import java.util.function.IntConsumer;
+import java.util.function.DoubleConsumer;
 
 /**
  * @author joelmanning
@@ -11,20 +11,31 @@ import java.util.function.IntConsumer;
  */
 public class Sim {
 	private World world;
-	public static final int MAX_TICK_LENGTH = 16;
+	// public static final long MAX_TICK_LENGTH = 160 * (long)1e6;
+	public static final long MIN_TICK_LENGTH = 40 * (long)1e6;
 
 	public Sim(World world) {
 		this.world = world;
 	}
 
-	public void run(IntConsumer tick) {
-		long prev = System.currentTimeMillis();
+	public void run(DoubleConsumer tick) {
+		long prev = System.nanoTime();
 		while(true) {
-			int length = Math.min(MAX_TICK_LENGTH, (int) (System.currentTimeMillis() - prev));
-			world.forEach((e) -> e.tick(length, world));
-			prev += length;
-			tick.accept(length);
-			//System.out.println("tick of length: " + length);
+			long ctm = System.nanoTime();
+			long nanoLength = ctm - prev;
+			double millilength = nanoLength / 1e6;
+
+			world.forEach((e) -> e.tick(millilength, world));
+			prev += nanoLength;
+			tick.accept(millilength);
+			// System.out.println("tick of length: " + millilength);
+
+			long took = System.nanoTime() - ctm;
+			try {
+				Thread.sleep(Math.max(0, (MIN_TICK_LENGTH-took)/(long)1e6));
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
