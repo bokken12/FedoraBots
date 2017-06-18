@@ -32,11 +32,26 @@ public abstract class PhysicsEntity extends Entity {
 		System.out.println("Resolving a collision between");
 		System.out.println(this);
 		System.out.println(other);
-		double oldvx = vx, oldvy = vy;
-		vx = (vx * (mass - other.mass) + (2 * other.mass * other.vx)) / (mass + other.mass);
-		vy = (vy * (mass - other.mass) + (2 * other.mass * other.vy)) / (mass + other.mass);
-		other.vx = (other.vx * (other.mass - mass) + (2 * mass * oldvx)) / (mass + other.mass);
-		other.vy = (other.vy * (other.mass - mass) + (2 * mass * oldvy)) / (mass + other.mass);
+		double distsq = Math.pow(getX() - other.getX(), 2) + Math.pow(getY() - other.getY(), 2);
+		double dp = (vx - other.vx) * (getX() - other.getX()) + (vy - other.vy) * (getY() - other.getY());
+
+		if (dp >= 0)
+			return;
+
+		System.out.println(dp);
+		double common = 2 * dp / distsq / (mass + other.mass);
+
+		// double oldvx = vx, oldvy = vy;
+		vx -= common * other.mass * (getX() - other.getX());
+		vy -= common * other.mass * (getY() - other.getY());
+
+		other.vx -= common * mass * (other.getX() - getX());
+		other.vy -= common * mass * (other.getY() - getY());
+
+		// vx = (vx * (mass - other.mass) + (2 * other.mass * other.vx)) / (mass + other.mass);
+		// vy = (vy * (mass - other.mass) + (2 * other.mass * other.vy)) / (mass + other.mass);
+		// other.vx = (other.vx * (other.mass - mass) + (2 * mass * oldvx)) / (mass + other.mass);
+		// other.vy = (other.vy * (other.mass - mass) + (2 * mass * oldvy)) / (mass + other.mass);
 		System.out.println("Collision resolved, now");
 		System.out.println(this);
 		System.out.println(other);

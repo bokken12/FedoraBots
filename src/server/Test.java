@@ -14,7 +14,7 @@ public class Test {
         World w = World.generateScrollingWorld(0, 0, Constants.World.WIDTH, Constants.World.HEIGHT);
         TestEntity phys = new TestEntity((short) 0, 16, 17, 10);
 		phys.setVx(0.1);
-		TestEntity phys2 = new TestEntity((short) 1, 63, 20, 10);
+		TestEntity phys2 = new TestEntity((short) 1, 263, 20, 10);
 		phys2.setVx(-0.1);
         w.add(phys);
         w.add(phys2);
