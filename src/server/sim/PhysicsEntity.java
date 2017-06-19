@@ -3,6 +3,8 @@
  */
 package server.sim;
 
+import common.Constants;
+
 /**
  * @author joelmanning
  *
@@ -60,8 +62,7 @@ public abstract class PhysicsEntity extends Entity {
 	@Override
 	public void tick(double length, World world) {
 		setPosition(getX() + vx * length, getY() + vy * length);
-		vx += ax * length;
-		vy += ay * length;
+		setVelocity(vx + ax * length, vy + ay * length);
 		world.forCollidingUnsafe(this, (e) -> {
 			if(e instanceof PhysicsEntity && collidesWith((PhysicsEntity) e)) {
 				resolveCollision((PhysicsEntity) e);
@@ -98,10 +99,26 @@ public abstract class PhysicsEntity extends Entity {
 	}
 
 	/**
+	 * @param vx the vx to set
+	 * @param vy the vy to set
+	 */
+	private void setVelocity(double vx, double vy) {
+		double v = Math.sqrt(vx * vx + vy * vy);
+		if (v > Constants.Robot.MAX_VELOCITY) {
+			double angle = Math.atan2(vy, vx);
+			setVx(Constants.Robot.MAX_VELOCITY * Math.cos(angle));
+			setVy(Constants.Robot.MAX_VELOCITY * Math.sin(angle));
+		} else {
+			setVx(vx);
+			setVy(vy);
+		}
+	}
+
+	/**
 	 * @param vx
 	 *            the vx to set
 	 */
-	public void setVx(double vx) {
+	private void setVx(double vx) {
 		this.vx = vx;
 	}
 
@@ -109,15 +126,32 @@ public abstract class PhysicsEntity extends Entity {
 	 * @param vy
 	 *            the vy to set
 	 */
-	public void setVy(double vy) {
+	private void setVy(double vy) {
 		this.vy = vy;
 	}
+
+	/**
+	 * @param ax the ax to set
+	 * @param ay the ay to set
+	 */
+	public void setAcceleration(double ax, double ay) {
+		double a = Math.sqrt(ax * ax + ay * ay);
+		if (a > Constants.Robot.MAX_ACCELERATION) {
+			double angle = Math.atan2(ay, ax);
+			setAx(Constants.Robot.MAX_ACCELERATION * Math.cos(angle));
+			setAy(Constants.Robot.MAX_ACCELERATION * Math.sin(angle));
+		} else {
+			setAx(ax);
+			setAy(ay);
+		}
+	}
+
 
 	/**
 	 * @param ax
 	 *            the ax to set
 	 */
-	public void setAx(double ax) {
+	private void setAx(double ax) {
 		this.ax = ax;
 	}
 
@@ -125,7 +159,7 @@ public abstract class PhysicsEntity extends Entity {
 	 * @param ay
 	 *            the ay to set
 	 */
-	public void setAy(double ay) {
+	private void setAy(double ay) {
 		this.ay = ay;
 	}
 
