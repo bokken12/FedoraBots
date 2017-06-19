@@ -60,15 +60,18 @@ public class Display extends Application {
     }
 
     private void draw(GameState state) {
-        for (GameState.RobotState rs : state.robotStates()) {
-            Shape robot = robots.get(rs.getId());
-            if (robot == null) {
-                throw new RuntimeException("An unexpected robot with ID " + rs.getId() + " decided to join the game.");
+        Platform.runLater(() -> {
+            for (GameState.RobotState rs : state.robotStates()) {
+                Shape robot = robots.get(rs.getId());
+                if (robot == null) {
+                    throw new RuntimeException("An unexpected robot with ID " + rs.getId() + " decided to join the game.");
+                }
+
+                robot.setTranslateX(rs.getX());
+                robot.setTranslateY(rs.getY());
+                robot.setRotate(rs.getRotation() / 255.0 * Math.PI * 2);
             }
-            robot.setTranslateX(rs.getX());
-            robot.setTranslateY(rs.getY());
-            robot.setRotate(rs.getRotation() / 255.0 * Math.PI * 2);
-        }
+        });
     }
 
     private void destroyRobots(GameState state) {
