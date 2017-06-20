@@ -1,7 +1,6 @@
 package server;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import common.Constants;
 import server.sim.Sim;
@@ -12,14 +11,14 @@ public class Test {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         World w = World.generateScrollingWorld(0, 0, Constants.World.WIDTH, Constants.World.HEIGHT);
-        TestEntity phys = new TestEntity((short) 0, 16, 17, 10);
-		phys.setAcceleration(0.1, 0);
-		TestEntity phys2 = new TestEntity((short) 1, 263, 20, 10);
-		phys2.setAcceleration(-0.1, 0);
-        w.add(phys);
-        w.add(phys2);
+        // TestEntity phys = new TestEntity((short) 0, 16, 17, 10);
+		// phys.setAcceleration(0.1, 0);
+		// TestEntity phys2 = new TestEntity((short) 1, 263, 20, 10);
+		// phys2.setAcceleration(-0.1, 0);
+        // w.add(phys);
+        // w.add(phys2);
         Sim sim = new Sim(w);
-        TcpServer server = new TcpServer();
+        TcpServer server = new TcpServer(new Manager(w));
         Thread t = new Thread(server);
         t.setDaemon(true);
         t.start();

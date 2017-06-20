@@ -3,18 +3,22 @@
  */
 package server.sim;
 
+import java.awt.Color;
+
 import common.Constants;
 
 /**
  * @author joelmanning
  *
  */
-public abstract class PhysicsEntity extends Entity {
+public class PhysicsEntity extends Entity {
 
 	private double vx, vy, ax, ay, mass;
 
-	public PhysicsEntity(short id, double x, double y, double radius, double mass, double vx, double vy, double ax, double ay) {
-		super(id, x, y, radius);
+	public PhysicsEntity(short id, Color color, double x, double y, double rotation, double radius,
+						 double mass, double vx, double vy, double ax, double ay)
+	{
+		super(id, color, x, y, rotation, radius);
 		this.mass = mass;
 		this.vx = vx;
 		this.vy = vy;
@@ -22,8 +26,8 @@ public abstract class PhysicsEntity extends Entity {
 		this.ay = ay;
 	}
 
-	public PhysicsEntity(short id, double x, double y, double radius, double mass) {
-		this(id, x, y, radius, mass, 0, 0, 0, 0);
+	public PhysicsEntity(short id, Color color, double x, double y, double rotation, double radius, double mass) {
+		this(id, color, x, y, radius, rotation, mass, 0, 0, 0, 0);
 	}
 
 	public boolean collidesWith(PhysicsEntity other) {
@@ -104,10 +108,10 @@ public abstract class PhysicsEntity extends Entity {
 	 */
 	private void setVelocity(double vx, double vy) {
 		double v = Math.sqrt(vx * vx + vy * vy);
-		if (v > Constants.Robot.MAX_VELOCITY) {
+		if (v > Constants.Robot.MAX_VELOCITY/1e3) {
 			double angle = Math.atan2(vy, vx);
-			setVx(Constants.Robot.MAX_VELOCITY * Math.cos(angle));
-			setVy(Constants.Robot.MAX_VELOCITY * Math.sin(angle));
+			setVx(Constants.Robot.MAX_VELOCITY/1e3 * Math.cos(angle));
+			setVy(Constants.Robot.MAX_VELOCITY/1e3 * Math.sin(angle));
 		} else {
 			setVx(vx);
 			setVy(vy);
@@ -135,11 +139,12 @@ public abstract class PhysicsEntity extends Entity {
 	 * @param ay the ay to set
 	 */
 	public void setAcceleration(double ax, double ay) {
+		System.out.println(ax + " " + ay);
 		double a = Math.sqrt(ax * ax + ay * ay);
-		if (a > Constants.Robot.MAX_ACCELERATION) {
+		if (a > Constants.Robot.MAX_ACCELERATION/1e6) {
 			double angle = Math.atan2(ay, ax);
-			setAx(Constants.Robot.MAX_ACCELERATION * Math.cos(angle));
-			setAy(Constants.Robot.MAX_ACCELERATION * Math.sin(angle));
+			setAx(Constants.Robot.MAX_ACCELERATION/1e6 * Math.cos(angle));
+			setAy(Constants.Robot.MAX_ACCELERATION/1e6 * Math.sin(angle));
 		} else {
 			setAx(ax);
 			setAy(ay);

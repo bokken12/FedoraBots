@@ -10,7 +10,9 @@ public class Constants {
     }
 
     public static class Robot {
-        public static final double MAX_VELOCITY = 0.1;
-        public static final double MAX_ACCELERATION = 0.0001;
+        public static final double MAX_VELOCITY = 100;
+        public static final double MAX_ACCELERATION = 100;
+        public static final double RADIUS = 10;
+        public static final double MASS = 10;
     }
 }

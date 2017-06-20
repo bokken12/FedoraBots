@@ -1,5 +1,6 @@
 package client;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -15,9 +16,11 @@ public class GameManager {
     private Collection<Consumer<GameState>> beginListeners = new ArrayList<Consumer<GameState>>();
     private Collection<Consumer<GameState>> endListeners = new ArrayList<Consumer<GameState>>();
     private Map<Short, Color> colors;
+    private GameNetworkAdapter adapter;
 
     public GameManager(GameNetworkAdapter adapter) {
         adapter.setManager(this);
+        this.adapter = adapter;
         Thread t = new Thread(adapter);
         t.setDaemon(true);
         t.start();
@@ -59,6 +62,26 @@ public class GameManager {
         st.setColorMap(colors);
         for (Consumer<GameState> sl : stateListeners) {
             sl.accept(st);
+        }
+    }
+
+    public short joinGame(Robot robot) {
+        Color c = robot.getColor();
+        try {
+            adapter.sendJoin((byte)(c.getRed() * 255),
+                            (byte)(c.getGreen() * 255),
+                            (byte)(c.getBlue() * 255));
+        } catch (IOException e) {
+            throw new RuntimeException("Could not join a game because of a network error");
+        }
+        return adapter.getRobotId();
+    }
+
+    public void sendRobotUpdate(short robotId, Robot robot) {
+        try {
+            adapter.sendRobotUpdate(robotId, robot.getAx(), robot.getAy(), robot.getRotation());
+        } catch (IOException e) {
+            System.out.println("Warning: Could not update the robot's state because of a network error");
         }
     }
 }

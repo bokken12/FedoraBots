@@ -24,6 +24,14 @@ public class Display extends Application {
         gm = new GameManager(new GameNetworkAdapter());
     }
 
+    public GameManager getGameManager() {
+        return gm;
+    }
+
+    public void goLaunch() {
+        launch();
+    }
+
     public static void main(String[] args) {
         launch();
     }

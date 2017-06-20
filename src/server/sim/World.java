@@ -237,7 +237,7 @@ public abstract class World {
 			state[num[0] + 2] = (byte) ((int) entity.getX() >> 4);
 			state[num[0] + 3] = (byte) ((((int) entity.getX() & 0x0F) << 4) + ((int) entity.getY() >> 8));
 			state[num[0] + 4] = (byte) ((int) entity.getY() & 0xFF);
-			state[num[0] + 5] = (byte) (Math.atan2(entity.getY(), entity.getX()) / 2 / Math.PI * 255);
+			state[num[0] + 5] = (byte) (entity.getRotation() / 2 / Math.PI * 255);
 			num[0] += offset;
 		});
 		// System.out.println();

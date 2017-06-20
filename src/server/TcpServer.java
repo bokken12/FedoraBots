@@ -22,7 +22,10 @@ public class TcpServer implements Runnable {
 	private Object mutex = new Object();
 	private Collection<SelectionKey> clients = new HashSet<SelectionKey>();
 
-	public TcpServer() throws IOException {
+	private Manager manager;
+
+	public TcpServer(Manager manager) throws IOException {
+		this.manager = manager;
 		this.ssc = ServerSocketChannel.open();
 		this.ssc.socket().bind(new InetSocketAddress(PORT));
 		this.ssc.configureBlocking(false);
@@ -67,16 +70,26 @@ public class TcpServer implements Runnable {
 
 	private void handleRead(SelectionKey key) throws IOException {
 		SocketChannel ch = (SocketChannel) key.channel();
-		StringBuilder sb = new StringBuilder();
 
 		try {
 			buf.clear();
 			int read = 0;
 			while ((read = ch.read(buf)) > 0) {
 				buf.flip();
-				byte[] bytes = new byte[buf.limit()];
-				buf.get(bytes);
-				sb.append(new String(bytes));
+				if (buf.remaining() > 0) {
+					byte[] bytes = new byte[buf.limit()];
+					buf.get(bytes);
+					try {
+						ByteBuffer res = manager.handleSent(bytes, this);
+						if (res != null) {
+							res.rewind();
+							ch.write(res);
+						}
+					} catch (Manager.ParseException e) {
+						e.printStackTrace();
+					}
+				}
+
 				buf.clear();
 			}
 
@@ -88,7 +101,7 @@ public class TcpServer implements Runnable {
 				}
 			}
 			else {
-				System.out.println(key.attachment() + ": " + sb.toString());
+				System.out.println(key.attachment() + " sent something");
 			}
 		} catch (IOException e) {
 			System.err.println("Error while reading:");
