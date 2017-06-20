@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import common.Constants;
 import server.sim.Sim;
-import server.sim.TestEntity;
+// import server.sim.TestEntity;
 import server.sim.World;
 
 public class Test {
@@ -18,12 +18,13 @@ public class Test {
         // w.add(phys);
         // w.add(phys2);
         Sim sim = new Sim(w);
-        TcpServer server = new TcpServer(new Manager(w));
+        Manager manager = new Manager(w);
+        TcpServer server = new TcpServer(manager);
         Thread t = new Thread(server);
         t.setDaemon(true);
         t.start();
         Thread.sleep(5000);
         server.broadcast(w.startingState());
-        sim.run(tick -> server.broadcast(w.state()));
+        sim.run(tick -> manager.broadcastState(server, w.state(), w.velocityStates()));
     }
 }

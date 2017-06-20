@@ -3,8 +3,11 @@
  */
 package server.sim;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -265,5 +268,19 @@ public abstract class World {
 		});
 
 		return state;
+	}
+
+	public Map<Short, byte[]> velocityStates() {
+		Map<Short, byte[]> m = new HashMap<Short, byte[]>();
+		forEachUnsafe(entity -> {
+			if (entity instanceof PhysicsEntity) {
+				PhysicsEntity pe = (PhysicsEntity) entity;
+				ByteBuffer bb = ByteBuffer.allocate(8);
+				bb.putFloat((float) (pe.getVx()*1e3));
+				bb.putFloat((float) (pe.getVy()*1e3));
+				m.put(entity.getId(), bb.array());
+			}
+		});
+		return m;
 	}
 }

@@ -10,6 +10,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.function.Function;
 
 /**
  * Credits to https://gist.github.com/Botffy/3860641
@@ -80,7 +81,7 @@ public class TcpServer implements Runnable {
 					byte[] bytes = new byte[buf.limit()];
 					buf.get(bytes);
 					try {
-						ByteBuffer res = manager.handleSent(bytes, this);
+						ByteBuffer res = manager.handleSent(bytes, this, key);
 						if (res != null) {
 							res.rewind();
 							ch.write(res);
@@ -113,8 +114,7 @@ public class TcpServer implements Runnable {
 		}
 	}
 
-	public void broadcast(byte[] msg) {
-		ByteBuffer msgBuf = ByteBuffer.wrap(msg);
+	public void broadcast(Function<SelectionKey, ByteBuffer> supplier) {
 		synchronized (mutex) {
 			Iterator<SelectionKey> it = clients.iterator();
 			while (it.hasNext()) {
@@ -122,6 +122,7 @@ public class TcpServer implements Runnable {
 				if(key.isValid() && key.channel() instanceof SocketChannel) {
 					SocketChannel sch = (SocketChannel) key.channel();
 					try {
+						ByteBuffer msgBuf = supplier.apply(key);
 						sch.write(msgBuf);
 						msgBuf.rewind();
 					} catch (IOException e) {
@@ -138,5 +139,10 @@ public class TcpServer implements Runnable {
 				}
 			}
 		}
+	}
+
+	public void broadcast(byte[] msg) {
+		ByteBuffer msgBuf = ByteBuffer.wrap(msg);
+		broadcast(key -> msgBuf);
 	}
 }

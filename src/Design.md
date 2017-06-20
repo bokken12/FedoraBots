@@ -24,9 +24,9 @@ Start of game (9 bytes per entity):
 
 Game state (6 bytes per entity):
 
-| Message type | Number of entities | *For each entity:* ID | *For each entity:* X | *For each entity:* Y | *For each entity:* Rotation |
-| :----------: | :----------------: | :-------------------: | :------------------: | :------------------: | :-------------------------: |
-|  1 (1 byte)  |       1 byte       |        2 bytes        |        12 bits       |        12 bits       |           1 byte            |
+| Message type | Number of entities | Vx for connection's robot | Vy for connection's robot | *For each entity:* ID | *For each entity:* X | *For each entity:* Y | *For each entity:* Rotation |
+| :----------: | :----------------: | :-----------------------: | :-----------------------: | :-------------------: | :------------------: | :------------------: | :-------------------------: |
+|  1 (1 byte)  |       1 byte       |      4 bytes (float)      |      4 bytes (float)      |        2 bytes        |        12 bits       |        12 bits       |           1 byte            |
 
 Robot request to join game (sent to server):
 

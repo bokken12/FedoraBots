@@ -16,6 +16,8 @@ public abstract class Robot {
 
     private double ax;
     private double ay;
+    private double vx;
+    private double vy;
     private double rotation;
 
     public Robot() {
@@ -28,6 +30,10 @@ public abstract class Robot {
             displayLauncher.setDaemon(false);
             displayLauncher.start();
             gm = d.getGameManager();
+            gm.addVelocityListener((vx, vy) -> {
+                this.vx = vx;
+                this.vy = vy;
+            });
         } catch (IOException e) {
             throw new RuntimeException("Could not contact the server");
         }
@@ -64,6 +70,14 @@ public abstract class Robot {
 
     public double getAy() {
         return ay;
+    }
+
+    public double getVx() {
+        return vx;
+    }
+
+    public double getVy() {
+        return vy;
     }
 
     public double getRotation() {
