@@ -14,10 +14,14 @@ import javafx.scene.paint.Color;
  * Responsible for keeping track of the current game status
  */
 public class GameManager {
-    private Collection<Consumer<GameState>> stateListeners = new ArrayList<Consumer<GameState>>();
-    private Collection<Consumer<GameState>> beginListeners = new ArrayList<Consumer<GameState>>();
-    private Collection<Consumer<GameState>> endListeners = new ArrayList<Consumer<GameState>>();
-    private Collection<BiConsumer<Double, Double>> velocityListeners = new ArrayList<BiConsumer<Double, Double>>();
+    // private Collection<Consumer<GameState>> stateListeners = new ArrayList<Consumer<GameState>>();
+    // private Collection<Consumer<GameState>> beginListeners = new ArrayList<Consumer<GameState>>();
+    // private Collection<Consumer<GameState>> endListeners = new ArrayList<Consumer<GameState>>();
+    // private Collection<BiConsumer<Double, Double>> velocityListeners = new ArrayList<BiConsumer<Double, Double>>();
+    private volatile Consumer<GameState> stateListener = null;
+    private volatile Consumer<GameState> beginListener = null;
+    private volatile Consumer<GameState> endListener = null;
+    private volatile BiConsumer<Double, Double> velocityListener = null;
     private Map<Short, Color> colors;
     private GameNetworkAdapter adapter;
 
@@ -42,43 +46,56 @@ public class GameManager {
     }
 
     public void addStateListener(Consumer<GameState> listener) {
-        stateListeners.add(listener);
-        System.out.println(stateListeners);
+        stateListener = listener;
+        // stateListeners.add(listener);
+        // System.out.println(stateListeners);
     }
 
     public void addBeginListener(Consumer<GameState> listener) {
-        beginListeners.add(listener);
+        System.out.println(toString());
+        System.out.println(Thread.currentThread());
+        Thread.dumpStack();
+        beginListener = listener;
+        // beginListeners.add(listener);
     }
 
     public void addEndListener(Consumer<GameState> listener) {
-        endListeners.add(listener);
+        endListener = listener;
+        // endListeners.add(listener);
     }
 
     public void addVelocityListener(BiConsumer<Double, Double> listener) {
-        velocityListeners.add(listener);
+        velocityListener = listener;
+        // velocityListeners.add(listener);
     }
 
     public void startGame(GameState st, Map<Short, Color> colorMap) {
         colors = colorMap;
         st.setColorMap(colors);
-        System.out.println("Begin: " + beginListeners);
-        for (Consumer<GameState> bl : beginListeners) {
-            bl.accept(st);
-        }
+        // System.out.println("Begin: " + beginListeners);
+        // for (Consumer<GameState> bl : beginListeners) {
+            // bl.accept(st);
+        // }
+        System.out.println(toString());
+        System.out.println(Thread.currentThread());
+        Thread.dumpStack();
+        beginListener.accept(st);
     }
 
     public void updateState(GameState st) {
         st.setColorMap(colors);
-        System.out.println("State: " + stateListeners);
-        for (Consumer<GameState> sl : stateListeners) {
-            sl.accept(st);
-        }
+        // System.out.println("State: " + stateListeners);
+        // for (Consumer<GameState> sl : stateListeners) {
+            // sl.accept(st);
+        // }
+        stateListener.accept(st);
     }
 
     public void updateRobotVelocity(double vx, double vy) {
-        for (BiConsumer<Double, Double> vl : velocityListeners) {
-            vl.accept(vx, vy);
-        }
+        // for (BiConsumer<Double, Double> vl : velocityListeners) {
+            // vl.accept(vx, vy);
+        // }
+        velocityListener.accept(vx, vy);
     }
 
     public short joinGame(Robot robot, short roomId) {

@@ -19,7 +19,7 @@ public class GameNetworkAdapter implements Runnable {
 
     private Socket s;
     private InputStream inp;
-    private GameManager g;
+    private volatile GameManager g;
 
     private short robotId;
 
