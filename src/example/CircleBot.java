@@ -10,7 +10,9 @@ class CircleBot extends Robot {
         b.setColor(Color.AZURE);
         b.joinGame((short) 0);
         b.setAcceleration(20, 0);
-        Thread.sleep(1000);
+        while (b.getVx() < 25) {
+            Thread.sleep(10);
+        }
         while (true) {
             double velocityAngle = Math.atan2(b.getVy(), b.getVx());
             double accelerationAngle = velocityAngle + Math.PI / 2;

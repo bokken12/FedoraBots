@@ -139,7 +139,6 @@ public class PhysicsEntity extends Entity {
 	 * @param ay the ay to set
 	 */
 	public void setAcceleration(double ax, double ay) {
-		System.out.println(ax + " " + ay);
 		double a = Math.sqrt(ax * ax + ay * ay);
 		if (a > Constants.Robot.MAX_ACCELERATION/1e6) {
 			double angle = Math.atan2(ay, ax);

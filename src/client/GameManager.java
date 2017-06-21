@@ -57,7 +57,6 @@ public class GameManager {
     }
 
     public void startGame(GameState st, Map<Short, Color> colorMap) {
-        System.out.println("begin");
         colors = colorMap;
         st.setColorMap(colors);
         for (Consumer<GameState> bl : beginListeners) {
@@ -66,7 +65,6 @@ public class GameManager {
     }
 
     public void updateState(GameState st) {
-        System.out.println("state");
         st.setColorMap(colors);
         for (Consumer<GameState> sl : stateListeners) {
             sl.accept(st);

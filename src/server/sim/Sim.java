@@ -23,6 +23,7 @@ public class Sim {
 	public long tick(DoubleConsumer tick) {
 		if (!startedTicking) {
 			prev = System.nanoTime();
+			startedTicking = true;
 		}
 
 		long ctm = System.nanoTime();

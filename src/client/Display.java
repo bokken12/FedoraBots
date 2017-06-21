@@ -108,7 +108,6 @@ public class Display extends Application {
                     throw new RuntimeException("An unexpected robot with ID " + rs.getId() + " decided to join the game.");
                 }
 
-                System.out.println(rs.getX() + "  " + rs.getY());
                 robot.setTranslateX(rs.getX());
                 robot.setTranslateY(rs.getY());
                 robot.setRotate(rs.getRotation() / 255.0 * Math.PI * 2);
