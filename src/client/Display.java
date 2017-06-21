@@ -1,6 +1,7 @@
 package client;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,12 +17,43 @@ import javafx.stage.Stage;
 
 public class Display extends Application {
 
+    private static Display instance;
+
     private Map<Short, Shape> robots = new HashMap<Short, Shape>();
     private Group robotCircles;
     private GameManager gm;
 
     public Display() throws IOException {
         gm = new GameManager(new GameNetworkAdapter());
+    }
+
+    public synchronized static Display getInstance() {
+        if (instance == null) {
+            Thread displayLauncher = new Thread(() -> {
+                try {
+                    launch();
+                    System.exit(0);
+                } catch (Exception e) {
+                    Throwable cause = e.getCause().getCause();
+                    if (cause instanceof ConnectException) {
+                        new RuntimeException("Could not connect to server", cause).printStackTrace();
+                    } else {
+                        cause.printStackTrace();
+                    }
+                    System.exit(1);
+                }
+            });
+            displayLauncher.setDaemon(false);
+            displayLauncher.start();
+            while (instance == null) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return instance;
     }
 
     public GameManager getGameManager() {
@@ -50,6 +82,7 @@ public class Display extends Application {
         gm.addStateListener(this::draw);
         gm.addBeginListener(this::initializeRobots);
         gm.addEndListener(this::destroyRobots);
+        instance = this;
     }
 
     private void initializeRobots(GameState state) {
@@ -68,7 +101,6 @@ public class Display extends Application {
     }
 
     private void draw(GameState state) {
-        System.out.println("Draw update");
         Platform.runLater(() -> {
             for (GameState.RobotState rs : state.robotStates()) {
                 Shape robot = robots.get(rs.getId());

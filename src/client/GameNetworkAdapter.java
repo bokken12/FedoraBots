@@ -123,7 +123,6 @@ public class GameNetworkAdapter implements Runnable {
     }
 
     private void parseState(byte[] buffer) {
-        System.out.println("Parsing state");
         GameState.RobotState[] state = new GameState.RobotState[(buffer.length - 8) / 6];
         ByteBuffer buf = ByteBuffer.wrap(buffer, 0, 8);
         double vx = buf.getFloat();

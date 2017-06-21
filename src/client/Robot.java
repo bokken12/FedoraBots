@@ -21,22 +21,16 @@ public abstract class Robot {
     private double rotation;
 
     public Robot() {
-        try {
-            Display d = new Display();
-            Thread displayLauncher = new Thread(() -> {
-                d.goLaunch();
-                System.exit(0);
-            });
-            displayLauncher.setDaemon(false);
-            displayLauncher.start();
+        // try {
+            Display d = Display.getInstance();
             gm = d.getGameManager();
             gm.addVelocityListener((vx, vy) -> {
                 this.vx = vx;
                 this.vy = vy;
             });
-        } catch (IOException e) {
-            throw new RuntimeException("Could not contact the server");
-        }
+        // } catch (IOException e) {
+        //     throw new RuntimeException("Could not contact the server");
+        // }
     }
 
     public void joinGame(short roomId) {
