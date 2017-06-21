@@ -32,14 +32,19 @@ public class GameNetworkAdapter implements Runnable {
         g = manager;
     }
 
-    public void sendJoin(byte r, byte g, byte b) throws IOException {
+    public void sendJoin(short roomId, byte r, byte g, byte b) throws IOException {
         try {
             awaitingId.acquire();
         } catch (InterruptedException e) {
             throw new RuntimeException("Could not acquire awaiting semaphore.");
         }
-        byte[] toSend = {(byte) 128, r, g, b};
-        s.getOutputStream().write(toSend);
+        ByteBuffer bb = ByteBuffer.allocate(6);
+        bb.put((byte) 128);
+        bb.putShort(roomId);
+        bb.put(r);
+        bb.put(g);
+        bb.put(b);
+        s.getOutputStream().write(bb.array());
     }
 
     public void sendRobotUpdate(short id, double ax, double ay, double rotation) throws IOException {
@@ -118,6 +123,7 @@ public class GameNetworkAdapter implements Runnable {
     }
 
     private void parseState(byte[] buffer) {
+        System.out.println("Parsing state");
         GameState.RobotState[] state = new GameState.RobotState[(buffer.length - 8) / 6];
         ByteBuffer buf = ByteBuffer.wrap(buffer, 0, 8);
         double vx = buf.getFloat();

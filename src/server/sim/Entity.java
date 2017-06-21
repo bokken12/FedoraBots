@@ -65,6 +65,8 @@ public abstract class Entity {
 		if(getClass() != obj.getClass())
 			return false;
 		Entity other = (Entity) obj;
+		if(id != other.id)
+			return false;
 		if(Double.doubleToLongBits(radius) != Double.doubleToLongBits(other.radius))
 			return false;
 		if(Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x))

@@ -39,8 +39,8 @@ public abstract class Robot {
         }
     }
 
-    public void joinGame() {
-        id = gm.joinGame(this);
+    public void joinGame(short roomId) {
+        id = gm.joinGame(this, roomId);
         inGame = true;
     }
 

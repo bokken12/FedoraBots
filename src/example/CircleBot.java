@@ -1,14 +1,16 @@
 package example;
 
 import client.Robot;
+import javafx.scene.paint.Color;
 
 class CircleBot extends Robot {
 
     public static void main(String[] args) throws InterruptedException {
         CircleBot b = new CircleBot();
-        b.joinGame();
+        b.setColor(Color.AZURE);
+        b.joinGame((short) 0);
         b.setAcceleration(20, 0);
-        Thread.sleep(6000);
+        Thread.sleep(1000);
         while (true) {
             double velocityAngle = Math.atan2(b.getVy(), b.getVx());
             double accelerationAngle = velocityAngle + Math.PI / 2;

@@ -11,19 +11,28 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import common.Util;
 
 /**
- * Credits to https://gist.github.com/Botffy/3860641
+ * The Tcp Server is only responsible for handling incoming connections and
+ * passing the raw buffer to the {@link server.Manager}.
+ *
+ * <p>Credits to https://gist.github.com/Botffy/3860641</p>
  */
 public class TcpServer implements Runnable {
 	public static final int PORT = 8090;
 	private ServerSocketChannel ssc;
 	private Selector selector;
 	private ByteBuffer buf = ByteBuffer.allocate(256);
-	private Object mutex = new Object();
+	// private Object mutex = new Object();
 	private Collection<SelectionKey> clients = new HashSet<SelectionKey>();
 
 	private Manager manager;
+
+    private static final Logger LOGGER = Logger.getLogger(Room.class.getName());
 
 	public TcpServer(Manager manager) throws IOException {
 		this.manager = manager;
@@ -38,7 +47,7 @@ public class TcpServer implements Runnable {
 	@Override
     public void run() {
 		try {
-			System.out.println("Server starting on port " + PORT);
+			LOGGER.info("Server starting on port " + PORT);
 
 			Iterator<SelectionKey> iter;
 			SelectionKey key;
@@ -54,8 +63,7 @@ public class TcpServer implements Runnable {
 				}
 			}
 		} catch(IOException e) {
-			System.out.println("Error while running:");
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, "Error while running", e);
 		}
 	}
 
@@ -64,9 +72,9 @@ public class TcpServer implements Runnable {
 		String address = (new StringBuilder(sc.socket().getInetAddress().toString())).append(":").append(sc.socket().getPort()).toString();
 		sc.configureBlocking(false);
 		SelectionKey client = sc.register(selector, SelectionKey.OP_READ, address);
-		synchronized (mutex) {
-			clients.add(client);
-		}
+		// synchronized (mutex) {
+		// 	clients.add(client);
+		// }
 	}
 
 	private void handleRead(SelectionKey key) throws IOException {
@@ -81,13 +89,9 @@ public class TcpServer implements Runnable {
 					byte[] bytes = new byte[buf.limit()];
 					buf.get(bytes);
 					try {
-						ByteBuffer res = manager.handleSent(bytes, this, key);
-						if (res != null) {
-							res.rewind();
-							ch.write(res);
-						}
+						manager.handleSent(bytes, this, key, ch);
 					} catch (Manager.ParseException e) {
-						e.printStackTrace();
+						LOGGER.log(Level.WARNING, "Error parsing input " + Util.toString(bytes), e);
 					}
 				}
 
@@ -95,54 +99,62 @@ public class TcpServer implements Runnable {
 			}
 
 			if (read < 0) {
-				System.out.println(key.attachment() + " closed its session.");
+				LOGGER.fine(key.attachment() + " closed its session.");
 				ch.close();
-				synchronized (mutex) {
-					clients.remove(key);
-				}
+				// synchronized (mutex) {
+				// 	clients.remove(key);
+				// }
 			}
 			else {
-				System.out.println(key.attachment() + " sent something");
+				LOGGER.finest(key.attachment() + " sent something");
 			}
 		} catch (IOException e) {
-			System.err.println("Error while reading:");
-			e.printStackTrace();
+			LOGGER.log(Level.WARNING, "Error while reading", e);
 			ch.close();
-			synchronized (mutex) {
-				clients.remove(key);
+			// synchronized (mutex) {
+			// 	clients.remove(key);
+			// }
+		}
+	}
+
+	public static void sendToKey(SelectionKey key, ByteBuffer buf) {
+		if(key.isValid() && key.channel() instanceof SocketChannel) {
+			SocketChannel sch = (SocketChannel) key.channel();
+			try {
+				sch.write(buf);
+			} catch (IOException e) {
+				LOGGER.log(Level.WARNING, "Could not write to socket", e);
 			}
 		}
 	}
 
-	public void broadcast(Function<SelectionKey, ByteBuffer> supplier) {
-		synchronized (mutex) {
-			Iterator<SelectionKey> it = clients.iterator();
-			while (it.hasNext()) {
-				SelectionKey key = it.next();
-				if(key.isValid() && key.channel() instanceof SocketChannel) {
-					SocketChannel sch = (SocketChannel) key.channel();
-					try {
-						ByteBuffer msgBuf = supplier.apply(key);
-						sch.write(msgBuf);
-						msgBuf.rewind();
-					} catch (IOException e) {
-						System.err.println("Error while writing:");
-						e.printStackTrace();
-						try {
-							sch.close();
-							it.remove();
-						} catch (IOException ee) {
-							System.err.println("Error while closing:");
-							ee.printStackTrace();
-						}
-					}
-				}
-			}
-		}
-	}
+	// public void broadcast(Function<SelectionKey, ByteBuffer> supplier) {
+	// 	synchronized (mutex) {
+	// 		Iterator<SelectionKey> it = clients.iterator();
+	// 		while (it.hasNext()) {
+	// 			SelectionKey key = it.next();
+	// 			if(key.isValid() && key.channel() instanceof SocketChannel) {
+	// 				SocketChannel sch = (SocketChannel) key.channel();
+	// 				try {
+	// 					ByteBuffer msgBuf = supplier.apply(key);
+	// 					sch.write(msgBuf);
+	// 					msgBuf.rewind();
+	// 				} catch (IOException e) {
+	// 					LOGGER.log(Level.WARNING, "Error while writing", e);
+	// 					try {
+	// 						sch.close();
+	// 						it.remove();
+	// 					} catch (IOException ee) {
+	// 						LOGGER.log(Level.WARNING, "Error while closing", e);
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
 
-	public void broadcast(byte[] msg) {
-		ByteBuffer msgBuf = ByteBuffer.wrap(msg);
-		broadcast(key -> msgBuf);
-	}
+	// public void broadcast(byte[] msg) {
+	// 	ByteBuffer msgBuf = ByteBuffer.wrap(msg);
+	// 	broadcast(key -> msgBuf);
+	// }
 }

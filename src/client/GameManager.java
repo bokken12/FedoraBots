@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -42,6 +43,7 @@ public class GameManager {
 
     public void addStateListener(Consumer<GameState> listener) {
         stateListeners.add(listener);
+        System.out.println(stateListeners);
     }
 
     public void addBeginListener(Consumer<GameState> listener) {
@@ -59,6 +61,7 @@ public class GameManager {
     public void startGame(GameState st, Map<Short, Color> colorMap) {
         colors = colorMap;
         st.setColorMap(colors);
+        System.out.println("Begin: " + beginListeners);
         for (Consumer<GameState> bl : beginListeners) {
             bl.accept(st);
         }
@@ -66,6 +69,7 @@ public class GameManager {
 
     public void updateState(GameState st) {
         st.setColorMap(colors);
+        System.out.println("State: " + stateListeners);
         for (Consumer<GameState> sl : stateListeners) {
             sl.accept(st);
         }
@@ -77,10 +81,11 @@ public class GameManager {
         }
     }
 
-    public short joinGame(Robot robot) {
+    public short joinGame(Robot robot, short roomId) {
         Color c = robot.getColor();
         try {
-            adapter.sendJoin((byte)(c.getRed() * 255),
+            adapter.sendJoin(roomId,
+                            (byte)(c.getRed() * 255),
                             (byte)(c.getGreen() * 255),
                             (byte)(c.getBlue() * 255));
         } catch (IOException e) {

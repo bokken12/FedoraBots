@@ -12,6 +12,7 @@ However, in Java they are kept as integers so that they are compaitible with gen
 ## Protocol
 
 ### Message ranges
+
 * `0 - 63`: Server --> displays messages
 * `64 - 127`: Server --> robots messages
 * `128 - 255`: Robot --> server messages
@@ -30,15 +31,21 @@ Game state (6 bytes per entity):
 
 Robot request to join game (sent to server):
 
-| Message type |     Color     |
-| :----------: | :-----------: |
-| 128 (1 byte) | 3 bytes (rgb) |
+| Message type | Room ID |     Color     |
+| :----------: | :-----: | :-----------: |
+| 128 (1 byte) | 2 bytes | 3 bytes (rgb) |
 
-Server response after robot joins game (sent to robot):
+Server response after robot joins game for success (sent to robot):
 
 | Message type | Robot ID |
 | :----------: | :------: |
 |  64 (1 byte) |  2 bytes |
+
+Server response if robot tries to join a nonexistent room:
+
+| Message type |
+| :----------: |
+|  65 (1 byte) |
 
 Robot update (sent to server):
 
