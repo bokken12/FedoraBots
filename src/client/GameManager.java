@@ -1,8 +1,10 @@
 package client;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import javafx.scene.paint.Color;
@@ -14,10 +16,13 @@ public class GameManager {
     private Collection<Consumer<GameState>> stateListeners = new ArrayList<Consumer<GameState>>();
     private Collection<Consumer<GameState>> beginListeners = new ArrayList<Consumer<GameState>>();
     private Collection<Consumer<GameState>> endListeners = new ArrayList<Consumer<GameState>>();
+    private Collection<BiConsumer<Double, Double>> velocityListeners = new ArrayList<BiConsumer<Double, Double>>();
     private Map<Short, Color> colors;
+    private GameNetworkAdapter adapter;
 
     public GameManager(GameNetworkAdapter adapter) {
         adapter.setManager(this);
+        this.adapter = adapter;
         Thread t = new Thread(adapter);
         t.setDaemon(true);
         t.start();
@@ -47,6 +52,10 @@ public class GameManager {
         endListeners.add(listener);
     }
 
+    public void addVelocityListener(BiConsumer<Double, Double> listener) {
+        velocityListeners.add(listener);
+    }
+
     public void startGame(GameState st, Map<Short, Color> colorMap) {
         colors = colorMap;
         st.setColorMap(colors);
@@ -59,6 +68,33 @@ public class GameManager {
         st.setColorMap(colors);
         for (Consumer<GameState> sl : stateListeners) {
             sl.accept(st);
+        }
+    }
+
+    public void updateRobotVelocity(double vx, double vy) {
+        for (BiConsumer<Double, Double> vl : velocityListeners) {
+            vl.accept(vx, vy);
+        }
+    }
+
+    public short joinGame(Robot robot, short roomId) {
+        Color c = robot.getColor();
+        try {
+            adapter.sendJoin(roomId,
+                            (byte)(c.getRed() * 255),
+                            (byte)(c.getGreen() * 255),
+                            (byte)(c.getBlue() * 255));
+        } catch (IOException e) {
+            throw new RuntimeException("Could not join a game because of a network error");
+        }
+        return adapter.getRobotId();
+    }
+
+    public void sendRobotUpdate(short robotId, Robot robot) {
+        try {
+            adapter.sendRobotUpdate(robotId, robot.getAx(), robot.getAy(), robot.getRotation());
+        } catch (IOException e) {
+            System.out.println("Warning: Could not update the robot's state because of a network error");
         }
     }
 }

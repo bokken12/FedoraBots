@@ -3,26 +3,31 @@
  */
 package server.sim;
 
+import java.awt.Color;
+
+import common.Constants;
+
 /**
  * @author joelmanning
  *
  */
-public abstract class PhysicsEntity extends Entity {
+public class PhysicsEntity extends Entity {
 
-	private double vx, vy, ax, ay, mass, restitution;
+	private double vx, vy, ax, ay, mass;
 
-	public PhysicsEntity(short id, double x, double y, double radius, double mass, double restitution, double vx, double vy, double ax, double ay) {
-		super(id, x, y, radius);
+	public PhysicsEntity(short id, Color color, double x, double y, double rotation, double radius,
+						 double mass, double vx, double vy, double ax, double ay)
+	{
+		super(id, color, x, y, rotation, radius);
 		this.mass = mass;
-		this.restitution = restitution;
 		this.vx = vx;
 		this.vy = vy;
 		this.ax = ax;
 		this.ay = ay;
 	}
 
-	public PhysicsEntity(short id, double x, double y, double radius, double mass, double restitution) {
-		this(id, x, y, radius, mass, restitution, 0, 0, 0, 0);
+	public PhysicsEntity(short id, Color color, double x, double y, double rotation, double radius, double mass) {
+		this(id, color, x, y, radius, rotation, mass, 0, 0, 0, 0);
 	}
 
 	public boolean collidesWith(PhysicsEntity other) {
@@ -33,32 +38,35 @@ public abstract class PhysicsEntity extends Entity {
 		System.out.println("Resolving a collision between");
 		System.out.println(this);
 		System.out.println(other);
-		double rvx = other.vx - vx;
-		double rvy = other.vy - vy;
-		double nx = other.getX() - getX();
-		double ny = other.getY() - getY();
-		double vnorm = rvx * nx + rvy * ny;
-		if(vnorm > 0)
+		double distsq = Math.pow(getX() - other.getX(), 2) + Math.pow(getY() - other.getY(), 2);
+		double dp = (vx - other.vx) * (getX() - other.getX()) + (vy - other.vy) * (getY() - other.getY());
+
+		if (dp >= 0)
 			return;
-		double e = Math.min(other.restitution, restitution);
-		double j = -(1 + e) * vnorm;
-		j /= 1 / mass + 1/ other.mass;
-		double ix = nx * j;
-		double iy = ny * j;
-		vx -= 1 / mass * ix;
-		vy -= 1 / mass * iy;
-		other.vx += 1 / other.mass * ix;
-		other.vy += 1 / other.mass * iy;
+
+		System.out.println(dp);
+		double common = 2 * dp / distsq / (mass + other.mass);
+
+		// double oldvx = vx, oldvy = vy;
+		vx -= common * other.mass * (getX() - other.getX());
+		vy -= common * other.mass * (getY() - other.getY());
+
+		other.vx -= common * mass * (other.getX() - getX());
+		other.vy -= common * mass * (other.getY() - getY());
+
+		// vx = (vx * (mass - other.mass) + (2 * other.mass * other.vx)) / (mass + other.mass);
+		// vy = (vy * (mass - other.mass) + (2 * other.mass * other.vy)) / (mass + other.mass);
+		// other.vx = (other.vx * (other.mass - mass) + (2 * mass * oldvx)) / (mass + other.mass);
+		// other.vy = (other.vy * (other.mass - mass) + (2 * mass * oldvy)) / (mass + other.mass);
 		System.out.println("Collision resolved, now");
 		System.out.println(this);
 		System.out.println(other);
 	}
 
 	@Override
-	public void tick(int length, World world) {
-		setPosition(getX() + vx * length + ax * length * length / 2, getY() + vy * length + ay * length * length / 2);
-		vx += ax * length;
-		vy += ay * length;
+	public void tick(double length, World world) {
+		setPosition(getX() + vx * length, getY() + vy * length);
+		setVelocity(vx + ax * length, vy + ay * length);
 		world.forCollidingUnsafe(this, (e) -> {
 			if(e instanceof PhysicsEntity && collidesWith((PhysicsEntity) e)) {
 				resolveCollision((PhysicsEntity) e);
@@ -95,10 +103,26 @@ public abstract class PhysicsEntity extends Entity {
 	}
 
 	/**
+	 * @param vx the vx to set
+	 * @param vy the vy to set
+	 */
+	private void setVelocity(double vx, double vy) {
+		double v = Math.sqrt(vx * vx + vy * vy);
+		if (v > Constants.Robot.MAX_VELOCITY/1e3) {
+			double angle = Math.atan2(vy, vx);
+			setVx(Constants.Robot.MAX_VELOCITY/1e3 * Math.cos(angle));
+			setVy(Constants.Robot.MAX_VELOCITY/1e3 * Math.sin(angle));
+		} else {
+			setVx(vx);
+			setVy(vy);
+		}
+	}
+
+	/**
 	 * @param vx
 	 *            the vx to set
 	 */
-	public void setVx(double vx) {
+	private void setVx(double vx) {
 		this.vx = vx;
 	}
 
@@ -106,15 +130,32 @@ public abstract class PhysicsEntity extends Entity {
 	 * @param vy
 	 *            the vy to set
 	 */
-	public void setVy(double vy) {
+	private void setVy(double vy) {
 		this.vy = vy;
 	}
+
+	/**
+	 * @param ax the ax to set
+	 * @param ay the ay to set
+	 */
+	public void setAcceleration(double ax, double ay) {
+		double a = Math.sqrt(ax * ax + ay * ay);
+		if (a > Constants.Robot.MAX_ACCELERATION/1e6) {
+			double angle = Math.atan2(ay, ax);
+			setAx(Constants.Robot.MAX_ACCELERATION/1e6 * Math.cos(angle));
+			setAy(Constants.Robot.MAX_ACCELERATION/1e6 * Math.sin(angle));
+		} else {
+			setAx(ax);
+			setAy(ay);
+		}
+	}
+
 
 	/**
 	 * @param ax
 	 *            the ax to set
 	 */
-	public void setAx(double ax) {
+	private void setAx(double ax) {
 		this.ax = ax;
 	}
 
@@ -122,7 +163,7 @@ public abstract class PhysicsEntity extends Entity {
 	 * @param ay
 	 *            the ay to set
 	 */
-	public void setAy(double ay) {
+	private void setAy(double ay) {
 		this.ay = ay;
 	}
 
@@ -134,24 +175,10 @@ public abstract class PhysicsEntity extends Entity {
 	}
 
 	/**
-	 * @return the restitution
-	 */
-	public double getRestitution() {
-		return restitution;
-	}
-
-	/**
 	 * @param mass the mass to set
 	 */
 	public void setMass(double mass) {
 		this.mass = mass;
-	}
-
-	/**
-	 * @param restitution the restitution to set
-	 */
-	public void setRestitution(double restitution) {
-		this.restitution = restitution;
 	}
 
 	/* (non-Javadoc)
@@ -172,8 +199,6 @@ public abstract class PhysicsEntity extends Entity {
 			return false;
 		if(Double.doubleToLongBits(mass) != Double.doubleToLongBits(other.mass))
 			return false;
-		if(Double.doubleToLongBits(restitution) != Double.doubleToLongBits(other.restitution))
-			return false;
 		if(Double.doubleToLongBits(vx) != Double.doubleToLongBits(other.vx))
 			return false;
 		if(Double.doubleToLongBits(vy) != Double.doubleToLongBits(other.vy))
@@ -187,6 +212,6 @@ public abstract class PhysicsEntity extends Entity {
 	@Override
 	public String toString() {
 		return "PhysicsEntity [vx=" + vx + ", vy=" + vy + ", ax=" + ax + ", ay=" + ay + ", mass=" + mass
-				+ ", restitution=" + restitution + ", toString()=" + super.toString() + "]";
+				+ ", toString()=" + super.toString() + "]";
 	}
 }

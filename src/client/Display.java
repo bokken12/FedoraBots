@@ -1,8 +1,10 @@
 package client;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import common.Constants;
 import javafx.application.Application;
@@ -16,12 +18,51 @@ import javafx.stage.Stage;
 
 public class Display extends Application {
 
+    private static Display instance;
+    private static CountDownLatch latch = new CountDownLatch(1);
+
     private Map<Short, Shape> robots = new HashMap<Short, Shape>();
     private Group robotCircles;
     private GameManager gm;
 
     public Display() throws IOException {
         gm = new GameManager(new GameNetworkAdapter());
+        instance = this;
+    }
+
+    public synchronized static Display getInstance() {
+        if (instance == null) {
+            Thread displayLauncher = new Thread(() -> {
+                try {
+                    launch();
+                    System.exit(0);
+                } catch (Exception e) {
+                    Throwable cause = e.getCause().getCause();
+                    if (cause instanceof ConnectException) {
+                        new RuntimeException("Could not connect to server", cause).printStackTrace();
+                    } else {
+                        cause.printStackTrace();
+                    }
+                    System.exit(1);
+                }
+            });
+            displayLauncher.setDaemon(false);
+            displayLauncher.start();
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return instance;
+    }
+
+    public GameManager getGameManager() {
+        return gm;
+    }
+
+    public void goLaunch() {
+        launch();
     }
 
     public static void main(String[] args) {
@@ -42,6 +83,7 @@ public class Display extends Application {
         gm.addStateListener(this::draw);
         gm.addBeginListener(this::initializeRobots);
         gm.addEndListener(this::destroyRobots);
+        latch.countDown();
     }
 
     private void initializeRobots(GameState state) {
@@ -60,15 +102,18 @@ public class Display extends Application {
     }
 
     private void draw(GameState state) {
-        for (GameState.RobotState rs : state.robotStates()) {
-            Shape robot = robots.get(rs.getId());
-            if (robot == null) {
-                throw new RuntimeException("An unexpected robot with ID " + rs.getId() + " decided to join the game.");
+        Platform.runLater(() -> {
+            for (GameState.RobotState rs : state.robotStates()) {
+                Shape robot = robots.get(rs.getId());
+                if (robot == null) {
+                    throw new RuntimeException("An unexpected robot with ID " + rs.getId() + " decided to join the game.");
+                }
+
+                robot.setTranslateX(rs.getX());
+                robot.setTranslateY(rs.getY());
+                robot.setRotate(rs.getRotation() / 255.0 * Math.PI * 2);
             }
-            robot.setTranslateX(rs.getX());
-            robot.setTranslateY(rs.getY());
-            robot.setRotate(rs.getRotation() / 255.0 * Math.PI * 2);
-        }
+        });
     }
 
     private void destroyRobots(GameState state) {

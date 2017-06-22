@@ -3,8 +3,11 @@
  */
 package server.sim;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -28,10 +31,16 @@ public abstract class World {
 		this.parent = parent;
 	}
 
-	public static World generateWorld(double x, double y, double width, double height) {
+	public static World generateInfiniteWorld(double x, double y, double width, double height) {
 		World w = generateWorld(x, y, width, height, null);
 		w.setParent(new InfiniteWorld(w));
 		return w;
+	}
+
+	public static World generateScrollingWorld(double x, double y, double width, double height) {
+		World w = generateWorld(x, y, width, height, null);
+		w.setParent(new ScrollingWorld(x, y, width, height, w));
+		return w.getParent();
 	}
 
 	public static World generateWorld(double x, double y, double width, double height, World parent) {
@@ -224,15 +233,17 @@ public abstract class World {
 		state[1] = (byte) num[0];
 
 		num[0] = 2;
-		forEach(entity -> {
+		forEachUnsafe(entity -> {
+			// System.out.print(entity.getX() + " " + entity.getY() + "        ");
 			state[num[0] + 0] = (byte) (entity.getId() >> 8);
 			state[num[0] + 1] = (byte) (entity.getId() & 0xFF);
 			state[num[0] + 2] = (byte) ((int) entity.getX() >> 4);
 			state[num[0] + 3] = (byte) ((((int) entity.getX() & 0x0F) << 4) + ((int) entity.getY() >> 8));
 			state[num[0] + 4] = (byte) ((int) entity.getY() & 0xFF);
-			state[num[0] + 5] = (byte) (Math.atan2(entity.getY(), entity.getX()) / 2 / Math.PI * 255);
+			state[num[0] + 5] = (byte) (entity.getRotation() / 2 / Math.PI * 255);
 			num[0] += offset;
 		});
+		// System.out.println();
 
 		return state;
 	}
@@ -250,12 +261,26 @@ public abstract class World {
 		num[0] = 2;
 
 		forEach(entity -> {
-			state[num[0] + 6] = (byte) 40;
-			state[num[0] + 7] = (byte) 200;
-			state[num[0] + 8] = (byte) 40;
+			state[num[0] + 6] = (byte) entity.getColor().getRed();
+			state[num[0] + 7] = (byte) entity.getColor().getGreen();
+			state[num[0] + 8] = (byte) entity.getColor().getBlue();
 			num[0] += 9;
 		});
 
 		return state;
+	}
+
+	public Map<Short, byte[]> velocityStates() {
+		Map<Short, byte[]> m = new HashMap<Short, byte[]>();
+		forEachUnsafe(entity -> {
+			if (entity instanceof PhysicsEntity) {
+				PhysicsEntity pe = (PhysicsEntity) entity;
+				ByteBuffer bb = ByteBuffer.allocate(8);
+				bb.putFloat((float) (pe.getVx()*1e3));
+				bb.putFloat((float) (pe.getVy()*1e3));
+				m.put(entity.getId(), bb.array());
+			}
+		});
+		return m;
 	}
 }

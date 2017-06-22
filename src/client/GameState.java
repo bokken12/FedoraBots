@@ -1,6 +1,5 @@
 package client;
 
-import java.util.Collection;
 import java.util.Map;
 
 import javafx.scene.paint.Color;

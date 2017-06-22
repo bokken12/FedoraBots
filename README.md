@@ -1,5 +1,5 @@
 # Instructions
 
-Run `server.Test` to spawn a server that hosts a game with two robots. In 5 seconds the game will start and the robots will move.
+Run `server.Test` to spawn a server that hosts a game, with one room that accepts two robots.
 
-Then Afterwards quickly start `client.Display` to see the game.
+Start up two `example.CircleBot`s, and the game will start after the second `CircleBot` is started.

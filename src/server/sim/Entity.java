@@ -3,6 +3,8 @@
  */
 package server.sim;
 
+import java.awt.Color;
+
 import javafx.scene.canvas.GraphicsContext;
 
 /**
@@ -11,7 +13,8 @@ import javafx.scene.canvas.GraphicsContext;
  */
 public abstract class Entity {
 	private short id;
-	private double x, y, radius;
+	private Color color;
+	private double x, y, rotation, radius;
 	private World world;
 
 	/**
@@ -19,15 +22,17 @@ public abstract class Entity {
 	 * @param y
 	 * @param radius
 	 */
-	public Entity(short id, double x, double y, double radius) {
+	public Entity(short id, Color color, double x, double y, double rotation, double radius) {
 		super();
 		this.id = id;
+		this.color = color;
 		this.x = x;
 		this.y = y;
+		this.rotation = rotation;
 		this.radius = radius;
 	}
 
-	public void tick(int millis, World world){}
+	public void tick(double millis, World world){}
 
 	public void paint(GraphicsContext g){}
 
@@ -60,6 +65,8 @@ public abstract class Entity {
 		if(getClass() != obj.getClass())
 			return false;
 		Entity other = (Entity) obj;
+		if(id != other.id)
+			return false;
 		if(Double.doubleToLongBits(radius) != Double.doubleToLongBits(other.radius))
 			return false;
 		if(Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x))
@@ -77,6 +84,13 @@ public abstract class Entity {
 	}
 
 	/**
+	 * @return the color
+	 */
+	public Color getColor() {
+		return color;
+	}
+
+	/**
 	 * @return the x
 	 */
 	public double getX() {
@@ -88,6 +102,13 @@ public abstract class Entity {
 	 */
 	public double getY() {
 		return y;
+	}
+
+	/**
+	 * @return the rotation
+	 */
+	public double getRotation() {
+		return rotation;
 	}
 
 	/**
@@ -111,6 +132,13 @@ public abstract class Entity {
 		setPosition(x, y);
 	}
 
+	/**
+	 * @param rot the rotation to set
+	 */
+	public void setRotation(double rot) {
+		this.rotation = rot;
+	}
+
 	public void setPosition(double x, double y){
 		if(world != null){
 			world.remove(this);
@@ -118,6 +146,18 @@ public abstract class Entity {
 			this.y = y;
 			world.add(this);
 		}
+	}
+
+	/**
+	 * Updates the entity's internal x and y
+	 *
+	 * Caution: This does not handle jumps between sub-worlds. This method
+	 * should only be used if the entity is guaranteed to end up in the same
+	 * world after the move.
+	 */
+	public void setPositionUnsafe(double x, double y) {
+		this.x = x;
+		this.y = y;
 	}
 
 	/**
