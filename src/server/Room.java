@@ -24,6 +24,18 @@ public class Room {
     private static final Logger LOGGER = Logger.getLogger(Room.class.getName());
 
     /**
+     * An exception thrown when a robot tries to join a room in which the game
+     * has already begun.
+     */
+    public static class GameAlreadyStartedException extends Exception {
+        private static final long serialVersionUID = 6929883604798800075L;
+
+        public GameAlreadyStartedException(String msg) {
+            super(msg);
+        }
+    }
+
+    /**
      * Creates a room that holds <code>robotLimit</code> robots in a given {@link server.sim.World}.
      */
     public Room(int robotLimit, World w) {
@@ -53,8 +65,11 @@ public class Room {
      * Adds a robot to the room, returning true if the room is full and the game
      * should be started.
      */
-    public boolean addRobot(PhysicsEntity robot) {
+    public boolean addRobot(PhysicsEntity robot) throws GameAlreadyStartedException {
         LOGGER.fine("Adding robot with id " + robot.getId() + " to room with id " + id);
+        if (gameStarted) {
+            throw new GameAlreadyStartedException("Room with id " + id + " is already full");
+        }
         entities.put(robot.getId(), robot);
         world.add(robot);
 

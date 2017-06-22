@@ -82,6 +82,8 @@ public class GameNetworkAdapter implements Runnable {
                     if (mType == 1) bufferLen = numEntities * 6 + 8;
                 } else if (mType == 64) {
                     bufferLen = 2;
+                } else if (mType == 65 || mType == 66) {
+                    bufferLen = 0;
                 } else {
                     throw new RuntimeException("Unknown message type " + mType + ".");
                 }
@@ -99,11 +101,18 @@ public class GameNetworkAdapter implements Runnable {
         }
     }
 
+    private void throwError(String error) {
+        new RuntimeException(error).printStackTrace();
+        System.exit(1);
+    }
+
     private void parseBuffer(int type, byte[] buffer) {
         switch (type) {
             case 0:  parseStart(buffer); break;
             case 1:  parseState(buffer); break;
             case 64: parseJoined(buffer); break;
+            case 65: throwError("The room the robot tried to join does not exist."); break;
+            case 66: throwError("The room the robot tried to join already started its game."); break;
         }
     }
 

@@ -41,11 +41,17 @@ Server response after robot joins game for success (sent to robot):
 | :----------: | :------: |
 |  64 (1 byte) |  2 bytes |
 
-Server response if robot tries to join a nonexistent room:
+Server response if robot tries to join a nonexistent room (sent to robot):
 
 | Message type |
 | :----------: |
 |  65 (1 byte) |
+
+Server response if robot tries to join a room that already began its game (sent to robot):
+
+| Message type |
+| :----------: |
+|  66 (1 byte) |
 
 Robot update (sent to server):
 

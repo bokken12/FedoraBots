@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import common.Constants;
+import server.Room.GameAlreadyStartedException;
 import server.sim.PhysicsEntity;
 import server.sim.Sim;
 
@@ -45,77 +46,94 @@ public class Manager {
         }
     }
 
+    private void handleRobotJoin(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
+        short roomId = bb.getShort();
+        Color robotColor = new Color(bb.get() & 0xFF, bb.get() & 0xFF, bb.get() & 0xFF);
+        PhysicsEntity ent = new PhysicsEntity(id, robotColor,
+                                                Math.random() * Constants.World.WIDTH,
+                                                Math.random() * Constants.World.HEIGHT,
+                                                Math.random() * 2 * Math.PI,
+                                                Constants.Robot.RADIUS,
+                                                Constants.Robot.MASS);
+        Room room = rooms.get(roomId);
+        if (room == null) {
+            ByteBuffer out = ByteBuffer.allocate(1);
+            out.put((byte) 65);
+            out.rewind();
+            channel.write(out);
+            throw new ParseException("Cannot add a robot to a nonexistent room with id " + id + ".");
+        }
+
+        synchronized (idMap) {
+
+            try {
+                boolean addResult = room.addRobot(ent);
+
+                // Execute these lines after addRobot but before the if
+                // statement so that they aren't executed if a
+                // GameAlreadyStartedException is thrown but are executed before
+                // the code in the if statement
+
+                robotRooms.put(id, room);
+                idMap.put(key, id);
+
+                if (addResult) {
+                    LOGGER.fine("Sending initial states to relevant robots");
+                    ByteBuffer message = ByteBuffer.wrap(room.initialStae());
+                    for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
+                        if (room.equals(robotRooms.get(connection.getValue()))) {
+                            TcpServer.sendToKey(connection.getKey(), message);
+                            message.rewind();
+                        }
+                    }
+
+                    LOGGER.fine("Telling robots in room with id " + room.getId() + " that the game has begun");
+                    for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
+                        if (room.equals(robotRooms.get(connection.getValue()))) {
+                            LOGGER.finer("Telling " + connection.getKey().attachment());
+                            ByteBuffer out = ByteBuffer.allocate(3);
+                            out.put((byte) 64);
+                            out.putShort(connection.getValue());
+                            out.rewind();
+                            TcpServer.sendToKey(connection.getKey(), out);
+                        }
+                    }
+                }
+            } catch (GameAlreadyStartedException e) {
+                ByteBuffer out = ByteBuffer.allocate(1);
+                out.put((byte) 66);
+                out.rewind();
+                channel.write(out);
+                throw new ParseException("Robot with id " + id + " tried to join a room with id " +
+                                         room.getId() + " that already started its game");
+            }
+        }
+        id++;
+    }
+
+    private void handleRobotUpdate(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
+        short robotId = bb.getShort();
+        synchronized (idMap) {
+            if (robotId != idMap.get(key)) {
+                throw new ParseException(key.attachment() + " does not have permission to edit robot with id " + id + ".");
+            }
+        }
+        PhysicsEntity ent = robotRooms.get(robotId).getRobot(robotId);
+        if (ent == null) {
+            throw new ParseException("Invalid robot ID " + robotId + ".");
+        }
+
+        ent.setAcceleration(bb.getFloat()/1e6, bb.getFloat()/1e6);
+        ent.setRotation((bb.get() & 0xFF) / 255.0 * 2 * Math.PI);
+    }
+
     public void handleSent(byte[] b, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
         ByteBuffer bb = ByteBuffer.wrap(b);
         int mType = bb.get() & 0xFF;
         switch (mType) {
-            case 128: {
-                short roomId = bb.getShort();
-                Color robotColor = new Color(bb.get() & 0xFF, bb.get() & 0xFF, bb.get() & 0xFF);
-                PhysicsEntity ent = new PhysicsEntity(id, robotColor,
-                                                      Math.random() * Constants.World.WIDTH,
-                                                      Math.random() * Constants.World.HEIGHT,
-                                                      Math.random() * 2 * Math.PI,
-                                                      Constants.Robot.RADIUS,
-                                                      Constants.Robot.MASS);
-                Room room = rooms.get(roomId);
-                if (room == null) {
-                    ByteBuffer out = ByteBuffer.allocate(1);
-                    out.put((byte) 65);
-                    out.rewind();
-                    channel.write(out);
-                    throw new ParseException("Cannot add a robot to a nonexistent room with id " + id + ".");
-                }
-
-                synchronized (idMap) {
-                    robotRooms.put(id, room);
-                    idMap.put(key, id);
-
-                    if (room.addRobot(ent)) {
-                        LOGGER.fine("Sending initial states to relevant robots");
-                        ByteBuffer message = ByteBuffer.wrap(room.initialStae());
-                        for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
-                            if (room.equals(robotRooms.get(connection.getValue()))) {
-                                TcpServer.sendToKey(connection.getKey(), message);
-                                message.rewind();
-                            }
-                        }
-
-                        LOGGER.fine("Telling robots in room with id " + room.getId() + " that the game has begun");
-                        for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
-                            if (room.equals(robotRooms.get(connection.getValue()))) {
-                                LOGGER.finer("Telling " + connection.getKey().attachment());
-                                ByteBuffer out = ByteBuffer.allocate(3);
-                                out.put((byte) 64);
-                                out.putShort(connection.getValue());
-                                out.rewind();
-                                TcpServer.sendToKey(connection.getKey(), out);
-                            }
-                        }
-                    }
-                }
-                id++;
-                return;
-            }
-            case 129: {
-                short robotId = bb.getShort();
-                synchronized (idMap) {
-                    if (robotId != idMap.get(key)) {
-                        throw new ParseException(key.attachment() + " does not have permission to edit robot with id " + id + ".");
-                    }
-                }
-                PhysicsEntity ent = robotRooms.get(robotId).getRobot(robotId);
-                if (ent == null) {
-                    throw new ParseException("Invalid robot ID " + robotId + ".");
-                }
-
-                ent.setAcceleration(bb.getFloat()/1e6, bb.getFloat()/1e6);
-                ent.setRotation((bb.get() & 0xFF) / 255.0 * 2 * Math.PI);
-                return;
-            }
-            default: {
-                throw new ParseException("Unknown message type " + mType + ".");
-            }
+            case 128: handleRobotJoin(bb, server, key, channel); break;
+            case 129: handleRobotUpdate(bb, server, key, channel); break;
+            default:  throw new ParseException("Unknown message type " + mType + ".");
         }
     }
 
@@ -185,8 +203,9 @@ public class Manager {
         synchronized (idMap) {
             Short robotId = idMap.get(key);
             if (robotId != null) {
-                LOGGER.finer("Removing robot with id " + robotId + " from the room since the client closed its session");
-                robotRooms.get(robotId).removeRobotById(robotId);
+                if (robotRooms.get(robotId).removeRobotById(robotId)) {
+                    LOGGER.finer("Removed robot with id " + robotId + " from the room since the client closed its session");
+                }
                 idMap.remove(key);
             }
         }

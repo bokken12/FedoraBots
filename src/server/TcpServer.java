@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import common.Util;
+import server.Manager.ParseException;
 
 /**
  * The Tcp Server is only responsible for handling incoming connections and
@@ -82,7 +83,7 @@ public class TcpServer implements Runnable {
 					buf.get(bytes);
 					try {
 						manager.handleSent(bytes, this, key, ch);
-					} catch (Manager.ParseException e) {
+					} catch (ParseException e) {
 						LOGGER.log(Level.WARNING, "Error parsing input " + Util.toString(bytes), e);
 					}
 				}
