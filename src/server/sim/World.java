@@ -261,9 +261,9 @@ public abstract class World {
 		num[0] = 2;
 
 		forEach(entity -> {
-			state[num[0] + 6] = (byte) 40;
-			state[num[0] + 7] = (byte) 200;
-			state[num[0] + 8] = (byte) 40;
+			state[num[0] + 6] = (byte) entity.getColor().getRed();
+			state[num[0] + 7] = (byte) entity.getColor().getGreen();
+			state[num[0] + 8] = (byte) entity.getColor().getBlue();
 			num[0] += 9;
 		});
 
