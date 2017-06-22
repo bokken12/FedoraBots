@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import common.Constants;
 import javafx.application.Application;
@@ -18,6 +19,7 @@ import javafx.stage.Stage;
 public class Display extends Application {
 
     private static Display instance;
+    private static CountDownLatch latch = new CountDownLatch(1);
 
     private Map<Short, Shape> robots = new HashMap<Short, Shape>();
     private Group robotCircles;
@@ -25,6 +27,7 @@ public class Display extends Application {
 
     public Display() throws IOException {
         gm = new GameManager(new GameNetworkAdapter());
+        instance = this;
     }
 
     public synchronized static Display getInstance() {
@@ -45,12 +48,10 @@ public class Display extends Application {
             });
             displayLauncher.setDaemon(false);
             displayLauncher.start();
-            while (instance == null) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
         return instance;
@@ -82,7 +83,7 @@ public class Display extends Application {
         gm.addStateListener(this::draw);
         gm.addBeginListener(this::initializeRobots);
         gm.addEndListener(this::destroyRobots);
-        instance = this;
+        latch.countDown();
     }
 
     private void initializeRobots(GameState state) {
