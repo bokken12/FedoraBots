@@ -1,7 +1,5 @@
 package client;
 
-import java.io.IOException;
-
 import common.Constants;
 import javafx.scene.paint.Color;
 
@@ -21,16 +19,12 @@ public abstract class Robot {
     private double rotation;
 
     public Robot() {
-        // try {
-            Display d = Display.getInstance();
-            gm = d.getGameManager();
-            gm.addVelocityListener((vx, vy) -> {
-                this.vx = vx;
-                this.vy = vy;
-            });
-        // } catch (IOException e) {
-        //     throw new RuntimeException("Could not contact the server");
-        // }
+        Display d = Display.getInstance();
+        gm = d.getGameManager();
+        gm.addVelocityListener((vx, vy) -> {
+            this.vx = vx;
+            this.vy = vy;
+        });
     }
 
     public void joinGame(short roomId) {

@@ -7,10 +7,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,8 +24,6 @@ public class TcpServer implements Runnable {
 	private ServerSocketChannel ssc;
 	private Selector selector;
 	private ByteBuffer buf = ByteBuffer.allocate(256);
-	// private Object mutex = new Object();
-	private Collection<SelectionKey> clients = new HashSet<SelectionKey>();
 
 	private Manager manager;
 
@@ -71,10 +66,7 @@ public class TcpServer implements Runnable {
 		SocketChannel sc = ((ServerSocketChannel) key.channel()).accept();
 		String address = (new StringBuilder(sc.socket().getInetAddress().toString())).append(":").append(sc.socket().getPort()).toString();
 		sc.configureBlocking(false);
-		SelectionKey client = sc.register(selector, SelectionKey.OP_READ, address);
-		// synchronized (mutex) {
-		// 	clients.add(client);
-		// }
+		sc.register(selector, SelectionKey.OP_READ, address);
 	}
 
 	private void handleRead(SelectionKey key) throws IOException {
@@ -102,9 +94,6 @@ public class TcpServer implements Runnable {
 				LOGGER.fine(key.attachment() + " closed its session.");
 				manager.handleClosed(key);
 				ch.close();
-				// synchronized (mutex) {
-				// 	clients.remove(key);
-				// }
 			}
 			else {
 				LOGGER.finest(key.attachment() + " sent something");
@@ -113,9 +102,6 @@ public class TcpServer implements Runnable {
 			LOGGER.log(Level.WARNING, "Error while reading", e);
 			manager.handleClosed(key);
 			ch.close();
-			// synchronized (mutex) {
-			// 	clients.remove(key);
-			// }
 		}
 	}
 
@@ -134,33 +120,4 @@ public class TcpServer implements Runnable {
 		}
 	}
 
-	// public void broadcast(Function<SelectionKey, ByteBuffer> supplier) {
-	// 	synchronized (mutex) {
-	// 		Iterator<SelectionKey> it = clients.iterator();
-	// 		while (it.hasNext()) {
-	// 			SelectionKey key = it.next();
-	// 			if(key.isValid() && key.channel() instanceof SocketChannel) {
-	// 				SocketChannel sch = (SocketChannel) key.channel();
-	// 				try {
-	// 					ByteBuffer msgBuf = supplier.apply(key);
-	// 					sch.write(msgBuf);
-	// 					msgBuf.rewind();
-	// 				} catch (IOException e) {
-	// 					LOGGER.log(Level.WARNING, "Error while writing", e);
-	// 					try {
-	// 						sch.close();
-	// 						it.remove();
-	// 					} catch (IOException ee) {
-	// 						LOGGER.log(Level.WARNING, "Error while closing", e);
-	// 					}
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// }
-
-	// public void broadcast(byte[] msg) {
-	// 	ByteBuffer msgBuf = ByteBuffer.wrap(msg);
-	// 	broadcast(key -> msgBuf);
-	// }
 }
