@@ -100,6 +100,7 @@ public class TcpServer implements Runnable {
 
 			if (read < 0) {
 				LOGGER.fine(key.attachment() + " closed its session.");
+				manager.handleClosed(key);
 				ch.close();
 				// synchronized (mutex) {
 				// 	clients.remove(key);
@@ -110,6 +111,7 @@ public class TcpServer implements Runnable {
 			}
 		} catch (IOException e) {
 			LOGGER.log(Level.WARNING, "Error while reading", e);
+			manager.handleClosed(key);
 			ch.close();
 			// synchronized (mutex) {
 			// 	clients.remove(key);
@@ -117,6 +119,10 @@ public class TcpServer implements Runnable {
 		}
 	}
 
+	/**
+	 * Sends a message (<code>buf</code>) to a client known by the given
+	 * <code>key</code>.
+	 */
 	public static void sendToKey(SelectionKey key, ByteBuffer buf) {
 		if(key.isValid() && key.channel() instanceof SocketChannel) {
 			SocketChannel sch = (SocketChannel) key.channel();

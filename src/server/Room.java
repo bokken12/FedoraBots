@@ -68,6 +68,22 @@ public class Room {
     }
 
     /**
+     * Removes a robot from the room, returning {@code true} if the robot was removed.
+     * Note that robots can only be removed before the game has started.
+     */
+    public boolean removeRobotById(short robotId) {
+        if (!gameStarted) {
+            PhysicsEntity ent = entities.remove(robotId);
+            if (ent != null) {
+                world.remove(ent);
+                LOGGER.info("Room with id " + id + " has " + entities.size() + "/" + nRobots + " robots");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Returns the number of robots in the room.
      */
     public int occupancy() {

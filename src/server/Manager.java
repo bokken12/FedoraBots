@@ -30,6 +30,9 @@ public class Manager {
     public Manager() {
         rooms = new HashMap<Short, Room>();
         robotRooms = new HashMap<Short, Room>();
+        // Used both by the main thread (doing simulation) and the networking
+        // thread (adding robots to the room) so make sure to use synchronized
+        // with this
         idMap = new HashMap<SelectionKey, Short>();
     }
 
@@ -64,28 +67,30 @@ public class Manager {
                     throw new ParseException("Cannot add a robot to a nonexistent room with id " + id + ".");
                 }
 
-                robotRooms.put(id, room);
-                idMap.put(key, id);
+                synchronized (idMap) {
+                    robotRooms.put(id, room);
+                    idMap.put(key, id);
 
-                if (room.addRobot(ent)) {
-                    LOGGER.fine("Sending initial states to relevant robots");
-                    ByteBuffer message = ByteBuffer.wrap(room.initialStae());
-                    for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
-                        if (room.equals(robotRooms.get(connection.getValue()))) {
-                            TcpServer.sendToKey(connection.getKey(), message);
-                            message.rewind();
+                    if (room.addRobot(ent)) {
+                        LOGGER.fine("Sending initial states to relevant robots");
+                        ByteBuffer message = ByteBuffer.wrap(room.initialStae());
+                        for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
+                            if (room.equals(robotRooms.get(connection.getValue()))) {
+                                TcpServer.sendToKey(connection.getKey(), message);
+                                message.rewind();
+                            }
                         }
-                    }
 
-                    LOGGER.fine("Telling robots in room with id " + room.getId() + " that the game has begun");
-                    for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
-                        if (room.equals(robotRooms.get(connection.getValue()))) {
-                            LOGGER.finer("Telling " + connection.getKey().attachment());
-                            ByteBuffer out = ByteBuffer.allocate(3);
-                            out.put((byte) 64);
-                            out.putShort(connection.getValue());
-                            out.rewind();
-                            TcpServer.sendToKey(connection.getKey(), out);
+                        LOGGER.fine("Telling robots in room with id " + room.getId() + " that the game has begun");
+                        for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
+                            if (room.equals(robotRooms.get(connection.getValue()))) {
+                                LOGGER.finer("Telling " + connection.getKey().attachment());
+                                ByteBuffer out = ByteBuffer.allocate(3);
+                                out.put((byte) 64);
+                                out.putShort(connection.getValue());
+                                out.rewind();
+                                TcpServer.sendToKey(connection.getKey(), out);
+                            }
                         }
                     }
                 }
@@ -94,8 +99,10 @@ public class Manager {
             }
             case 129: {
                 short robotId = bb.getShort();
-                if (robotId != idMap.get(key)) {
-                    throw new ParseException(key.attachment() + " does not have permission to edit robot with id " + id + ".");
+                synchronized (idMap) {
+                    if (robotId != idMap.get(key)) {
+                        throw new ParseException(key.attachment() + " does not have permission to edit robot with id " + id + ".");
+                    }
                 }
                 PhysicsEntity ent = robotRooms.get(robotId).getRobot(robotId);
                 if (ent == null) {
@@ -113,20 +120,22 @@ public class Manager {
     }
 
     public void broadcastRoomState(TcpServer server, Room room, byte[] state, Map<Short, byte[]> velocityStates) {
-        for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
-            if (room.equals(robotRooms.get(connection.getValue()))) {
-                ByteBuffer msgBuf = ByteBuffer.allocate(state.length + 8);
-                msgBuf.put(state, 0, 2);
-                short id = connection.getValue();
-                msgBuf.put(velocityStates.get(id));
-                // if (id == null) {
-                //     msgBuf.position(msgBuf.position() + 8);
-                // } else {
-                //     msgBuf.put(velocityStates.get(id));
-                // }
-                msgBuf.put(state, 2, state.length - 2);
-                msgBuf.rewind();
-                TcpServer.sendToKey(connection.getKey(), msgBuf);
+        synchronized (idMap) {
+            for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
+                if (room.equals(robotRooms.get(connection.getValue()))) {
+                    ByteBuffer msgBuf = ByteBuffer.allocate(state.length + 8);
+                    msgBuf.put(state, 0, 2);
+                    short id = connection.getValue();
+                    msgBuf.put(velocityStates.get(id));
+                    // if (id == null) {
+                    //     msgBuf.position(msgBuf.position() + 8);
+                    // } else {
+                    //     msgBuf.put(velocityStates.get(id));
+                    // }
+                    msgBuf.put(state, 2, state.length - 2);
+                    msgBuf.rewind();
+                    TcpServer.sendToKey(connection.getKey(), msgBuf);
+                }
             }
         }
     }
@@ -165,6 +174,20 @@ public class Manager {
                 Thread.sleep(Math.max(0, (Sim.MIN_TICK_LENGTH-totalTickTime)/(long)1e6));
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Handles the closing of a session by a client by the given <code>key</code>.
+     */
+    public void handleClosed(SelectionKey key) {
+        synchronized (idMap) {
+            Short robotId = idMap.get(key);
+            if (robotId != null) {
+                LOGGER.finer("Removing robot with id " + robotId + " from the room since the client closed its session");
+                robotRooms.get(robotId).removeRobotById(robotId);
+                idMap.remove(key);
             }
         }
     }
