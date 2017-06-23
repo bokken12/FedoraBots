@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'application'
 
 repositories {
     mavenCentral()
@@ -15,7 +16,21 @@ sourceSets {
         java {
             srcDirs = ['src']
         }
+        resources {
+            srcDirs = ['resources']
+        }
     }
 }
 
 targetCompatibility = '1.8'
+
+jar {
+    from {
+            configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        }
+}
+
+eclipse.classpath.file.whenMerged {
+    def container = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
+    container.accessRules << new org.gradle.plugins.ide.eclipse.model.AccessRule("accessible", "javafx/**")
+}
