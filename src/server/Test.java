@@ -8,13 +8,11 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import common.Constants;
-import server.sim.Sim;
-// import server.sim.TestEntity;
 import server.sim.World;
 
 public class Test {
 
-    private static final Level LOG_LEVEL = Level.ALL;
+    private static final Level LOG_LEVEL = Level.INFO;
 
     static {
         System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS %4$s %2$s %5$s%6$s%n");
@@ -36,7 +34,7 @@ public class Test {
         // w.add(phys);
         // w.add(phys2);
         Manager manager = new Manager();
-        manager.addRoom(new Room(2, w));
+        manager.addRoom(new Room(6, w));
         TcpServer server = new TcpServer(manager);
         Thread t = new Thread(server);
         t.setDaemon(true);

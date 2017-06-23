@@ -10,7 +10,7 @@ import java.util.concurrent.Semaphore;
 
 import javafx.scene.paint.Color;
 
-/***
+/**
  * Receives messages from the network and notifies the game manager accordingly.
  */
 public class GameNetworkAdapter implements Runnable {

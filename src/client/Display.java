@@ -1,19 +1,21 @@
 package client;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ConnectException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
 
+import client.GameState.RobotState;
 import common.Constants;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
 
 public class Display extends Application {
@@ -21,9 +23,11 @@ public class Display extends Application {
     private static Display instance;
     private static CountDownLatch latch = new CountDownLatch(1);
 
-    private Map<Short, Shape> robots = new HashMap<Short, Shape>();
+    private Map<Short, RobotFigure> robots = new HashMap<Short, RobotFigure>();
     private Group robotCircles;
     private GameManager gm;
+
+    private Map<Short, Queue<RobotState>> previousStates = new HashMap<Short, Queue<RobotState>>();
 
     public Display() throws IOException {
         gm = new GameManager(new GameNetworkAdapter());
@@ -87,15 +91,20 @@ public class Display extends Application {
     }
 
     private void initializeRobots(GameState state) {
-        for (GameState.RobotState rs : state.robotStates()) {
-            Shape robot = new Circle(10, rs.getColor());
+        for (RobotState rs : state.robotStates()) {
+            RobotFigure robot = new RobotFigure(10, rs.getColor()); // new Circle(10, rs.getColor());
             if (robots.put(rs.getId(), robot) != null) {
                 throw new RuntimeException("A robot with ID " + rs.getId() + " wasn't cleared from the display.");
             }
         }
 
         Platform.runLater(() -> {
-            for (GameState.RobotState rs : state.robotStates()) {
+            for (RobotState rs : state.robotStates()) {
+                Queue<RobotState> q = new LinkedList<RobotState>();
+                for (int i = 0; i < 15; i++) {
+                    q.add(rs);
+                }
+                previousStates.put(rs.getId(), q);
                 robotCircles.getChildren().add(robots.get(rs.getId()));
             }
         });
@@ -103,15 +112,22 @@ public class Display extends Application {
 
     private void draw(GameState state) {
         Platform.runLater(() -> {
-            for (GameState.RobotState rs : state.robotStates()) {
-                Shape robot = robots.get(rs.getId());
+            for (RobotState rs : state.robotStates()) {
+                short rId = rs.getId();
+                RobotFigure robot = robots.get(rId);
                 if (robot == null) {
-                    throw new RuntimeException("An unexpected robot with ID " + rs.getId() + " decided to join the game.");
+                    throw new RuntimeException("An unexpected robot with ID " + rId + " decided to join the game.");
                 }
 
                 robot.setTranslateX(rs.getX());
                 robot.setTranslateY(rs.getY());
-                robot.setRotate(rs.getRotation() / 255.0 * Math.PI * 2);
+                RobotState prevState = previousStates.get(rId).remove();
+                double rawAngle = Math.atan2(rs.getY() - prevState.getY(), rs.getX() - prevState.getX());
+                double angle = (rawAngle + Math.PI / 2) * 180 / Math.PI;
+                robot.setRotate(angle);
+                robot.setBlasterRotate((rs.getRotation() / 255.0 * 360) - angle);
+
+                previousStates.get(rId).add(rs);
             }
         });
     }

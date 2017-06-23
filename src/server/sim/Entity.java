@@ -5,8 +5,6 @@ package server.sim;
 
 import java.awt.Color;
 
-import javafx.scene.canvas.GraphicsContext;
-
 /**
  * @author joelmanning
  *
@@ -33,8 +31,6 @@ public abstract class Entity {
 	}
 
 	public void tick(double millis, World world){}
-
-	public void paint(GraphicsContext g){}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()

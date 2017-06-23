@@ -48,7 +48,7 @@ public abstract class Robot {
         if (!inGame) {
             throw new RuntimeException("You must join a game to set the robot's acceleration");
         }
-        this.rotation = rot % 360;
+        this.rotation = (rot % 360 + 360) % 360;
         gm.sendRobotUpdate(id, this);
     }
 
