@@ -27,7 +27,7 @@ public class PhysicsEntity extends Entity {
 	}
 
 	public PhysicsEntity(short id, Color color, double x, double y, double rotation, double radius, double mass) {
-		this(id, color, x, y, radius, rotation, mass, 0, 0, 0, 0);
+		this(id, color, x, y, rotation, radius, mass, 0, 0, 0, 0);
 	}
 
 	public boolean collidesWith(PhysicsEntity other) {
