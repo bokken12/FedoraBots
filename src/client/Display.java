@@ -92,7 +92,7 @@ public class Display extends Application {
 
     private void initializeRobots(GameState state) {
         for (RobotState rs : state.robotStates()) {
-            RobotFigure robot = new RobotFigure(10, rs.getColor()); // new Circle(10, rs.getColor());
+            RobotFigure robot = new RobotFigure(Constants.Robot.RADIUS, rs.getColor()); // new Circle(10, rs.getColor());
             if (robots.put(rs.getId(), robot) != null) {
                 throw new RuntimeException("A robot with ID " + rs.getId() + " wasn't cleared from the display.");
             }
