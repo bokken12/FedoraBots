@@ -48,12 +48,12 @@ public class GameNetworkAdapter implements Runnable {
     }
 
     public void sendRobotUpdate(short id, double ax, double ay, double rotation) throws IOException {
-        ByteBuffer bb = ByteBuffer.allocate(12);
+        ByteBuffer bb = ByteBuffer.allocate(13);
         bb.put((byte) 129);
         bb.putShort(id);
         bb.putFloat((float) ax);
         bb.putFloat((float) ay);
-        bb.put((byte) Math.round(rotation / 360 * 255));
+        bb.putShort((short) Math.round(rotation / 360 * (Short.MAX_VALUE - Short.MIN_VALUE)));
         s.getOutputStream().write(bb.array());
     }
 

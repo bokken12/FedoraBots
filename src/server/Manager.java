@@ -124,7 +124,7 @@ public class Manager {
         }
 
         ent.setAcceleration(bb.getFloat()/1e6, bb.getFloat()/1e6);
-        ent.setRotation((bb.get() & 0xFF) / 255.0 * 2 * Math.PI);
+        ent.setRotation((bb.getShort() & 0xFFFF) * 1.0 / (Short.MAX_VALUE-Short.MIN_VALUE) * 2 * Math.PI);
     }
 
     public void handleSent(byte[] b, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
