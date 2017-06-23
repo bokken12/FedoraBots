@@ -1,7 +1,6 @@
 package client;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,8 +25,6 @@ public class Display extends Application {
     private Map<Short, RobotFigure> robots = new HashMap<Short, RobotFigure>();
     private Group robotCircles;
     private GameManager gm;
-
-    private Map<Short, Queue<RobotState>> previousStates = new HashMap<Short, Queue<RobotState>>();
 
     public Display() throws IOException {
         gm = new GameManager(new GameNetworkAdapter());
@@ -104,7 +101,6 @@ public class Display extends Application {
                 for (int i = 0; i < 15; i++) {
                     q.add(rs);
                 }
-                previousStates.put(rs.getId(), q);
                 robotCircles.getChildren().add(robots.get(rs.getId()));
             }
         });
@@ -121,13 +117,9 @@ public class Display extends Application {
 
                 robot.setTranslateX(rs.getX());
                 robot.setTranslateY(rs.getY());
-                RobotState prevState = previousStates.get(rId).remove();
-                double rawAngle = Math.atan2(rs.getY() - prevState.getY(), rs.getX() - prevState.getX());
-                double angle = (rawAngle + Math.PI / 2) * 180 / Math.PI;
+                double angle = (rs.getVelocityAngle() / 255.0 * 360);
                 robot.setRotate(angle);
                 robot.setBlasterRotate((rs.getRotation() / 255.0 * 360) - angle);
-
-                previousStates.get(rId).add(rs);
             }
         });
     }
