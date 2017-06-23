@@ -55,6 +55,6 @@ Server response if robot tries to join a room that already began its game (sent 
 
 Robot update (sent to server):
 
-| Message type | Robot ID |  X acceleration |  Y acceleration | Rotation |
-| :----------: | :------: | :-------------: | :-------------: | :------: |
-| 129 (1 byte) |  2 bytes | 4 bytes (float) | 4 bytes (float) |  1 byte  |
+| Message type | Robot ID |  X acceleration |  Y acceleration |    Rotation     |
+| :----------: | :------: | :-------------: | :-------------: | :-------------: |
+| 129 (1 byte) |  2 bytes | 4 bytes (float) | 4 bytes (float) | 2 bytes (short) |
