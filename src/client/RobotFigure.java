@@ -84,18 +84,18 @@ public class RobotFigure extends Group {
         for (int i = 0; i < NUM_THRUSTERS; i++) {
             LinearGradient oldl = (LinearGradient) linearThrusters[i].getFill();
             RadialGradient oldr = (RadialGradient) radialThrusters[i].getFill();
-            double dist = Math.sqrt(Math.max(Math.cos(radians - thrusterAngles[i]), 0));
+            double dist = Math.cbrt(Math.max(Math.cos(radians - thrusterAngles[i]), 0));
             linearThrusters[i].setFill(
                 new LinearGradient(oldl.getStartX(), oldl.getStartY(), oldl.getEndX(),
                                    oldl.getEndY(), oldl.isProportional(), oldl.getCycleMethod(),
-                                   new Stop(0, dist < 0.25 ? thrusterColorTransparent : thrusterColorOpaque),
+                                   new Stop(0, dist < 0.35 ? thrusterColorTransparent : thrusterColorOpaque),
                                    new Stop(dist, thrusterColorTransparent))
             );
             radialThrusters[i].setFill(
                 new RadialGradient(oldr.getFocusAngle(), oldr.getFocusDistance(),
                                    oldr.getCenterX(), oldr.getCenterY(), oldr.getRadius(),
                                    oldr.isProportional(), oldr.getCycleMethod(),
-                                   new Stop(0, dist < 0.25 ? thrusterColorTransparent : thrusterColorOpaque),
+                                   new Stop(0, dist < 0.35 ? thrusterColorTransparent : thrusterColorOpaque),
                                    new Stop(dist, thrusterColorTransparent))
                                 );
         }
