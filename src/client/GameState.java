@@ -30,14 +30,16 @@ public class GameState {
         private int y;
         private byte rotation;
         private byte vAngle;
+        private byte aAngle;
         private GameState surroundingState;
 
-        public RobotState(short id, int x, int y, byte rotation, byte vAngle) {
+        public RobotState(short id, int x, int y, byte rotation, byte vAngle, byte aAngle) {
             this.id = id;
             this.x = x;
             this.y = y;
             this.rotation = rotation;
             this.vAngle = vAngle;
+            this.aAngle = aAngle;
         }
 
         public short getId() { return id; }
@@ -45,6 +47,7 @@ public class GameState {
         public int getY() { return y; }
         public byte getRotation() { return rotation; }
         public byte getVelocityAngle() { return vAngle; }
+        public byte getAccelAngle() { return aAngle; }
 
         public Color getColor() {
             return surroundingState.colorForRobot(id);

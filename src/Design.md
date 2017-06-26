@@ -17,17 +17,17 @@ However, in Java they are kept as integers so that they are compaitible with gen
 * `64 - 127`: Server --> robots messages
 * `128 - 255`: Robot --> server messages
 
-Start of game (10 bytes per entity):
+Start of game (11 bytes per entity):
 
-| Message type | Number of entities | *For each entity:* ID | *For each entity:* X | *For each entity:* Y | *For each entity:* Rotation | *For each entity:* V angle | *For each entity:* Color |
-| :----------: | :----------------: | :-------------------: | :------------------: | :------------------: | :-------------------------: | :------------------------: | :----------------------: |
-|  0 (1 byte)  |       1 byte       |        2 bytes        |        12 bits       |        12 bits       |           1 byte            |           1 byte           |       3 bytes (rgb)      |
+| Message type | Number of entities | *For each entity:* ID | *For each entity:* X | *For each entity:* Y | *For each entity:* Rotation | *For each entity:* V angle | *For each entity:* A angle | *For each entity:* Color |
+| :----------: | :----------------: | :-------------------: | :------------------: | :------------------: | :-------------------------: | :------------------------: | :------------------------: | :----------------------: |
+|  0 (1 byte)  |       1 byte       |        2 bytes        |        12 bits       |        12 bits       |           1 byte            |           1 byte           |           1 byte           |       3 bytes (rgb)      |
 
-Game state (7 bytes per entity):
+Game state (8 bytes per entity):
 
-| Message type | Number of entities | Vx for connection's robot | Vy for connection's robot | *For each entity:* ID | *For each entity:* X | *For each entity:* Y | *For each entity:* Rotation | *For each entity:* V angle |
-| :----------: | :----------------: | :-----------------------: | :-----------------------: | :-------------------: | :------------------: | :------------------: | :-------------------------: | :------------------------: |
-|  1 (1 byte)  |       1 byte       |      4 bytes (float)      |      4 bytes (float)      |        2 bytes        |        12 bits       |        12 bits       |           1 byte            |           1 byte           |
+| Message type | Number of entities | Vx for connection's robot | Vy for connection's robot | *For each entity:* ID | *For each entity:* X | *For each entity:* Y | *For each entity:* Rotation | *For each entity:* V angle | *For each entity:* A angle |
+| :----------: | :----------------: | :-----------------------: | :-----------------------: | :-------------------: | :------------------: | :------------------: | :-------------------------: | :------------------------: | :------------------------: |
+|  1 (1 byte)  |       1 byte       |      4 bytes (float)      |      4 bytes (float)      |        2 bytes        |        12 bits       |        12 bits       |           1 byte            |           1 byte           |           1 byte           |
 
 Robot request to join game (sent to server):
 

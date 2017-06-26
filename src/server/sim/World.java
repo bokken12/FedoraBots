@@ -241,9 +241,11 @@ public abstract class World {
 			state[num[0] + 3] = (byte) ((((int) entity.getX() & 0x0F) << 4) + ((int) entity.getY() >> 8));
 			state[num[0] + 4] = (byte) ((int) entity.getY() & 0xFF);
 			state[num[0] + 5] = (byte) (entity.getRotation() / 2 / Math.PI * 255);
+			state[num[0] + 5] = (byte) (entity.getRotation() / 2 / Math.PI * 255);
 			if (entity instanceof PhysicsEntity) {
 				PhysicsEntity pe = (PhysicsEntity) entity;
 				state[num[0] + 6] = (byte) ((Math.atan2(pe.getVy(), pe.getVx()) + Math.PI / 2) / 2 / Math.PI * 255);
+				state[num[0] + 7] = (byte) ((Math.atan2(pe.getAy(), pe.getAx()) + Math.PI / 2) / 2 / Math.PI * 255);
 			}
 			num[0] += offset;
 		});
@@ -253,11 +255,11 @@ public abstract class World {
 	}
 
 	public byte[] state() {
-		return state(7);
+		return state(8);
 	}
 
 	public byte[] startingState() {
-		byte[] state = state(10);
+		byte[] state = state(11);
 		state[0] = 0;
 
 		// Hackery for compilation
@@ -265,10 +267,10 @@ public abstract class World {
 		num[0] = 2;
 
 		forEach(entity -> {
-			state[num[0] + 6] = (byte) entity.getColor().getRed();
-			state[num[0] + 7] = (byte) entity.getColor().getGreen();
-			state[num[0] + 8] = (byte) entity.getColor().getBlue();
-			num[0] += 10;
+			state[num[0] + 8] = (byte) entity.getColor().getRed();
+			state[num[0] + 9] = (byte) entity.getColor().getGreen();
+			state[num[0] + 10] = (byte) entity.getColor().getBlue();
+			num[0] += 11;
 		});
 
 		return state;

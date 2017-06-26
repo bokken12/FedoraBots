@@ -1,0 +1,43 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="64.0" height="64.0" viewBox="0 0 64.0 64.0" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<title>OpenSCAD Model</title>
+<defs>
+
+    <linearGradient id="grad0" x1="32.0" y1="-4.912449124" x2="32.0" y2="-26.2457824574" gradientUnits="userSpaceOnUse">
+    <stop offset="0%" stop-color="lightskyblue"/>
+    <stop offset="100%" stop-color="lightskyblue" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="gradr0" cx="32.0" cy="-4.912449124" r="17.0666666667" gradientUnits="userSpaceOnUse">
+    <stop offset="0%" stop-color="lightskyblue"/>
+    <stop offset="100%" stop-color="lightskyblue" stop-opacity="0" />
+    </radialGradient>
+    
+    <linearGradient id="grad1" x1="12.7380839353" y1="62.2351518343" x2="1.2756922906" y2="80.2275026784" gradientUnits="userSpaceOnUse">
+    <stop offset="0%" stop-color="lightskyblue"/>
+    <stop offset="100%" stop-color="lightskyblue" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="gradr1" cx="12.7380839353" cy="62.2351518343" r="17.0666666667" gradientUnits="userSpaceOnUse">
+    <stop offset="0%" stop-color="lightskyblue"/>
+    <stop offset="100%" stop-color="lightskyblue" stop-opacity="0" />
+    </radialGradient>
+    
+    <linearGradient id="grad2" x1="51.2619160647" y1="62.2351518343" x2="62.7243077094" y2="80.2275026784" gradientUnits="userSpaceOnUse">
+    <stop offset="0%" stop-color="lightskyblue"/>
+    <stop offset="100%" stop-color="lightskyblue" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="gradr2" cx="51.2619160647" cy="62.2351518343" r="17.0666666667" gradientUnits="userSpaceOnUse">
+    <stop offset="0%" stop-color="lightskyblue"/>
+    <stop offset="100%" stop-color="lightskyblue" stop-opacity="0" />
+    </radialGradient>
+    
+</defs>
+<path d="M 24.1540167314 -4.912449124 L 39.8459832686 -4.912449124 L 39.8459832686 -30.512449124 L 24.1540167314 -30.512449124" fill="url(#grad0)"  fill-opacity="1" id="thruster0"/>
+<path d="M 24.1540167314 -4.912449124 L 39.8459832686 -4.912449124 L 39.8459832686 -30.512449124 L 24.1540167314 -30.512449124" fill="url(#gradr0)"  fill-opacity="1" id="thruster0-radial"/>
+<path d="M 21.9818975097 68.124110559 L 3.494270361 56.3461931097 L -10.2605996127 77.9370141225 L 8.227027536 89.7149315718" fill="url(#grad1)"  fill-opacity="1" id="thruster1"/>
+<path d="M 21.9818975097 68.124110559 L 3.494270361 56.3461931097 L -10.2605996127 77.9370141225 L 8.227027536 89.7149315718" fill="url(#gradr1)"  fill-opacity="1" id="thruster1-radial"/>
+<path d="M 60.505729639 56.3461931097 L 42.0181024903 68.124110559 L 55.772972464 89.7149315718 L 74.2605996127 77.9370141225" fill="url(#grad2)"  fill-opacity="1" id="thruster2"/>
+<path d="M 60.505729639 56.3461931097 L 42.0181024903 68.124110559 L 55.772972464 89.7149315718 L 74.2605996127 77.9370141225" fill="url(#gradr2)"  fill-opacity="1" id="thruster2-radial"/>
+<path d="M 32.0 32.0 l 10.5844744634 -36.912449124 l -21.1689489267 0.0 l 10.5844744634 36.912449124 l -30.8681034477 22.8411950113 l 23.2123747661 14.7879136462 l 7.6557286816 -37.6291086574 l 7.6557286816 37.6291086574 l 23.2123747661 -14.7879136462 l -30.8681034477 -22.8411950113" fill="#333"  fill-opacity="0.7" id="None"/>
+<path d="M 58.988526266 49.1935874671 a 32.0 32.0 0 0 0 -16.0438816796 -47.2637513322 l -2.1889289173 6.014032773 l -17.5114313383 -0.0 l -2.1889289173 -6.014032773 a 32.0 32.0 0 0 0 -16.0438816796 47.2637513322 l 5.3977052532 -3.4387174934 l 18.249350492 11.6261184775 l -0.8353676302 6.3452471128 a 32.0 32.0 0 0 0 8.3536763021 0.0 l -0.8353676302 -6.3452471128 l 18.249350492 -11.6261184775 l 5.3977052532 3.4387174934" fill="#CCC"  fill-opacity="1" id="body"/>
+</svg>

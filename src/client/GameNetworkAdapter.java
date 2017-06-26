@@ -78,8 +78,8 @@ public class GameNetworkAdapter implements Runnable {
                 if (mType == 0 || mType == 1) {
                     int numEntities = inp.read();
 
-                    if (mType == 0) bufferLen = numEntities * 10;
-                    if (mType == 1) bufferLen = numEntities * 7 + 8;
+                    if (mType == 0) bufferLen = numEntities * 11;
+                    if (mType == 1) bufferLen = numEntities * 8 + 8;
                 } else if (mType == 64) {
                     bufferLen = 2;
                 } else if (mType == 65 || mType == 66) {
@@ -117,33 +117,35 @@ public class GameNetworkAdapter implements Runnable {
     }
 
     private void parseStart(byte[] buffer) {
-        GameState.RobotState[] state = new GameState.RobotState[buffer.length / 10];
+        GameState.RobotState[] state = new GameState.RobotState[buffer.length / 11];
         Map<Short, Color> colors = new HashMap<Short, Color>();
 
-        for (int i = 0; i < buffer.length; i += 10) {
+        for (int i = 0; i < buffer.length; i += 11) {
             short id = (short) ((buffer[i] << 8) + buffer[i + 1]);
             int x = (buffer[i + 2] << 4) + (buffer[i + 3] & 0x10);
             int y = (buffer[i + 3] << 8) + buffer[i + 4];
             byte rot = (byte) buffer[i + 5];
             byte vangle = (byte) buffer[i + 6];
-            state[i/10] = new GameState.RobotState(id, x, y, rot, vangle);
-            colors.put(id, Color.rgb(buffer[i + 6] & 0xFF, buffer[i + 7] & 0xFF, buffer[i + 8] & 0xFF));
+            byte aangle = (byte) buffer[i + 7];
+            state[i/11] = new GameState.RobotState(id, x, y, rot, vangle, aangle);
+            colors.put(id, Color.rgb(buffer[i + 8] & 0xFF, buffer[i + 9] & 0xFF, buffer[i + 10] & 0xFF));
         }
         g.startGame(new GameState(state), colors);
     }
 
     private void parseState(byte[] buffer) {
-        GameState.RobotState[] state = new GameState.RobotState[(buffer.length - 8) / 7];
+        GameState.RobotState[] state = new GameState.RobotState[(buffer.length - 8) / 8];
         ByteBuffer buf = ByteBuffer.wrap(buffer, 0, 8);
         double vx = buf.getFloat();
         double vy = buf.getFloat();
-        for (int i = 8; i < buffer.length; i += 7) {
+        for (int i = 8; i < buffer.length; i += 8) {
             short id = (short) (((buffer[i] & 0xFF) << 8) + (buffer[i + 1] & 0xFF));
             int x = ((buffer[i + 2] & 0xFF) << 4) + ((buffer[i + 3] & 0xFF) >> 4);
             int y = ((buffer[i + 3] & 0x0F) << 8) + (buffer[i + 4] & 0xFF);
             byte rot = (byte) buffer[i + 5];
             byte vangle = (byte) buffer[i + 6];
-            state[(i-8)/7] = new GameState.RobotState(id, x, y, rot, vangle);
+            byte aangle = (byte) buffer[i + 7];
+            state[(i-8)/8] = new GameState.RobotState(id, x, y, rot, vangle, aangle);
         }
         g.updateState(new GameState(state));
         g.updateRobotVelocity(vx, vy);

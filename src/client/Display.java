@@ -120,6 +120,7 @@ public class Display extends Application {
                 double angle = (rs.getVelocityAngle() / 255.0 * 360);
                 robot.setRotate(angle);
                 robot.setBlasterRotate((rs.getRotation() / 255.0 * 360) - angle);
+                robot.setThrusterRotate((rs.getAccelAngle() / 255.0 * 360) - angle);
             }
         });
     }
