@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import server.sim.PhysicsEntity;
+import server.sim.Robot;
 import server.sim.Sim;
 import server.sim.World;
 
@@ -16,7 +16,7 @@ public class Room {
     private World world;
     private Sim sim;
     private short id;
-    private Map<Short, PhysicsEntity> entities;
+    private Map<Short, Robot> robots;
     private boolean gameStarted = false;
     private Manager manager;
 
@@ -43,7 +43,7 @@ public class Room {
         world = w;
         sim = new Sim(world);
         id = globalId++;
-        entities = new HashMap<Short, PhysicsEntity>();
+        robots = new HashMap<Short, Robot>();
     }
 
     /**
@@ -65,17 +65,17 @@ public class Room {
      * Adds a robot to the room, returning true if the room is full and the game
      * should be started.
      */
-    public boolean addRobot(PhysicsEntity robot) throws GameAlreadyStartedException {
+    public boolean addRobot(Robot robot) throws GameAlreadyStartedException {
         LOGGER.fine("Adding robot with id " + robot.getId() + " to room with id " + id);
         if (gameStarted) {
             throw new GameAlreadyStartedException("Room with id " + id + " is already full");
         }
-        entities.put(robot.getId(), robot);
+        robots.put(robot.getId(), robot);
         world.add(robot);
 
-        LOGGER.info("Room with id " + id + " has " + entities.size() + "/" + nRobots + " robots");
+        LOGGER.info("Room with id " + id + " has " + robots.size() + "/" + nRobots + " robots");
 
-        if (entities.size() >= nRobots) {
+        if (robots.size() >= nRobots) {
             gameStarted = true;
             LOGGER.info("Starting game in room with id " + id + "!");
         }
@@ -88,10 +88,10 @@ public class Room {
      */
     public boolean removeRobotById(short robotId) {
         if (!gameStarted) {
-            PhysicsEntity ent = entities.remove(robotId);
+            Robot ent = robots.remove(robotId);
             if (ent != null) {
                 world.remove(ent);
-                LOGGER.info("Room with id " + id + " has " + entities.size() + "/" + nRobots + " robots");
+                LOGGER.info("Room with id " + id + " has " + robots.size() + "/" + nRobots + " robots");
                 return true;
             }
         }
@@ -102,21 +102,21 @@ public class Room {
      * Returns the number of robots in the room.
      */
     public int occupancy() {
-        return entities.size();
+        return robots.size();
     }
 
     /**
      * Returns all the robots in the room, mapped to their ids.
      */
-    public Map<Short, PhysicsEntity> robotsById() {
-        return entities;
+    public Map<Short, Robot> robotsById() {
+        return robots;
     }
 
     /**
      * Returns the robot with the given id in the room.
      */
-    public PhysicsEntity getRobot(short id) {
-        return entities.get(id);
+    public Robot getRobot(short id) {
+        return robots.get(id);
     }
 
     /**

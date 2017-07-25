@@ -242,8 +242,8 @@ public abstract class World {
 			state[num[0] + 4] = (byte) ((int) entity.getY() & 0xFF);
 			state[num[0] + 5] = (byte) (entity.getRotation() / 2 / Math.PI * 255);
 			state[num[0] + 5] = (byte) (entity.getRotation() / 2 / Math.PI * 255);
-			if (entity instanceof PhysicsEntity) {
-				PhysicsEntity pe = (PhysicsEntity) entity;
+			if (entity instanceof Robot) {
+				Robot pe = (Robot) entity;
 				state[num[0] + 6] = (byte) ((Math.atan2(pe.getVy(), pe.getVx()) + Math.PI / 2) / 2 / Math.PI * 255);
 				state[num[0] + 7] = (byte) ((Math.atan2(pe.getAy(), pe.getAx()) + Math.PI / 2) / 2 / Math.PI * 255);
 			}
@@ -279,8 +279,8 @@ public abstract class World {
 	public Map<Short, byte[]> velocityStates() {
 		Map<Short, byte[]> m = new HashMap<Short, byte[]>();
 		forEachUnsafe(entity -> {
-			if (entity instanceof PhysicsEntity) {
-				PhysicsEntity pe = (PhysicsEntity) entity;
+			if (entity instanceof Robot) {
+				Robot pe = (Robot) entity;
 				ByteBuffer bb = ByteBuffer.allocate(8);
 				bb.putFloat((float) (pe.getVx()*1e3));
 				bb.putFloat((float) (pe.getVy()*1e3));

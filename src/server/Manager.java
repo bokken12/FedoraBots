@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 import common.Constants;
 import server.Room.GameAlreadyStartedException;
-import server.sim.PhysicsEntity;
+import server.sim.Robot;
 import server.sim.Sim;
 
 /**
@@ -49,12 +49,12 @@ public class Manager {
     private void handleRobotJoin(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
         short roomId = bb.getShort();
         Color robotColor = new Color(bb.get() & 0xFF, bb.get() & 0xFF, bb.get() & 0xFF);
-        PhysicsEntity ent = new PhysicsEntity(id, robotColor,
-                                                Math.random() * Constants.World.WIDTH,
-                                                Math.random() * Constants.World.HEIGHT,
-                                                Math.random() * 2 * Math.PI,
-                                                Constants.Robot.RADIUS,
-                                                Constants.Robot.MASS);
+        Robot ent = new Robot(id, robotColor,
+                              Math.random() * Constants.World.WIDTH,
+                              Math.random() * Constants.World.HEIGHT,
+                              Math.random() * 2 * Math.PI,
+                              Constants.Robot.RADIUS,
+                              Constants.Robot.MASS);
         Room room = rooms.get(roomId);
         if (room == null) {
             ByteBuffer out = ByteBuffer.allocate(1);
@@ -118,7 +118,7 @@ public class Manager {
                 throw new ParseException(key.attachment() + " does not have permission to edit robot with id " + id + ".");
             }
         }
-        PhysicsEntity ent = robotRooms.get(robotId).getRobot(robotId);
+        Robot ent = robotRooms.get(robotId).getRobot(robotId);
         if (ent == null) {
             throw new ParseException("Invalid robot ID " + robotId + ".");
         }
