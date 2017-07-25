@@ -97,4 +97,12 @@ public class GameManager {
             System.out.println("Warning: Could not update the robot's state because of a network error");
         }
     }
+
+    public void sendRobotShootRequest(short robotId) {
+        try {
+            adapter.sendRobotShootRequest(robotId);
+        } catch (IOException e) {
+            System.out.println("Warning: Could not make the robot shoot because of a network error");
+        }
+    }
 }

@@ -57,6 +57,13 @@ public class GameNetworkAdapter implements Runnable {
         s.getOutputStream().write(bb.array());
     }
 
+    public void sendRobotShootRequest(short id) throws IOException {
+        ByteBuffer bb = ByteBuffer.allocate(3);
+        bb.put((byte) 130);
+        bb.putShort(id);
+        s.getOutputStream().write(bb.array());
+    }
+
     public short getRobotId() {
         try {
             awaitingId.acquire();

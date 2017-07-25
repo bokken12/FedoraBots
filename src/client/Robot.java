@@ -17,6 +17,7 @@ public abstract class Robot {
     private double vx;
     private double vy;
     private double rotation;
+    private long lastShoot;
 
     public Robot() {
         Display d = Display.getInstance();
@@ -50,6 +51,18 @@ public abstract class Robot {
         }
         this.rotation = (rot % 360 + 360) % 360;
         gm.sendRobotUpdate(id, this);
+    }
+
+    public boolean canShoot() {
+        return System.nanoTime() / 1e6 - lastShoot >= Constants.Robot.SHOOT_FREQUENCY;
+    }
+
+    public void shoot() {
+        long cTime = (long) (System.nanoTime() / 1e6);
+        if (cTime - lastShoot >= Constants.Robot.SHOOT_FREQUENCY) {
+            lastShoot = cTime;
+            gm.sendRobotShootRequest(id);
+        }
     }
 
     public double getAx() {

@@ -127,12 +127,23 @@ public class Manager {
         ent.setRotation((bb.getShort() & 0xFFFF) * 1.0 / (Short.MAX_VALUE-Short.MIN_VALUE) * 2 * Math.PI);
     }
 
+    private void handleRobotShoot(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
+        short robotId = bb.getShort();
+        synchronized (idMap) {
+            if (robotId != idMap.get(key)) {
+                throw new ParseException(key.attachment() + " does not have permission to edit robot with id " + id + ".");
+            }
+        }
+        System.out.println("Robot with id " + robotId + " just shot something");
+    }
+
     public void handleSent(byte[] b, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
         ByteBuffer bb = ByteBuffer.wrap(b);
         int mType = bb.get() & 0xFF;
         switch (mType) {
             case 128: handleRobotJoin(bb, server, key, channel); break;
             case 129: handleRobotUpdate(bb, server, key, channel); break;
+            case 130: handleRobotShoot(bb, server, key, channel); break;
             default:  throw new ParseException("Unknown message type " + mType + ".");
         }
     }

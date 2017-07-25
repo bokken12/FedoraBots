@@ -14,5 +14,9 @@ public class Constants {
         public static final double MAX_ACCELERATION = 100;
         public static final double RADIUS = 10;
         public static final double MASS = 10;
+        /**
+         * Milliseconds that the turret must take to cooldown between each shot
+         */
+        public static final long SHOOT_FREQUENCY = 1000;
     }
 }
