@@ -80,13 +80,17 @@ public class GameNetworkAdapter implements Runnable {
         while (true) {
             try {
                 int mType = inp.read();
+                int numEntities = 0;
 
                 int bufferLen = 0;
                 if (mType == 0 || mType == 1) {
-                    int numEntities = inp.read();
+                    numEntities = inp.read();
 
                     if (mType == 0) bufferLen = numEntities * 11;
-                    if (mType == 1) bufferLen = numEntities * 8 + 8;
+                    if (mType == 1) {
+                        int numBullets = (inp.read() << 8) + inp.read();
+                        bufferLen = numEntities * 8 + 8 + numBullets * 4;
+                    }
                 } else if (mType == 64) {
                     bufferLen = 2;
                 } else if (mType == 65 || mType == 66) {
@@ -101,7 +105,7 @@ public class GameNetworkAdapter implements Runnable {
                     i += inp.read(buffer, i, buffer.length - i);
                 }
 
-                parseBuffer(mType, buffer);
+                parseBuffer(mType, buffer, numEntities);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -113,10 +117,10 @@ public class GameNetworkAdapter implements Runnable {
         System.exit(1);
     }
 
-    private void parseBuffer(int type, byte[] buffer) {
+    private void parseBuffer(int type, byte[] buffer, int numEntities) {
         switch (type) {
             case 0:  parseStart(buffer); break;
-            case 1:  parseState(buffer); break;
+            case 1:  parseState(buffer, numEntities); break;
             case 64: parseJoined(buffer); break;
             case 65: throwError("The room the robot tried to join does not exist."); break;
             case 66: throwError("The room the robot tried to join already started its game."); break;
@@ -140,12 +144,13 @@ public class GameNetworkAdapter implements Runnable {
         g.startGame(new GameState(state), colors);
     }
 
-    private void parseState(byte[] buffer) {
-        GameState.RobotState[] state = new GameState.RobotState[(buffer.length - 8) / 8];
+    private void parseState(byte[] buffer, int numEntities) {
+        GameState.RobotState[] state = new GameState.RobotState[numEntities];
+        GameState.BulletState[] bullets = new GameState.BulletState[(buffer.length - numEntities*8 - 8) / 4];
         ByteBuffer buf = ByteBuffer.wrap(buffer, 0, 8);
         double vx = buf.getFloat();
         double vy = buf.getFloat();
-        for (int i = 8; i < buffer.length; i += 8) {
+        for (int i = 8; i < numEntities * 8 + 8; i += 8) {
             short id = (short) (((buffer[i] & 0xFF) << 8) + (buffer[i + 1] & 0xFF));
             int x = ((buffer[i + 2] & 0xFF) << 4) + ((buffer[i + 3] & 0xFF) >> 4);
             int y = ((buffer[i + 3] & 0x0F) << 8) + (buffer[i + 4] & 0xFF);
@@ -154,7 +159,13 @@ public class GameNetworkAdapter implements Runnable {
             byte aangle = (byte) buffer[i + 7];
             state[(i-8)/8] = new GameState.RobotState(id, x, y, rot, vangle, aangle);
         }
-        g.updateState(new GameState(state));
+        for (int i = numEntities * 8 + 8; i < buffer.length; i += 4) {
+            int x = ((buffer[i + 0] & 0xFF) << 4) + ((buffer[i + 1] & 0xFF) >> 4);
+            int y = ((buffer[i + 1] & 0x0F) << 8) + (buffer[i + 2] & 0xFF);
+            byte rot = (byte) buffer[i + 3];
+            bullets[(i-numEntities*8-8)/8] = new GameState.BulletState(x, y, rot);
+        }
+        g.updateState(new GameState(state, bullets));
         g.updateRobotVelocity(vx, vy);
     }
 

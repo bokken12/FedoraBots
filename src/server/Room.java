@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import server.sim.Bullet;
 import server.sim.Robot;
 import server.sim.Sim;
 import server.sim.World;
@@ -71,7 +72,9 @@ public class Room {
             throw new GameAlreadyStartedException("Room with id " + id + " is already full");
         }
         robots.put(robot.getId(), robot);
-        world.add(robot);
+        synchronized (world) {
+            world.add(robot);
+        }
 
         LOGGER.info("Room with id " + id + " has " + robots.size() + "/" + nRobots + " robots");
 
@@ -99,6 +102,15 @@ public class Room {
     }
 
     /**
+     * Adds a bullet to the room's world
+     */
+    public void addBullet(Bullet b) {
+        synchronized (world) {
+            world.add(b);
+        }
+    }
+
+    /**
      * Returns the number of robots in the room.
      */
     public int occupancy() {
@@ -122,8 +134,8 @@ public class Room {
     /**
      * Tells the room's manager to send a state update message over the given server.
      */
-    public void broadcastState(TcpServer server, byte[] state, Map<Short, byte[]> velocityStates) {
-        manager.broadcastRoomState(server, this, state, velocityStates);
+    public void broadcastState(TcpServer server, byte[] state, Map<Short, byte[]> velocityStates, byte[] bState) {
+        manager.broadcastRoomState(server, this, state, velocityStates, bState);
     }
 
     /**
@@ -134,7 +146,9 @@ public class Room {
      */
     public long tick(TcpServer server) {
         if (gameStarted) {
-            return sim.tick(tick -> broadcastState(server, world.state(), world.velocityStates()));
+            synchronized (world) {
+                return sim.tick(tick -> broadcastState(server, world.state(), world.velocityStates(), world.bulletStates()));
+            }
         } else {
             return 0;
         }

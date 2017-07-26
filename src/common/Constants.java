@@ -19,4 +19,10 @@ public class Constants {
          */
         public static final long SHOOT_FREQUENCY = 1000;
     }
+
+    public static class Bullet {
+        public static final double VELOCITY = 200;
+        public static final double RADIUS = 2;
+        public static final double MASS = 2;
+    }
 }

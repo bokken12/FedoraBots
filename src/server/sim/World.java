@@ -234,20 +234,20 @@ public abstract class World {
 
 		num[0] = 2;
 		forEachUnsafe(entity -> {
-			// System.out.print(entity.getX() + " " + entity.getY() + "        ");
-			state[num[0] + 0] = (byte) (entity.getId() >> 8);
-			state[num[0] + 1] = (byte) (entity.getId() & 0xFF);
-			state[num[0] + 2] = (byte) ((int) entity.getX() >> 4);
-			state[num[0] + 3] = (byte) ((((int) entity.getX() & 0x0F) << 4) + ((int) entity.getY() >> 8));
-			state[num[0] + 4] = (byte) ((int) entity.getY() & 0xFF);
-			state[num[0] + 5] = (byte) (entity.getRotation() / 2 / Math.PI * 255);
-			state[num[0] + 5] = (byte) (entity.getRotation() / 2 / Math.PI * 255);
 			if (entity instanceof Robot) {
+				// System.out.print(entity.getX() + " " + entity.getY() + "        ");
+				state[num[0] + 0] = (byte) (entity.getId() >> 8);
+				state[num[0] + 1] = (byte) (entity.getId() & 0xFF);
+				state[num[0] + 2] = (byte) ((int) entity.getX() >> 4);
+				state[num[0] + 3] = (byte) ((((int) entity.getX() & 0x0F) << 4) + ((int) entity.getY() >> 8));
+				state[num[0] + 4] = (byte) ((int) entity.getY() & 0xFF);
+				state[num[0] + 5] = (byte) (entity.getRotation() / 2 / Math.PI * 255);
+				state[num[0] + 5] = (byte) (entity.getRotation() / 2 / Math.PI * 255);
 				Robot pe = (Robot) entity;
 				state[num[0] + 6] = (byte) ((Math.atan2(pe.getVy(), pe.getVx()) + Math.PI / 2) / 2 / Math.PI * 255);
 				state[num[0] + 7] = (byte) ((Math.atan2(pe.getAy(), pe.getAx()) + Math.PI / 2) / 2 / Math.PI * 255);
+				num[0] += offset;
 			}
-			num[0] += offset;
 		});
 		// System.out.println();
 
@@ -267,10 +267,12 @@ public abstract class World {
 		num[0] = 2;
 
 		forEach(entity -> {
-			state[num[0] + 8] = (byte) entity.getColor().getRed();
-			state[num[0] + 9] = (byte) entity.getColor().getGreen();
-			state[num[0] + 10] = (byte) entity.getColor().getBlue();
-			num[0] += 11;
+			if (entity instanceof Robot) {
+				state[num[0] + 8] = (byte) entity.getColor().getRed();
+				state[num[0] + 9] = (byte) entity.getColor().getGreen();
+				state[num[0] + 10] = (byte) entity.getColor().getBlue();
+				num[0] += 11;
+			}
 		});
 
 		return state;
@@ -288,5 +290,25 @@ public abstract class World {
 			}
 		});
 		return m;
+	}
+
+	public byte[] bulletStates() {
+		List<Bullet> bullets = new ArrayList<Bullet>();
+		forEachUnsafe(entity -> {
+			if (entity instanceof Bullet) {
+				bullets.add((Bullet) entity);
+			}
+		});
+
+		byte[] bStates = new byte[bullets.size() * 4];
+		for (int i = 0; i < bullets.size(); i++) {
+			Bullet bullet = bullets.get(i);
+			bStates[i*4 + 0] = (byte) ((int) bullet.getX() >> 4);
+			bStates[i*4 + 1] = (byte) ((((int) bullet.getX() & 0x0F) << 4) + ((int) bullet.getY() >> 8));
+			bStates[i*4 + 2] = (byte) ((int) bullet.getY() & 0xFF);
+			bStates[i*4 + 3] = (byte) (Math.atan2(bullet.getVy(), bullet.getVx()) / 2 / Math.PI * 255);
+		}
+
+		return bStates;
 	}
 }

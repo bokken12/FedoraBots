@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 
 import common.Constants;
 import server.Room.GameAlreadyStartedException;
+import server.sim.Bullet;
 import server.sim.Robot;
 import server.sim.Sim;
 
@@ -67,7 +68,7 @@ public class Manager {
         synchronized (idMap) {
 
             try {
-                boolean addResult = room.addRobot(ent);
+                boolean gameStarting = room.addRobot(ent);
 
                 // Execute these lines after addRobot but before the if
                 // statement so that they aren't executed if a
@@ -77,7 +78,7 @@ public class Manager {
                 robotRooms.put(id, room);
                 idMap.put(key, id);
 
-                if (addResult) {
+                if (gameStarting) {
                     LOGGER.fine("Sending initial states to relevant robots");
                     ByteBuffer message = ByteBuffer.wrap(room.initialStae());
                     for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
@@ -135,6 +136,16 @@ public class Manager {
             }
         }
         System.out.println("Robot with id " + robotId + " just shot something");
+
+        Room room = robotRooms.get(robotId);
+        Robot robot = room.getRobot(robotId);
+        if (robot == null) {
+            throw new ParseException("Invalid robot ID " + robotId + ".");
+        }
+
+        double vx = Constants.Bullet.VELOCITY/1e3 * Math.cos(robot.getRotation());
+        double vy = Constants.Bullet.VELOCITY/1e3 * Math.sin(robot.getRotation());
+        room.addBullet(new Bullet(robot.getX(), robot.getY(), Constants.Bullet.RADIUS, Constants.Bullet.MASS, vx, vy));
     }
 
     public void handleSent(byte[] b, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
@@ -148,12 +159,13 @@ public class Manager {
         }
     }
 
-    public void broadcastRoomState(TcpServer server, Room room, byte[] state, Map<Short, byte[]> velocityStates) {
+    public void broadcastRoomState(TcpServer server, Room room, byte[] state, Map<Short, byte[]> velocityStates, byte[] bState) {
         synchronized (idMap) {
             for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
                 if (room.equals(robotRooms.get(connection.getValue()))) {
-                    ByteBuffer msgBuf = ByteBuffer.allocate(state.length + 8);
+                    ByteBuffer msgBuf = ByteBuffer.allocate(state.length + 10 + bState.length);
                     msgBuf.put(state, 0, 2);
+                    msgBuf.putShort((short) (bState.length / 4));
                     short id = connection.getValue();
                     msgBuf.put(velocityStates.get(id));
                     // if (id == null) {
@@ -162,6 +174,7 @@ public class Manager {
                     //     msgBuf.put(velocityStates.get(id));
                     // }
                     msgBuf.put(state, 2, state.length - 2);
+                    msgBuf.put(bState);
                     msgBuf.rewind();
                     TcpServer.sendToKey(connection.getKey(), msgBuf);
                 }

@@ -13,15 +13,26 @@ import javafx.scene.paint.Color;
 public class GameState {
     private Map<Short, Color> colorMap;
     private RobotState[] robotStates;
+    private BulletState[] bulletStates;
 
     /**
-     * Creates a GameState with the specified robot states. Note that these robot states will be modified as a side effect.
+     * Creates a GameState with the specified robot states. Note that these
+     * robot states will be modified as a side effect.
      */
     public GameState(RobotState[] robotStates) {
         this.robotStates = robotStates;
         for (RobotState s : robotStates) {
             s.setSurroundingState(this);
         }
+    }
+
+    /**
+     * Creates a GameState with the specified robot states and bullet states.
+     * Note that these robot states will be modified as a side effect.
+     */
+    public GameState(RobotState[] robotStates, BulletState[] bulletStates) {
+        this(robotStates);
+        this.bulletStates = bulletStates;
     }
 
     public static class RobotState {
@@ -56,6 +67,22 @@ public class GameState {
         protected void setSurroundingState(GameState state) {
             surroundingState = state;
         }
+    }
+
+    public static class BulletState {
+        private int x;
+        private int y;
+        private byte rotation;
+
+        public BulletState(int x, int y, byte rotation) {
+            this.x = x;
+            this.y = y;
+            this.rotation = rotation;
+        }
+
+        public int getX() { return x; }
+        public int getY() { return y; }
+        public byte getRotation() { return rotation; }
     }
 
     public void setColorMap(Map<Short, Color> cmap) {

@@ -23,11 +23,23 @@ Start of game (11 bytes per entity):
 | :----------: | :----------------: | :-------------------: | :------------------: | :------------------: | :-------------------------: | :------------------------: | :------------------------: | :----------------------: |
 |  0 (1 byte)  |       1 byte       |        2 bytes        |        12 bits       |        12 bits       |           1 byte            |           1 byte           |           1 byte           |       3 bytes (rgb)      |
 
-Game state (8 bytes per entity):
+Game state (8 bytes per entity and 4 bytes per bullet):
 
-| Message type | Number of entities | Vx for connection's robot | Vy for connection's robot | *For each entity:* ID | *For each entity:* X | *For each entity:* Y | *For each entity:* Rotation | *For each entity:* V angle | *For each entity:* A angle |
-| :----------: | :----------------: | :-----------------------: | :-----------------------: | :-------------------: | :------------------: | :------------------: | :-------------------------: | :------------------------: | :------------------------: |
-|  1 (1 byte)  |       1 byte       |      4 bytes (float)      |      4 bytes (float)      |        2 bytes        |        12 bits       |        12 bits       |           1 byte            |           1 byte           |           1 byte           |
+| Message type | Number of entities | Number of bullets | Vx for connection's robot | Vy for connection's robot |
+| :----------: | :----------------: | :---------------: | :-----------------------: | :-----------------------: |
+|  1 (1 byte)  |       1 byte       |      2 bytes      |      4 bytes (float)      |      4 bytes (float)      |
+
+Continued...
+
+| *For each entity:* ID | *For each entity:* X | *For each entity:* Y | *For each entity:* Rotation | *For each entity:* V angle | *For each entity:* A angle |
+| :-------------------: | :------------------: | :------------------: | :-------------------------: | :------------------------: | :------------------------: |
+|        2 bytes        |        12 bits       |        12 bits       |           1 byte            |           1 byte           |           1 byte           |
+
+Continued...
+
+| *For each bullet:* X | *For each bullet:* Y | *For each bullet*: Rotation |
+| :------------------: | :------------------: | :-------------------------: |
+|        12 bits       |        12 bits       |            1 byte           |
 
 Robot request to join game (sent to server):
 
