@@ -143,7 +143,7 @@ public class Manager {
             throw new ParseException("Invalid robot ID " + robotId + ".");
         }
 
-        double rotation = robot.getRotation() + Math.PI / 2;
+        double rotation = -robot.getRotation() + Math.PI / 2;
         double vx = Constants.Bullet.VELOCITY/1e3 * Math.cos(rotation);
         double vy = - (Constants.Bullet.VELOCITY/1e3 * Math.sin(rotation));
         double dist = (Constants.Robot.RADIUS + Constants.Bullet.RADIUS) * 1.1;
