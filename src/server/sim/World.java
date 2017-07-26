@@ -227,7 +227,7 @@ public abstract class World {
 		// Hackery for compilation
 		final int[] num = new int[1];
 
-		forEachUnsafe(entity -> num[0]++);
+		forEachUnsafe(entity -> { if (entity instanceof Robot) num[0]++; });
 		final byte[] state = new byte[offset * num[0] + 2];
 		state[0] = 1;
 		state[1] = (byte) num[0];
