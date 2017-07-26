@@ -22,7 +22,7 @@ public class Constants {
 
     public static class Bullet {
         public static final double VELOCITY = 200;
-        public static final double RADIUS = 2;
+        public static final double RADIUS = 4;
         public static final double MASS = 2;
     }
 }
