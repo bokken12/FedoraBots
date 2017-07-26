@@ -93,6 +93,10 @@ public class GameState {
         return robotStates;
     }
 
+    public BulletState[] bulletStates() {
+        return bulletStates;
+    }
+
     private Color colorForRobot(short id) {
         return colorMap.get(id);
     }

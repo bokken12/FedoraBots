@@ -2,12 +2,15 @@ package client;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
 
+import client.GameState.BulletState;
 import client.GameState.RobotState;
 import common.Constants;
 import javafx.application.Application;
@@ -25,6 +28,7 @@ public class Display extends Application {
     private Map<Short, RobotFigure> robots = new HashMap<Short, RobotFigure>();
     private Group robotCircles;
     private GameManager gm;
+    private List<BulletFigure> bullets = new ArrayList<BulletFigure>();
 
     public Display() throws IOException {
         gm = new GameManager(new GameNetworkAdapter());
@@ -97,10 +101,6 @@ public class Display extends Application {
 
         Platform.runLater(() -> {
             for (RobotState rs : state.robotStates()) {
-                Queue<RobotState> q = new LinkedList<RobotState>();
-                for (int i = 0; i < 15; i++) {
-                    q.add(rs);
-                }
                 robotCircles.getChildren().add(robots.get(rs.getId()));
             }
         });
@@ -121,6 +121,30 @@ public class Display extends Application {
                 robot.setRotate(angle);
                 robot.setBlasterRotate((rs.getRotation() / 255.0 * 360) - angle);
                 robot.setThrusterRotate((rs.getAccelAngle() / 255.0 * 360) - angle);
+            }
+
+            int i = 0;
+            for (BulletState bs : state.bulletStates()) {
+                BulletFigure bf;
+                if (i < bullets.size()) {
+                    // Reuse a bullet
+                    bf = bullets.get(i);
+                } else {
+                    bf = new BulletFigure();
+                    robotCircles.getChildren().add(bf);
+                    bullets.add(bf);
+                }
+
+                bf.setTranslateX(bs.getX());
+                bf.setTranslateY(bs.getY());
+                bf.setRotate(bs.getRotation());
+                i++;
+            }
+
+            // Remove leftover bullets
+            for (int j = bullets.size() - 1; j >= i; j--) {
+                robotCircles.getChildren().remove(bullets.get(j));
+                bullets.remove(j);
             }
         });
     }

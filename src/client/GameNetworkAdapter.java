@@ -163,7 +163,7 @@ public class GameNetworkAdapter implements Runnable {
             int x = ((buffer[i + 0] & 0xFF) << 4) + ((buffer[i + 1] & 0xFF) >> 4);
             int y = ((buffer[i + 1] & 0x0F) << 8) + (buffer[i + 2] & 0xFF);
             byte rot = (byte) buffer[i + 3];
-            bullets[(i-numEntities*8-8)/8] = new GameState.BulletState(x, y, rot);
+            bullets[(i-numEntities*8-8)/4] = new GameState.BulletState(x, y, rot);
         }
         g.updateState(new GameState(state, bullets));
         g.updateRobotVelocity(vx, vy);
