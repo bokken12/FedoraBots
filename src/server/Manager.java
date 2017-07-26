@@ -143,9 +143,13 @@ public class Manager {
             throw new ParseException("Invalid robot ID " + robotId + ".");
         }
 
-        double vx = Constants.Bullet.VELOCITY/1e3 * Math.cos(robot.getRotation());
-        double vy = Constants.Bullet.VELOCITY/1e3 * Math.sin(robot.getRotation());
-        room.addBullet(new Bullet(robot.getX(), robot.getY(), Constants.Bullet.RADIUS, Constants.Bullet.MASS, vx, vy));
+        double rotation = robot.getRotation() + Math.PI / 2;
+        double vx = Constants.Bullet.VELOCITY/1e3 * Math.cos(rotation);
+        double vy = - (Constants.Bullet.VELOCITY/1e3 * Math.sin(rotation));
+        double dist = (Constants.Robot.RADIUS + Constants.Bullet.RADIUS) * 1.1;
+        double x = robot.getX() + dist * Math.cos(rotation);
+        double y = robot.getY() - dist * Math.sin(rotation);
+        room.addBullet(new Bullet(x, y, Constants.Bullet.RADIUS, Constants.Bullet.MASS, vx, vy));
     }
 
     public void handleSent(byte[] b, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
