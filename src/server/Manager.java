@@ -154,12 +154,14 @@ public class Manager {
 
     public void handleSent(byte[] b, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
         ByteBuffer bb = ByteBuffer.wrap(b);
-        int mType = bb.get() & 0xFF;
-        switch (mType) {
-            case 128: handleRobotJoin(bb, server, key, channel); break;
-            case 129: handleRobotUpdate(bb, server, key, channel); break;
-            case 130: handleRobotShoot(bb, server, key, channel); break;
-            default:  throw new ParseException("Unknown message type " + mType + ".");
+        while (bb.hasRemaining()) {
+            int mType = bb.get() & 0xFF;
+            switch (mType) {
+                case 128: handleRobotJoin(bb, server, key, channel); break;
+                case 129: handleRobotUpdate(bb, server, key, channel); break;
+                case 130: handleRobotShoot(bb, server, key, channel); break;
+                default:  throw new ParseException("Unknown message type " + mType + ".");
+            }
         }
     }
 
