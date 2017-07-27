@@ -240,31 +240,28 @@ public abstract class World {
 
 	private byte[] state(int offset) {
 		Profiler.time("Compute state");
-		// Hackery for compilation
-		final int[] num = new int[1];
 
-		forEachUnsafe(entity -> { if (entity instanceof Robot) num[0]++; });
-		final byte[] state = new byte[offset * num[0] + 2];
+		List<Robot> robots = new ArrayList<Robot>();
+		forEachUnsafe(entity -> { if (entity instanceof Robot) robots.add((Robot) entity); });
+		final byte[] state = new byte[offset * robots.size() + 2];
 		state[0] = 1;
-		state[1] = (byte) num[0];
+		state[1] = (byte) robots.size();
 
-		num[0] = 2;
-		forEachUnsafe(entity -> {
-			if (entity instanceof Robot) {
-				// System.out.print(entity.getX() + " " + entity.getY() + "        ");
-				state[num[0] + 0] = (byte) (entity.getId() >> 8);
-				state[num[0] + 1] = (byte) (entity.getId() & 0xFF);
-				state[num[0] + 2] = (byte) ((int) entity.getX() >> 4);
-				state[num[0] + 3] = (byte) ((((int) entity.getX() & 0x0F) << 4) + ((int) entity.getY() >> 8));
-				state[num[0] + 4] = (byte) ((int) entity.getY() & 0xFF);
-				state[num[0] + 5] = (byte) (entity.getRotation() / 2 / Math.PI * 255);
-				state[num[0] + 5] = (byte) (entity.getRotation() / 2 / Math.PI * 255);
-				Robot pe = (Robot) entity;
-				state[num[0] + 6] = (byte) ((Math.atan2(pe.getVy(), pe.getVx()) + Math.PI / 2) / 2 / Math.PI * 255);
-				state[num[0] + 7] = (byte) ((Math.atan2(pe.getAy(), pe.getAx()) + Math.PI / 2) / 2 / Math.PI * 255);
-				num[0] += offset;
-			}
-		});
+		int i = 2;
+		for (Robot entity : robots) {
+			// System.out.print(entity.getX() + " " + entity.getY() + "        ");
+			state[i + 0] = (byte) (entity.getId() >> 8);
+			state[i + 1] = (byte) (entity.getId() & 0xFF);
+			state[i + 2] = (byte) ((int) entity.getX() >> 4);
+			state[i + 3] = (byte) ((((int) entity.getX() & 0x0F) << 4) + ((int) entity.getY() >> 8));
+			state[i + 4] = (byte) ((int) entity.getY() & 0xFF);
+			state[i + 5] = (byte) (entity.getRotation() / 2 / Math.PI * 255);
+			state[i + 5] = (byte) (entity.getRotation() / 2 / Math.PI * 255);
+			Robot pe = (Robot) entity;
+			state[i + 6] = (byte) ((Math.atan2(pe.getVy(), pe.getVx()) + Math.PI / 2) / 2 / Math.PI * 255);
+			state[i + 7] = (byte) ((Math.atan2(pe.getAy(), pe.getAx()) + Math.PI / 2) / 2 / Math.PI * 255);
+			i += offset;
+		}
 		Profiler.timeEnd("Compute state");
 		// System.out.println();
 
