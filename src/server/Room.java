@@ -159,6 +159,11 @@ public class Room {
                     List<Robot> robotsChangedHealth = world.healthChangedRobots(rvs);
                     if (robotsChangedHealth.size() > 0) {
                         manager.broadcastHealths(server, this, world.healthStates(robotsChangedHealth));
+                        for (Robot robot : robotsChangedHealth) {
+                            if (robot.getHealth() == 0) {
+                                robots.remove(robot.getId());
+                            }
+                        }
                     }
                 });
             }
