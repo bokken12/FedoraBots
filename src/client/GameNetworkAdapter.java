@@ -83,7 +83,7 @@ public class GameNetworkAdapter implements Runnable {
                 int numEntities = 0;
 
                 int bufferLen = 0;
-                if (mType == 0 || mType == 1) {
+                if (mType == 0 || mType == 1 || mType == 2) {
                     numEntities = inp.read();
 
                     if (mType == 0) bufferLen = numEntities * 11;
@@ -91,6 +91,7 @@ public class GameNetworkAdapter implements Runnable {
                         int numBullets = (inp.read() << 8) + inp.read();
                         bufferLen = numEntities * 8 + 8 + numBullets * 4;
                     }
+                    if (mType == 2) bufferLen = numEntities * 3;
                 } else if (mType == 64) {
                     bufferLen = 2;
                 } else if (mType == 65 || mType == 66) {
@@ -121,9 +122,11 @@ public class GameNetworkAdapter implements Runnable {
         switch (type) {
             case 0:  parseStart(buffer); break;
             case 1:  parseState(buffer, numEntities); break;
+            case 2:  parseHealths(buffer); break;
             case 64: parseJoined(buffer); break;
             case 65: throwError("The room the robot tried to join does not exist."); break;
             case 66: throwError("The room the robot tried to join already started its game."); break;
+            default: throwError("Invalid message type " + type + ".");
         }
     }
 
@@ -167,6 +170,15 @@ public class GameNetworkAdapter implements Runnable {
         }
         g.updateState(new GameState(state, bullets));
         g.updateRobotVelocity(vx, vy);
+    }
+
+    private void parseHealths(byte[] buffer) {
+        ByteBuffer bb = ByteBuffer.wrap(buffer);
+        Map<Short, Double> healths = new HashMap<Short, Double>();
+        for (int i = 0; i < buffer.length; i += 3) {
+            healths.put(bb.getShort(), (bb.get() & 0xFF) / 255.0);
+        }
+        g.updateHealths(healths);
     }
 
     private void parseJoined(byte[] buffer) {

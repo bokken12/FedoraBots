@@ -1,6 +1,7 @@
 package server;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -147,7 +148,13 @@ public class Room {
     public long tick(TcpServer server) {
         if (gameStarted) {
             synchronized (world) {
-                return sim.tick(tick -> broadcastState(server, world.state(), world.velocityStates(), world.bulletStates()));
+                return sim.tick(tick -> {
+                    broadcastState(server, world.state(), world.velocityStates(), world.bulletStates());
+                    List<Robot> robotsChangedHealth = world.healthChangedRobots();
+                    if (robotsChangedHealth.size() > 0) {
+                        manager.broadcastHealths(server, this, world.healthStates(robotsChangedHealth));
+                    }
+                });
             }
         } else {
             return 0;

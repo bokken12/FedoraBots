@@ -35,16 +35,16 @@ public class PhysicsEntity extends Entity {
 	}
 
 	public void resolveCollision(PhysicsEntity other) {
-		System.out.println("Resolving a collision between");
-		System.out.println(this);
-		System.out.println(other);
+		// System.out.println("Resolving a collision between");
+		// System.out.println(this);
+		// System.out.println(other);
 		double distsq = Math.pow(getX() - other.getX(), 2) + Math.pow(getY() - other.getY(), 2);
 		double dp = (vx - other.vx) * (getX() - other.getX()) + (vy - other.vy) * (getY() - other.getY());
 
 		if (dp >= 0)
 			return;
 
-		System.out.println(dp);
+		// System.out.println(dp);
 		double common = 2 * dp / distsq / (mass + other.mass);
 
 		// double oldvx = vx, oldvy = vy;
@@ -58,9 +58,9 @@ public class PhysicsEntity extends Entity {
 		// vy = (vy * (mass - other.mass) + (2 * other.mass * other.vy)) / (mass + other.mass);
 		// other.vx = (other.vx * (other.mass - mass) + (2 * mass * oldvx)) / (mass + other.mass);
 		// other.vy = (other.vy * (other.mass - mass) + (2 * mass * oldvy)) / (mass + other.mass);
-		System.out.println("Collision resolved, now");
-		System.out.println(this);
-		System.out.println(other);
+		// System.out.println("Collision resolved, now");
+		// System.out.println(this);
+		// System.out.println(other);
 	}
 
 	@Override

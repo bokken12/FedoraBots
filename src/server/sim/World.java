@@ -6,8 +6,10 @@ package server.sim;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -19,6 +21,7 @@ public abstract class World {
 
 	private double x, y, width, height;
 	private World parent;
+	private Stack<Entity> toRemove;
 
 	public static final int MIN_WIDTH = 40;
 	public static final int MIN_HEIGHT = 40;
@@ -29,6 +32,7 @@ public abstract class World {
 		this.width = width;
 		this.height = height;
 		this.parent = parent;
+		toRemove = new Stack<Entity>();
 	}
 
 	public static World generateInfiniteWorld(double x, double y, double width, double height) {
@@ -193,6 +197,16 @@ public abstract class World {
 
 	public abstract void remove(Entity entity);
 
+	public void markForRemoval(Entity entity) {
+		toRemove.add(entity);
+	}
+
+	public void removeMarked() {
+		while (!toRemove.isEmpty()) {
+			remove(toRemove.pop());
+		}
+	}
+
 	protected static boolean intersects(Entity circle, double x, double y, double width, double height) {
 		double rx = x + width / 2;
 		double ry = y + height / 2;
@@ -310,5 +324,31 @@ public abstract class World {
 		}
 
 		return bStates;
+	}
+
+	public List<Robot> healthChangedRobots() {
+		List<Robot> robots = new ArrayList<Robot>();
+		forEachUnsafe(entity -> {
+			if (entity instanceof Robot) {
+				Robot rentity = (Robot) entity;
+				if (rentity.hasHealthChanged()) {
+					robots.add(rentity);
+				}
+			}
+		});
+
+		return robots;
+	}
+
+	public byte[] healthStates(List<Robot> robots) {
+		ByteBuffer healthStates = ByteBuffer.allocate(robots.size() * 3 + 2);
+		healthStates.put((byte) 2);
+		healthStates.put((byte) robots.size());
+		for (Robot robot : robots) {
+			healthStates.putShort(robot.getId());
+			healthStates.put((byte) (robot.getHealth() * 255));
+		}
+
+		return healthStates.array();
 	}
 }

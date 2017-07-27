@@ -31,6 +31,7 @@ public class Sim {
 		double millilength = nanoLength / 1e6;
 
 		world.forEach((e) -> e.tick(millilength, world));
+		world.removeMarked();
 		prev += nanoLength;
 		tick.accept(millilength);
 
@@ -45,6 +46,7 @@ public class Sim {
 			double millilength = nanoLength / 1e6;
 
 			world.forEach((e) -> e.tick(millilength, world));
+			world.removeMarked();
 			prev += nanoLength;
 			tick.accept(millilength);
 			// System.out.println("tick of length: " + millilength);

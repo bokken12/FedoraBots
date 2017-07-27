@@ -14,6 +14,7 @@ public abstract class Entity {
 	private Color color;
 	private double x, y, rotation, radius;
 	private World world;
+	private boolean toBeRemoved;
 
 	/**
 	 * @param x
@@ -175,6 +176,15 @@ public abstract class Entity {
 	 */
 	void setWorld(World world) {
 		this.world = world;
+	}
+
+	public void markForRemoval() {
+		toBeRemoved = true;
+		world.markForRemoval(this);
+	}
+
+	public boolean markedForRemoval() {
+		return toBeRemoved;
 	}
 
 	/* (non-Javadoc)

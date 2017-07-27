@@ -135,7 +135,6 @@ public class Manager {
                 throw new ParseException(key.attachment() + " does not have permission to edit robot with id " + id + ".");
             }
         }
-        System.out.println("Robot with id " + robotId + " just shot something");
 
         Room room = robotRooms.get(robotId);
         Robot robot = room.getRobot(robotId);
@@ -181,6 +180,18 @@ public class Manager {
                     // }
                     msgBuf.put(state, 2, state.length - 2);
                     msgBuf.put(bState);
+                    msgBuf.rewind();
+                    TcpServer.sendToKey(connection.getKey(), msgBuf);
+                }
+            }
+        }
+    }
+
+    public void broadcastHealths(TcpServer server, Room room, byte[] healthStates) {
+        ByteBuffer msgBuf = ByteBuffer.wrap(healthStates);
+        synchronized (idMap) {
+            for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
+                if (room.equals(robotRooms.get(connection.getValue()))) {
                     msgBuf.rewind();
                     TcpServer.sendToKey(connection.getKey(), msgBuf);
                 }

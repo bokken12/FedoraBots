@@ -86,6 +86,7 @@ public class Display extends Application {
         gm.addStateListener(this::draw);
         gm.addBeginListener(this::initializeRobots);
         gm.addEndListener(this::destroyRobots);
+        gm.addHealthListener(this::updateRobotHealths);
         latch.countDown();
     }
 
@@ -116,7 +117,7 @@ public class Display extends Application {
                 robot.setTranslateX(rs.getX());
                 robot.setTranslateY(rs.getY());
                 double angle = (rs.getVelocityAngle() / 255.0 * 360);
-                robot.setRotate(angle);
+                robot.setRotation(angle);
                 robot.setBlasterRotate((rs.getRotation() / 255.0 * 360) - angle);
                 robot.setThrusterRotate((rs.getAccelAngle() / 255.0 * 360) - angle);
             }
@@ -149,6 +150,12 @@ public class Display extends Application {
 
     private void destroyRobots(GameState state) {
         robots.clear();
+    }
+
+    private void updateRobotHealths(Map<Short, Double> healths) {
+        for (Map.Entry<Short, Double> entry : healths.entrySet()) {
+            robots.get(entry.getKey()).setHealth(entry.getValue());
+        }
     }
 
 }

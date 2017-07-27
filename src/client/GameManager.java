@@ -17,6 +17,7 @@ public class GameManager {
     private Collection<Consumer<GameState>> beginListeners = new ArrayList<Consumer<GameState>>();
     private Collection<Consumer<GameState>> endListeners = new ArrayList<Consumer<GameState>>();
     private Collection<BiConsumer<Double, Double>> velocityListeners = new ArrayList<BiConsumer<Double, Double>>();
+    private Collection<Consumer<Map<Short, Double>>> healthListeners = new ArrayList<Consumer<Map<Short, Double>>>();
     private Map<Short, Color> colors;
     private GameNetworkAdapter adapter;
 
@@ -56,6 +57,10 @@ public class GameManager {
         velocityListeners.add(listener);
     }
 
+    public void addHealthListener(Consumer<Map<Short, Double>> listener) {
+        healthListeners.add(listener);
+    }
+
     public void startGame(GameState st, Map<Short, Color> colorMap) {
         colors = colorMap;
         st.setColorMap(colors);
@@ -74,6 +79,12 @@ public class GameManager {
     public void updateRobotVelocity(double vx, double vy) {
         for (BiConsumer<Double, Double> vl : velocityListeners) {
             vl.accept(vx, vy);
+        }
+    }
+
+    public void updateHealths(Map<Short, Double> healths) {
+        for (Consumer<Map<Short, Double>> hl : healthListeners) {
+            hl.accept(healths);
         }
     }
 

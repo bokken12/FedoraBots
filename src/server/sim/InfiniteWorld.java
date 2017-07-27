@@ -37,7 +37,9 @@ public class InfiniteWorld extends World {
 	@Override
 	public void forEachUnsafe(Consumer<Entity> consumer) {
 		for(Entity e : things) {
-			consumer.accept(e);
+			if (!e.markedForRemoval()) {
+				consumer.accept(e);
+			}
 		}
 		child.forEachUnsafe(consumer);
 	}
@@ -50,7 +52,7 @@ public class InfiniteWorld extends World {
 	@Override
 	public void forCollidingUnsafe(Entity source, Consumer<Entity> consumer) {
 		for(Entity e : things) {
-			if(!source.equals(e)
+			if(!e.markedForRemoval() && !source.equals(e)
 					&& Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2) <= Math.pow(
 							source.getRadius() + e.getRadius(), 2)) {
 				consumer.accept(e);
@@ -70,7 +72,7 @@ public class InfiniteWorld extends World {
 		double dmin = closest == null ? Double.MAX_VALUE : Math.pow(source.getX() - closest.getX(), 2)
 				+ Math.pow(source.getY() - closest.getY(), 2);
 		for(Entity e : things) {
-			if(!source.equals(e)) {
+			if(!e.markedForRemoval() && !source.equals(e)) {
 				double d = Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2);
 				if(d < dmin) {
 					dmin = d;
@@ -92,7 +94,7 @@ public class InfiniteWorld extends World {
 		double dmin = closest == null ? Double.MAX_VALUE : Math.pow(source.getX() - closest.getX(), 2)
 				+ Math.pow(source.getY() - closest.getY(), 2);
 		for(Entity e : things) {
-			if(!source.equals(e) && condition.test(e)) {
+			if(!e.markedForRemoval() && !source.equals(e) && condition.test(e)) {
 				double d = Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2);
 				if(d < dmin) {
 					dmin = d;
@@ -129,6 +131,12 @@ public class InfiniteWorld extends World {
 			child.remove(entity);
 	}
 
+	@Override
+	public void removeMarked() {
+		super.removeMarked();
+		child.removeMarked();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -138,7 +146,7 @@ public class InfiniteWorld extends World {
 	@Override
 	public void forCollidingUnsafe(double x, double y, double width, double height, Consumer<Entity> consumer) {
 		for(Entity e : things) {
-			if(World.intersects(e, x, y, width, height)) {
+			if(!e.markedForRemoval() && World.intersects(e, x, y, width, height)) {
 				consumer.accept(e);
 			}
 		}

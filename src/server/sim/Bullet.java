@@ -1,5 +1,7 @@
 package server.sim;
 
+import common.Constants;
+
 public class Bullet extends PhysicsEntity {
 
 	public Bullet(double x, double y, double radius, double mass, double vx, double vy)
@@ -9,6 +11,21 @@ public class Bullet extends PhysicsEntity {
 
 	public Bullet(double x, double y, double radius, double mass) {
 		super((short) 0, null, x, y, 0, radius, mass);
+	}
+
+	@Override
+	public void resolveCollision(PhysicsEntity other) {
+		super.resolveCollision(other);
+		if (other instanceof Robot) {
+			System.out.println("Bullet-side collision");
+			System.out.println(other);
+			Robot rother = (Robot) other;
+			rother.setHealth(rother.getHealth() - Constants.Bullet.DAMAGE);
+			markForRemoval();
+		} else if (other instanceof Bullet) {
+			markForRemoval();
+			other.markedForRemoval();
+		}
 	}
 
 	/* (non-Javadoc)
