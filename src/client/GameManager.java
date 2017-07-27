@@ -101,6 +101,15 @@ public class GameManager {
         return adapter.getRobotId();
     }
 
+    public void spectateGame(short roomId) {
+        try {
+            adapter.sendSpectate(roomId);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not spectate a game because of a network error");
+        }
+        adapter.waitForSpectateOk();
+    }
+
     public void sendRobotUpdate(short robotId, Robot robot) {
         try {
             adapter.sendRobotUpdate(robotId, robot.getAx(), robot.getAy(), robot.getRotation());

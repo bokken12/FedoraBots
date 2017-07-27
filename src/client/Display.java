@@ -64,12 +64,20 @@ public class Display extends Application {
         return gm;
     }
 
-    public void goLaunch() {
-        launch();
-    }
-
     public static void main(String[] args) {
-        launch();
+        if (args.length < 1) {
+            System.err.println("Please provide a room id to spectate.");
+            System.exit(1);
+        }
+
+        try {
+            Short.parseShort(args[0]);
+        } catch (NumberFormatException e) {
+            System.err.println("The provided room id must be a valid number.");
+            System.exit(1);
+        }
+
+        Application.launch(args);
     }
 
     public void start(Stage primaryStage) {
@@ -87,6 +95,11 @@ public class Display extends Application {
         gm.addBeginListener(this::initializeRobots);
         gm.addEndListener(this::destroyRobots);
         gm.addHealthListener(this::updateRobotHealths);
+
+        if (getParameters().getRaw().size() > 0) {
+            gm.spectateGame(Short.parseShort(getParameters().getRaw().get(0)));
+        }
+
         latch.countDown();
     }
 

@@ -122,6 +122,13 @@ public class Room {
     }
 
     /**
+     * Returns a boolean indicating whether the game has started
+     */
+    public boolean hasStarted() {
+        return gameStarted;
+    }
+
+    /**
      * Returns all the robots in the room, mapped to their ids.
      */
     public Map<Short, Robot> robotsById() {

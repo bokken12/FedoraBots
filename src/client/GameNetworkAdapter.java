@@ -16,6 +16,7 @@ import javafx.scene.paint.Color;
 public class GameNetworkAdapter implements Runnable {
 
     private Semaphore awaitingId = new Semaphore(1);
+    private Semaphore awaitingSpectateOk = new Semaphore(1);
 
     private Socket s;
     private InputStream inp;
@@ -55,6 +56,18 @@ public class GameNetworkAdapter implements Runnable {
         s.getOutputStream().write(bb.array());
     }
 
+    public void sendSpectate(short roomId) throws IOException {
+        try {
+            awaitingSpectateOk.acquire();
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Could not acquire awaiting semaphore.");
+        }
+        ByteBuffer bb = ByteBuffer.allocate(3);
+        bb.put((byte) 192);
+        bb.putShort(roomId);
+        s.getOutputStream().write(bb.array());
+    }
+
     public void sendRobotUpdate(short id, double ax, double ay, double rotation) throws IOException {
         ByteBuffer bb = ByteBuffer.allocate(13);
         bb.put((byte) 129);
@@ -83,6 +96,16 @@ public class GameNetworkAdapter implements Runnable {
         }
     }
 
+    public void waitForSpectateOk() {
+        try {
+            awaitingSpectateOk.acquire();
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Could not check whether the server is okay with being spectated.");
+        } finally {
+            awaitingSpectateOk.release();
+        }
+    }
+
     @Override
     public void run() {
         while (true) {
@@ -102,7 +125,7 @@ public class GameNetworkAdapter implements Runnable {
                     if (mType == 2) bufferLen = numEntities * 3;
                 } else if (mType == 64) {
                     bufferLen = 2;
-                } else if (mType == 65 || mType == 66) {
+                } else if (mType == 3 || mType == 65 || mType == 66) {
                     bufferLen = 0;
                 } else {
                     throw new RuntimeException("Unknown message type " + mType + ".");
@@ -131,6 +154,7 @@ public class GameNetworkAdapter implements Runnable {
             case 0:  parseStart(buffer); break;
             case 1:  parseState(buffer, numEntities); break;
             case 2:  parseHealths(buffer); break;
+            case 3:  parseSpectateOk(buffer); break;
             case 64: parseJoined(buffer); break;
             case 65: throwError("The room the robot tried to join does not exist."); break;
             case 66: throwError("The room the robot tried to join already started its game."); break;
@@ -192,6 +216,10 @@ public class GameNetworkAdapter implements Runnable {
     private void parseJoined(byte[] buffer) {
         robotId = (short) (((buffer[0] & 0xFF) << 8) + (buffer[1] & 0xFF));
         awaitingId.release();
+    }
+
+    private void parseSpectateOk(byte[] buffer) {
+        awaitingSpectateOk.release();
     }
 
 }

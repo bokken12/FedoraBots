@@ -15,7 +15,8 @@ However, in Java they are kept as integers so that they are compaitible with gen
 
 * `0 - 63`: Server --> displays messages
 * `64 - 127`: Server --> robots messages
-* `128 - 255`: Robot --> server messages
+* `128 - 191`: Robot --> server messages
+* `192 - 255`: Display --> server messages
 
 Start of game (11 bytes per entity):
 
@@ -46,6 +47,12 @@ Health update (3 bytes per entity):
 | Message type | Number of entities | *For each entity:* ID | *For each entity:* Health |
 | :----------: | :----------------: | :-------------------: | :-----------------------: |
 |  2 (1 byte)  |       1 byte       |        2 bytes        |           1 byte          |
+
+Server response after a display spectates a game for success (sent to display):
+
+| Message type |
+| :----------: |
+|  3 (1 byte)  |
 
 Robot request to join game (sent to server):
 
@@ -82,3 +89,9 @@ Robot request to shoot (sent to server):
 | Message type | Robot ID |
 | :----------: | :------: |
 | 130 (1 byte) |  2 bytes |
+
+Spectate game (sent to server):
+
+| Message type | Room ID |
+| :----------: | :-----: |
+| 192 (1 byte) | 2 bytes |
