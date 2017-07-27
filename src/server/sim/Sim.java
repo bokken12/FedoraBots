@@ -5,6 +5,8 @@ package server.sim;
 
 import java.util.function.DoubleConsumer;
 
+import common.Profiler;
+
 /**
  * @author joelmanning
  *
@@ -30,10 +32,18 @@ public class Sim {
 		long nanoLength = ctm - prev;
 		double millilength = nanoLength / 1e6;
 
+		Profiler.time("Tick entities");
 		world.forEach((e) -> e.tick(millilength, world));
+		Profiler.timeEnd("Tick entities");
+		Profiler.time("Remove marked");
 		world.removeMarked();
+		Profiler.timeEnd("Remove marked");
 		prev += nanoLength;
+		Profiler.time("Broadcast");
 		tick.accept(millilength);
+		Profiler.timeEnd("Broadcast");
+
+		Profiler.printTimes(1000);
 
 		return System.nanoTime() - ctm;
 	}

@@ -12,6 +12,8 @@ import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import common.Profiler;
+
 /**
  * @author joelmanning
  *
@@ -237,6 +239,7 @@ public abstract class World {
 	}
 
 	private byte[] state(int offset) {
+		Profiler.time("Compute state");
 		// Hackery for compilation
 		final int[] num = new int[1];
 
@@ -262,6 +265,7 @@ public abstract class World {
 				num[0] += offset;
 			}
 		});
+		Profiler.timeEnd("Compute state");
 		// System.out.println();
 
 		return state;
@@ -292,6 +296,7 @@ public abstract class World {
 	}
 
 	public Map<Short, byte[]> velocityStates() {
+		Profiler.time("Compute vel states");
 		Map<Short, byte[]> m = new HashMap<Short, byte[]>();
 		forEachUnsafe(entity -> {
 			if (entity instanceof Robot) {
@@ -302,10 +307,12 @@ public abstract class World {
 				m.put(entity.getId(), bb.array());
 			}
 		});
+		Profiler.timeEnd("Compute vel states");
 		return m;
 	}
 
 	public byte[] bulletStates() {
+		Profiler.time("Compute bul states");
 		List<Bullet> bullets = new ArrayList<Bullet>();
 		forEachUnsafe(entity -> {
 			if (entity instanceof Bullet) {
@@ -321,6 +328,7 @@ public abstract class World {
 			bStates[i*4 + 2] = (byte) ((int) bullet.getY() & 0xFF);
 			bStates[i*4 + 3] = (byte) (Math.atan2(bullet.getVy(), bullet.getVx()) / 2 / Math.PI * 255);
 		}
+		Profiler.timeEnd("Compute bul states");
 
 		return bStates;
 	}

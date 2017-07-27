@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import common.Profiler;
 import server.sim.Bullet;
 import server.sim.Robot;
 import server.sim.Sim;
@@ -149,7 +150,9 @@ public class Room {
         if (gameStarted) {
             synchronized (world) {
                 return sim.tick(tick -> {
+                    Profiler.time("Broadcast state");
                     broadcastState(server, world.state(), world.velocityStates(), world.bulletStates());
+                    Profiler.timeEnd("Broadcast state");
                     List<Robot> robotsChangedHealth = world.healthChangedRobots();
                     if (robotsChangedHealth.size() > 0) {
                         manager.broadcastHealths(server, this, world.healthStates(robotsChangedHealth));
