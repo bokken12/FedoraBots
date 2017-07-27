@@ -24,8 +24,16 @@ public class GameNetworkAdapter implements Runnable {
     private short robotId;
 
     public GameNetworkAdapter() throws IOException {
-        s = new Socket("localhost", 8090);
+        s = new Socket(getHost(), 8090);
         inp = s.getInputStream();
+    }
+
+    private static String getHost() {
+        String host = System.getProperty("server.host");
+        if (host == null) {
+            return "localhost";
+        }
+        return host;
     }
 
     public void setManager(GameManager manager) {
