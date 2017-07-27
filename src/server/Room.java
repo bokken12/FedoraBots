@@ -153,9 +153,10 @@ public class Room {
             synchronized (world) {
                 return sim.tick(tick -> {
                     Profiler.time("Broadcast state");
-                    broadcastState(server, robots.values());
+                    Collection<Robot> rvs = robots.values();
+                    broadcastState(server, rvs);
                     Profiler.timeEnd("Broadcast state");
-                    List<Robot> robotsChangedHealth = world.healthChangedRobots();
+                    List<Robot> robotsChangedHealth = world.healthChangedRobots(rvs);
                     if (robotsChangedHealth.size() > 0) {
                         manager.broadcastHealths(server, this, world.healthStates(robotsChangedHealth));
                     }

@@ -316,24 +316,18 @@ public abstract class World {
 		Profiler.timeEnd("Compute bul states");
 	}
 
-	public List<Robot> healthChangedRobots() {
-		List<Robot> robots = new ArrayList<Robot>();
-		forEachUnsafe(entity -> {
-			if (entity instanceof Robot) {
-				Robot rentity = (Robot) entity;
-				if (rentity.hasHealthChanged()) {
-					robots.add(rentity);
-				}
-			}
-		});
-
+	public List<Robot> healthChangedRobots(Collection<Robot> robots) {
+		List<Robot> hcRobots = new ArrayList<Robot>();
 		for (Robot robot : robots) {
-			if (robot.getHealth() == 0) {
-				robot.getWorld().remove(robot);
+			if (robot.hasHealthChanged()) {
+				hcRobots.add(robot);
+				if (robot.getHealth() == 0) {
+					robot.getWorld().remove(robot);
+				}
 			}
 		}
 
-		return robots;
+		return hcRobots;
 	}
 
 	public byte[] healthStates(List<Robot> robots) {
