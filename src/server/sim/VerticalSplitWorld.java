@@ -193,7 +193,7 @@ public class VerticalSplitWorld extends World {
 	@Override
 	public void forCollidingUnsafe(double x, double y, double width, double height, Consumer<Entity> consumer) {
 		for(Entity e : things) {
-			if(!e.markedForRemoval() && .intersects(e, x, y, width, height)) {
+			if(!e.markedForRemoval() && World.intersects(e, x, y, width, height)) {
 				consumer.accept(e);
 			}
 		}
