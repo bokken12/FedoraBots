@@ -275,7 +275,7 @@ public abstract class World {
 			buf.put((byte) entity.getColor().getBlue());
 			i--;
 			if (i > 0) {
-				buf.position(buf.position() + 11);
+				buf.position(buf.position() + 8);
 			}
 		}
 	}
