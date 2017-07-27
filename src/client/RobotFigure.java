@@ -6,13 +6,10 @@ import afester.javafx.svg.SvgLoader;
 import common.Constants.Robot;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.Shape;
 import javafx.scene.transform.Rotate;
@@ -123,7 +120,7 @@ public class RobotFigure extends Group {
 
     public void setHealth(double value) {
         health.setContent(hbSVG(value));
-        health.setFill(HB_START_COLOR.interpolate(HB_END_COLOR, value));
+        health.setFill(HB_END_COLOR.interpolate(HB_START_COLOR, value));
     }
 
     private static String hbSVG(double value) {
