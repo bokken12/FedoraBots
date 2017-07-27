@@ -239,56 +239,45 @@ public abstract class World {
 		return "World [x=" + x + ", y=" + y + ", width=" + width + ", height=" + height + "]";
 	}
 
-	private byte[] state(int offset, Collection<Robot> robots) {
-		Profiler.time("Compute state");
+	private void writeState(ByteBuffer buf, int offset, Collection<Robot> robots) {
+		Profiler.time("Compute state");;
 
-		final byte[] state = new byte[offset * robots.size() + 2];
-		state[0] = 1;
-		state[1] = (byte) robots.size();
-
-		int i = 2;
 		for (Robot entity : robots) {
 			// System.out.print(entity.getX() + " " + entity.getY() + "        ");
-			state[i + 0] = (byte) (entity.getId() >> 8);
-			state[i + 1] = (byte) (entity.getId() & 0xFF);
-			state[i + 2] = (byte) ((int) entity.getX() >> 4);
-			state[i + 3] = (byte) ((((int) entity.getX() & 0x0F) << 4) + ((int) entity.getY() >> 8));
-			state[i + 4] = (byte) ((int) entity.getY() & 0xFF);
-			state[i + 5] = (byte) (entity.getRotation() / 2 / Math.PI * 255);
-			state[i + 5] = (byte) (entity.getRotation() / 2 / Math.PI * 255);
+			buf.put((byte) (entity.getId() >> 8));
+			buf.put((byte) (entity.getId() & 0xFF));
+			buf.put((byte) ((int) entity.getX() >> 4));
+			buf.put((byte) ((((int) entity.getX() & 0x0F) << 4) + ((int) entity.getY() >> 8)));
+			buf.put((byte) ((int) entity.getY() & 0xFF));
+			buf.put((byte) (entity.getRotation() / 2 / Math.PI * 255));
 			Robot pe = (Robot) entity;
-			state[i + 6] = (byte) ((Math.atan2(pe.getVy(), pe.getVx()) + Math.PI / 2) / 2 / Math.PI * 255);
-			state[i + 7] = (byte) ((Math.atan2(pe.getAy(), pe.getAx()) + Math.PI / 2) / 2 / Math.PI * 255);
-			i += offset;
+			buf.put((byte) ((Math.atan2(pe.getVy(), pe.getVx()) + Math.PI / 2) / 2 / Math.PI * 255));
+			buf.put((byte) ((Math.atan2(pe.getAy(), pe.getAx()) + Math.PI / 2) / 2 / Math.PI * 255));
+			buf.position(buf.position() - 8 + offset);
 		}
 		Profiler.timeEnd("Compute state");
 		// System.out.println();
-
-		return state;
 	}
 
-	public byte[] state(Collection<Robot> robots) {
-		return state(8, robots);
+	public void writeState(ByteBuffer buf, Collection<Robot> robots) {
+		writeState(buf, 8, robots);
 	}
 
-	public byte[] startingState(Collection<Robot> robots) {
-		byte[] state = state(11, robots);
-		state[0] = 0;
+	public void writeStartingState(ByteBuffer buf, Collection<Robot> robots) {
+		writeState(buf, 11, robots);
+		 // Go back to beginning, then forward 8
+		buf.position(buf.position() - robots.size() * 11 + 8);
 
-		// Hackery for compilation
-		final int[] num = new int[1];
-		num[0] = 2;
-
-		forEach(entity -> {
-			if (entity instanceof Robot) {
-				state[num[0] + 8] = (byte) entity.getColor().getRed();
-				state[num[0] + 9] = (byte) entity.getColor().getGreen();
-				state[num[0] + 10] = (byte) entity.getColor().getBlue();
-				num[0] += 11;
+		int i = robots.size();
+		for (Robot entity : robots) {
+			buf.put((byte) entity.getColor().getRed());
+			buf.put((byte) entity.getColor().getGreen());
+			buf.put((byte) entity.getColor().getBlue());
+			i--;
+			if (i > 0) {
+				buf.position(buf.position() + 11);
 			}
-		});
-
-		return state;
+		}
 	}
 
 	public Map<Short, byte[]> velocityStates(Collection<Robot> robots) {
@@ -305,26 +294,26 @@ public abstract class World {
 		return m;
 	}
 
-	public byte[] bulletStates() {
-		Profiler.time("Compute bul states");
-		List<Bullet> bullets = new ArrayList<Bullet>();
+	public Collection<Bullet> getBullets() {
+		Collection<Bullet> bullets = new ArrayList<Bullet>();
 		forEachUnsafe(entity -> {
 			if (entity instanceof Bullet) {
 				bullets.add((Bullet) entity);
 			}
 		});
+		return bullets;
+	}
 
-		byte[] bStates = new byte[bullets.size() * 4];
-		for (int i = 0; i < bullets.size(); i++) {
-			Bullet bullet = bullets.get(i);
-			bStates[i*4 + 0] = (byte) ((int) bullet.getX() >> 4);
-			bStates[i*4 + 1] = (byte) ((((int) bullet.getX() & 0x0F) << 4) + ((int) bullet.getY() >> 8));
-			bStates[i*4 + 2] = (byte) ((int) bullet.getY() & 0xFF);
-			bStates[i*4 + 3] = (byte) (Math.atan2(bullet.getVy(), bullet.getVx()) / 2 / Math.PI * 255);
+	public void writeBulletStates(ByteBuffer buf, Collection<Bullet> bullets) {
+		Profiler.time("Compute bul states");
+
+		for (Bullet bullet : bullets) {
+			buf.put((byte) ((int) bullet.getX() >> 4));
+			buf.put((byte) ((((int) bullet.getX() & 0x0F) << 4) + ((int) bullet.getY() >> 8)));
+			buf.put((byte) ((int) bullet.getY() & 0xFF));
+			buf.put((byte) (Math.atan2(bullet.getVy(), bullet.getVx()) / 2 / Math.PI * 255));
 		}
 		Profiler.timeEnd("Compute bul states");
-
-		return bStates;
 	}
 
 	public List<Robot> healthChangedRobots() {
@@ -357,5 +346,13 @@ public abstract class World {
 		}
 
 		return healthStates.array();
+	}
+
+	public static int stateLength(Collection<Robot> robots, Collection<Bullet> bullets) {
+		return 8 + robots.size() * 8 + bullets.size() * 4;
+	}
+
+	public static int initialStateLength(Collection<Robot> robots) {
+		return 11 * robots.size();
 	}
 }

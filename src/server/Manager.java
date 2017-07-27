@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -14,6 +15,7 @@ import server.Room.GameAlreadyStartedException;
 import server.sim.Bullet;
 import server.sim.Robot;
 import server.sim.Sim;
+import server.sim.World;
 
 /**
  * The <code>Manager</code> manages (wow!) the rooms of the game as well as
@@ -80,11 +82,11 @@ public class Manager {
 
                 if (gameStarting) {
                     LOGGER.fine("Sending initial states to relevant robots");
-                    ByteBuffer message = ByteBuffer.wrap(room.initialStae());
+                    ByteBuffer message = room.initialState();
                     for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
                         if (room.equals(robotRooms.get(connection.getValue()))) {
-                            TcpServer.sendToKey(connection.getKey(), message);
                             message.rewind();
+                            TcpServer.sendToKey(connection.getKey(), message);
                         }
                     }
 
@@ -164,21 +166,26 @@ public class Manager {
         }
     }
 
-    public void broadcastRoomState(TcpServer server, Room room, byte[] state, Map<Short, byte[]> velocityStates, byte[] bState) {
+    public void broadcastRoomState(TcpServer server, Room room, Collection<Robot> robots, World world) {
+        Collection<Bullet> bullets = world.getBullets();
+        ByteBuffer msgBuf = ByteBuffer.allocate(World.stateLength(robots, bullets) + 4);
+        msgBuf.put((byte) 1);
+        msgBuf.put((byte) robots.size());
+        msgBuf.putShort((short) bullets.size());
+        msgBuf.position(msgBuf.position() + 8); // Skip velocity states
+        world.writeState(msgBuf, robots);
+        world.writeBulletStates(msgBuf, bullets);
+
+        Map<Short, byte[]> velocityStates = world.velocityStates(robots);
+
         synchronized (idMap) {
             for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
                 if (room.equals(robotRooms.get(connection.getValue()))) {
-                    ByteBuffer msgBuf = ByteBuffer.allocate(state.length + 10 + bState.length);
-                    msgBuf.put(state, 0, 2);
-                    msgBuf.putShort((short) (bState.length / 4));
                     short id = connection.getValue();
-                    if (velocityStates.get(id) == null) {
-                        msgBuf.position(msgBuf.position() + 8);
-                    } else {
+                    if (velocityStates.get(id) != null) {
+                        msgBuf.position(4);
                         msgBuf.put(velocityStates.get(id));
                     }
-                    msgBuf.put(state, 2, state.length - 2);
-                    msgBuf.put(bState);
                     msgBuf.rewind();
                     TcpServer.sendToKey(connection.getKey(), msgBuf);
                 }

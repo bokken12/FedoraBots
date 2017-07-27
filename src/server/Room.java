@@ -1,5 +1,6 @@
 package server;
 
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -137,8 +138,8 @@ public class Room {
     /**
      * Tells the room's manager to send a state update message over the given server.
      */
-    public void broadcastState(TcpServer server, byte[] state, Map<Short, byte[]> velocityStates, byte[] bState) {
-        manager.broadcastRoomState(server, this, state, velocityStates, bState);
+    public void broadcastState(TcpServer server, Collection<Robot> robots) {
+        manager.broadcastRoomState(server, this, robots, world);
     }
 
     /**
@@ -152,8 +153,7 @@ public class Room {
             synchronized (world) {
                 return sim.tick(tick -> {
                     Profiler.time("Broadcast state");
-                    Collection<Robot> rvs = robots.values();
-                    broadcastState(server, world.state(rvs), world.velocityStates(rvs), world.bulletStates());
+                    broadcastState(server, robots.values());
                     Profiler.timeEnd("Broadcast state");
                     List<Robot> robotsChangedHealth = world.healthChangedRobots();
                     if (robotsChangedHealth.size() > 0) {
@@ -169,8 +169,13 @@ public class Room {
     /**
      * Returns a representation of the initial state of the world
      */
-    public byte[] initialStae() {
-        return world.startingState(robots.values());
+    public ByteBuffer initialState() {
+        Collection<Robot> rvs = robots.values();
+        ByteBuffer buf = ByteBuffer.allocate(World.initialStateLength(rvs) + 2);
+        buf.put((byte) 0);
+        buf.put((byte) rvs.size());
+        world.writeStartingState(buf, rvs);
+        return buf;
     }
 
 }
