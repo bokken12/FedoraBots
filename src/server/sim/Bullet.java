@@ -24,7 +24,7 @@ public class Bullet extends PhysicsEntity {
 			markForRemoval();
 		} else if (other instanceof Bullet) {
 			markForRemoval();
-			other.markedForRemoval();
+			other.markForRemoval();
 		}
 	}
 
