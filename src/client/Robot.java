@@ -1,5 +1,7 @@
 package client;
 
+import java.util.Map;
+
 import common.Constants;
 import javafx.scene.paint.Color;
 
@@ -18,6 +20,7 @@ public abstract class Robot {
     private double vy;
     private double rotation;
     private long lastShoot;
+    private double health;
 
     public Robot() {
         Display d = Display.getInstance();
@@ -26,6 +29,8 @@ public abstract class Robot {
             this.vx = vx;
             this.vy = vy;
         });
+        gm.addHealthListener(this::updateHealth);
+        health = 1;
     }
 
     public void joinGame(short roomId) {
@@ -34,6 +39,9 @@ public abstract class Robot {
     }
 
     public void setAcceleration(double ax, double ay) {
+        if (isDead()) {
+            throw new RuntimeException("This robot has died");
+        }
         if (!inGame) {
             throw new RuntimeException("You must join a game to set the robot's acceleration");
         }
@@ -46,6 +54,9 @@ public abstract class Robot {
     }
 
     public void setRotation(double rot) {
+        if (isDead()) {
+            throw new RuntimeException("This robot has died");
+        }
         if (!inGame) {
             throw new RuntimeException("You must join a game to set the robot's acceleration");
         }
@@ -91,6 +102,21 @@ public abstract class Robot {
 
     public Color getColor() {
         return color;
+    }
+
+    public double getHealth() {
+        return health;
+    }
+
+    public boolean isDead() {
+        return health == 0;
+    }
+
+    private void updateHealth(Map<Short, Double> healthMap) {
+        Double newHealth = healthMap.get(id);
+        if (newHealth != null) {
+            health = newHealth;
+        }
     }
 
 }

@@ -337,6 +337,12 @@ public abstract class World {
 			}
 		});
 
+		for (Robot robot : robots) {
+			if (robot.getHealth() == 0) {
+				robot.getWorld().remove(robot);
+			}
+		}
+
 		return robots;
 	}
 

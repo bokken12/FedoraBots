@@ -155,6 +155,11 @@ public class Display extends Application {
     private void updateRobotHealths(Map<Short, Double> healths) {
         for (Map.Entry<Short, Double> entry : healths.entrySet()) {
             robots.get(entry.getKey()).setHealth(entry.getValue());
+            if (entry.getValue() == 0) {
+                Platform.runLater(() -> {
+                    robotCircles.getChildren().remove(robots.get(entry.getKey()));
+                });
+            }
         }
     }
 

@@ -172,12 +172,11 @@ public class Manager {
                     msgBuf.put(state, 0, 2);
                     msgBuf.putShort((short) (bState.length / 4));
                     short id = connection.getValue();
-                    msgBuf.put(velocityStates.get(id));
-                    // if (id == null) {
-                    //     msgBuf.position(msgBuf.position() + 8);
-                    // } else {
-                    //     msgBuf.put(velocityStates.get(id));
-                    // }
+                    if (velocityStates.get(id) == null) {
+                        msgBuf.position(msgBuf.position() + 8);
+                    } else {
+                        msgBuf.put(velocityStates.get(id));
+                    }
                     msgBuf.put(state, 2, state.length - 2);
                     msgBuf.put(bState);
                     msgBuf.rewind();
