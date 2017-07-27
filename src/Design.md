@@ -41,6 +41,12 @@ Continued...
 | :------------------: | :------------------: | :-------------------------: |
 |        12 bits       |        12 bits       |            1 byte           |
 
+Health update (3 bytes per entity):
+
+| Message type | Number of entities | *For each entity:* ID | *For each entity:* Health |
+| :----------: | :----------------: | :-------------------: | :-----------------------: |
+|  2 (1 byte)  |       1 byte       |        2 bytes        |           1 byte          |
+
 Robot request to join game (sent to server):
 
 | Message type | Room ID |     Color     |
