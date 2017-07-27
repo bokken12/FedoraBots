@@ -13,7 +13,7 @@ class CircleBot extends Robot {
         while (b.getVx() < 25) {
             Thread.sleep(10);
         }
-        while (true) {
+        while (!b.isDead()) {
             double velocityAngle = Math.atan2(b.getVy(), b.getVx());
             double accelerationAngle = velocityAngle + Math.PI / 2;
 
