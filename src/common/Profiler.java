@@ -85,6 +85,7 @@ public class Profiler {
                 System.out.println("|");
             }
             System.out.println();
+            runningProfiles.clear();
         }
     }
 
