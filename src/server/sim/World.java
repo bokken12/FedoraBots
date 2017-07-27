@@ -5,6 +5,7 @@ package server.sim;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -238,11 +239,9 @@ public abstract class World {
 		return "World [x=" + x + ", y=" + y + ", width=" + width + ", height=" + height + "]";
 	}
 
-	private byte[] state(int offset) {
+	private byte[] state(int offset, Collection<Robot> robots) {
 		Profiler.time("Compute state");
 
-		List<Robot> robots = new ArrayList<Robot>();
-		forEachUnsafe(entity -> { if (entity instanceof Robot) robots.add((Robot) entity); });
 		final byte[] state = new byte[offset * robots.size() + 2];
 		state[0] = 1;
 		state[1] = (byte) robots.size();
@@ -268,12 +267,12 @@ public abstract class World {
 		return state;
 	}
 
-	public byte[] state() {
-		return state(8);
+	public byte[] state(Collection<Robot> robots) {
+		return state(8, robots);
 	}
 
-	public byte[] startingState() {
-		byte[] state = state(11);
+	public byte[] startingState(Collection<Robot> robots) {
+		byte[] state = state(11, robots);
 		state[0] = 0;
 
 		// Hackery for compilation
@@ -292,18 +291,16 @@ public abstract class World {
 		return state;
 	}
 
-	public Map<Short, byte[]> velocityStates() {
+	public Map<Short, byte[]> velocityStates(Collection<Robot> robots) {
 		Profiler.time("Compute vel states");
 		Map<Short, byte[]> m = new HashMap<Short, byte[]>();
-		forEachUnsafe(entity -> {
-			if (entity instanceof Robot) {
-				Robot pe = (Robot) entity;
-				ByteBuffer bb = ByteBuffer.allocate(8);
-				bb.putFloat((float) (pe.getVx()*1e3));
-				bb.putFloat((float) (pe.getVy()*1e3));
-				m.put(entity.getId(), bb.array());
-			}
-		});
+		for (Robot entity : robots) {
+			Robot pe = (Robot) entity;
+			ByteBuffer bb = ByteBuffer.allocate(8);
+			bb.putFloat((float) (pe.getVx()*1e3));
+			bb.putFloat((float) (pe.getVy()*1e3));
+			m.put(entity.getId(), bb.array());
+		}
 		Profiler.timeEnd("Compute vel states");
 		return m;
 	}

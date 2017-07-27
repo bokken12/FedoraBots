@@ -1,5 +1,6 @@
 package server;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -151,7 +152,8 @@ public class Room {
             synchronized (world) {
                 return sim.tick(tick -> {
                     Profiler.time("Broadcast state");
-                    broadcastState(server, world.state(), world.velocityStates(), world.bulletStates());
+                    Collection<Robot> rvs = robots.values();
+                    broadcastState(server, world.state(rvs), world.velocityStates(rvs), world.bulletStates());
                     Profiler.timeEnd("Broadcast state");
                     List<Robot> robotsChangedHealth = world.healthChangedRobots();
                     if (robotsChangedHealth.size() > 0) {
@@ -168,7 +170,7 @@ public class Room {
      * Returns a representation of the initial state of the world
      */
     public byte[] initialStae() {
-        return world.startingState();
+        return world.startingState(robots.values());
     }
 
 }
