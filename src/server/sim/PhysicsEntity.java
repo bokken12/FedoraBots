@@ -6,6 +6,7 @@ package server.sim;
 import java.awt.Color;
 
 import common.Constants;
+import server.sim.world.World;
 
 /**
  * @author joelmanning

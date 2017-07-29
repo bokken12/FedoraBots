@@ -1,7 +1,7 @@
 /**
  *
  */
-package server.sim;
+package server.sim.world;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -14,6 +14,9 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import common.Profiler;
+import server.sim.Bullet;
+import server.sim.Entity;
+import server.sim.Robot;
 
 /**
  * @author joelmanning

@@ -5,6 +5,8 @@ package server.sim;
 
 import java.awt.Color;
 
+import server.sim.world.World;
+
 /**
  * @author joelmanning
  *
@@ -174,7 +176,7 @@ public abstract class Entity {
 	/**
 	 * @param world the world to set
 	 */
-	void setWorld(World world) {
+	public void setWorld(World world) {
 		this.world = world;
 	}
 

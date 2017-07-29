@@ -16,7 +16,7 @@ import server.Room.GameAlreadyStartedException;
 import server.sim.Bullet;
 import server.sim.Robot;
 import server.sim.Sim;
-import server.sim.World;
+import server.sim.world.World;
 
 /**
  * The <code>Manager</code> manages (wow!) the rooms of the game as well as

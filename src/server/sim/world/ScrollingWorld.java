@@ -1,9 +1,11 @@
-package server.sim;
+package server.sim.world;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+
+import server.sim.Entity;
 
 public class ScrollingWorld extends World {
 

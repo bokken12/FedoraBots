@@ -6,6 +6,7 @@ package server.sim;
 import java.util.function.DoubleConsumer;
 
 import common.Profiler;
+import server.sim.world.World;
 
 /**
  * @author joelmanning

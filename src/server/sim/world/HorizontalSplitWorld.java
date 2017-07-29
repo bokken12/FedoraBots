@@ -1,21 +1,23 @@
 /**
  *
  */
-package server.sim;
+package server.sim.world;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import server.sim.Entity;
+
 /**
  * @author joelmanning
  *
  */
-public class VerticalSplitWorld extends World {
+public class HorizontalSplitWorld extends World {
 
-	private World left;
-	private World right;
+	private World top;
+	private World bottom;
 	private Set<Entity> things;
 
 	/**
@@ -24,10 +26,10 @@ public class VerticalSplitWorld extends World {
 	 * @param width
 	 * @param height
 	 */
-	public VerticalSplitWorld(double x, double y, double width, double height, World parent) {
+	public HorizontalSplitWorld(double x, double y, double width, double height, World parent) {
 		super(x, y, width, height, parent);
-		left = World.generateWorld(x, y, width / 2, height, this);
-		right = World.generateWorld(x + width / 2, y, width / 2, height, this);
+		top = World.generateWorld(x, y, width, height / 2, this);
+		bottom = World.generateWorld(x, y + height / 2, width, height / 2, this);
 		things = new HashSet<Entity>();
 	}
 
@@ -43,8 +45,8 @@ public class VerticalSplitWorld extends World {
 				consumer.accept(e);
 			}
 		}
-		left.forEachUnsafe(consumer);
-		right.forEachUnsafe(consumer);
+		top.forEachUnsafe(consumer);
+		bottom.forEachUnsafe(consumer);
 	}
 
 	/*
@@ -54,10 +56,10 @@ public class VerticalSplitWorld extends World {
 	 */
 	@Override
 	public void forCollidingUnsafe(Entity source, Consumer<Entity> consumer) {
-		if(left.fullyContains(source)) {
-			left.forCollidingUnsafe(source, consumer);
-		} else if(right.fullyContains(source)) {
-			right.forCollidingUnsafe(source, consumer);
+		if(top.fullyContains(source)) {
+			top.forCollidingUnsafe(source, consumer);
+		} else if(bottom.fullyContains(source)) {
+			bottom.forCollidingUnsafe(source, consumer);
 		} else {
 			for(Entity e : things) {
 				if(!e.markedForRemoval() && !source.equals(e)
@@ -66,11 +68,11 @@ public class VerticalSplitWorld extends World {
 					consumer.accept(e);
 				}
 			}
-			if(source.getX() - source.getRadius() < getX() + getWidth() / 2) {
-				left.forCollidingUnsafe(source, consumer);
+			if(source.getY() - source.getRadius() < getY() + getHeight() / 2) {
+				top.forCollidingUnsafe(source, consumer);
 			}
-			if(source.getX() + source.getRadius() > getX() + getWidth() / 2) {
-				right.forCollidingUnsafe(source, consumer);
+			if(source.getY() + source.getRadius() > getY() + getHeight() / 2) {
+				bottom.forCollidingUnsafe(source, consumer);
 			}
 		}
 	}
@@ -84,15 +86,15 @@ public class VerticalSplitWorld extends World {
 	public Entity closest(Entity source) {
 		Entity closest;
 		double dmin;
-		if(source.getX() + source.getRadius() < getX() + getWidth() / 2) {
-			closest = left.closest(source);
+		if(source.getY() + source.getRadius() < getY() + getHeight() / 2) {
+			closest = top.closest(source);
 			if(closest == null)
-				closest = right.closest(source);
+				closest = bottom.closest(source);
 			dmin = Math.pow(source.getX() - closest.getX(), 2) + Math.pow(source.getY() - closest.getY(), 2);
-		} else if(source.getX() - source.getRadius() > getX() + getWidth() / 2) {
-			closest = right.closest(source);
+		} else if(source.getY() - source.getRadius() > getY() + getHeight() / 2) {
+			closest = bottom.closest(source);
 			if(closest == null)
-				closest = left.closest(source);
+				closest = top.closest(source);
 			dmin = (int) (Math.pow(source.getX() - closest.getX(), 2) + Math.pow(source.getY() - closest.getY(), 2));
 		} else {
 			closest = null;
@@ -119,15 +121,15 @@ public class VerticalSplitWorld extends World {
 	public Entity closest(Entity source, Predicate<Entity> condition) {
 		Entity closest;
 		double dmin;
-		if(source.getX() + source.getRadius() < getX() + getWidth() / 2) {
-			closest = left.closest(source, condition);
+		if(source.getY() + source.getRadius() < getY() + getHeight() / 2) {
+			closest = top.closest(source, condition);
 			if(closest == null)
-				closest = right.closest(source, condition);
+				closest = bottom.closest(source, condition);
 			dmin = Math.pow(source.getX() - closest.getX(), 2) + Math.pow(source.getY() - closest.getY(), 2);
-		} else if(source.getX() - source.getRadius() > getX() + getWidth() / 2) {
-			closest = right.closest(source, condition);
+		} else if(source.getY() - source.getRadius() > getY() + getHeight() / 2) {
+			closest = bottom.closest(source, condition);
 			if(closest == null)
-				closest = left.closest(source, condition);
+				closest = top.closest(source, condition);
 			dmin = (int) (Math.pow(source.getX() - closest.getX(), 2) + Math.pow(source.getY() - closest.getY(), 2));
 		} else {
 			closest = null;
@@ -154,10 +156,10 @@ public class VerticalSplitWorld extends World {
 	public void add(Entity entity) {
 		if(!fullyContains(entity)) {
 			getParent().add(entity);
-		} else if(entity.getX() + entity.getRadius() < getX() + getWidth() / 2) {
-			left.add(entity);
-		} else if(entity.getX() - entity.getRadius() > getX() + getWidth() / 2) {
-			right.add(entity);
+		} else if(entity.getY() + entity.getRadius() < getY() + getHeight() / 2) {
+			top.add(entity);
+		} else if(entity.getY() - entity.getRadius() > getY() + getHeight() / 2) {
+			bottom.add(entity);
 		} else {
 			things.add(entity);
 			entity.setWorld(this);
@@ -172,16 +174,16 @@ public class VerticalSplitWorld extends World {
 	@Override
 	public void remove(Entity entity) {
 		if(!things.remove(entity)) {
-			left.remove(entity);
-			right.remove(entity);
+			top.remove(entity);
+			bottom.remove(entity);
 		}
 	}
 
 	@Override
 	public void removeMarked() {
 		super.removeMarked();
-		left.removeMarked();
-		right.removeMarked();
+		top.removeMarked();
+		bottom.removeMarked();
 	}
 
 	/*
@@ -197,11 +199,11 @@ public class VerticalSplitWorld extends World {
 				consumer.accept(e);
 			}
 		}
-		if(x < getX() + getWidth() / 2) {
-			left.forCollidingUnsafe(x, y, width, height, consumer);
+		if(y < getY() + getHeight() / 2) {
+			top.forCollidingUnsafe(x, y, width, height, consumer);
 		}
-		if(x + width > getX() + getWidth() / 2) {
-			right.forCollidingUnsafe(x, y, width, height, consumer);
+		if(y + height > getY() + getHeight() / 2) {
+			bottom.forCollidingUnsafe(x, y, width, height, consumer);
 		}
 	}
 }
