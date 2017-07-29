@@ -11,7 +11,7 @@ import common.Profiler;
 import server.sim.Bullet;
 import server.sim.Robot;
 import server.sim.Sim;
-import server.sim.World;
+import server.sim.world.World;
 
 /**
  * A room hosts games of a specific configuration. It handles robots joining it, and starts the game when enough robots have joined.
@@ -41,7 +41,7 @@ public class Room {
     }
 
     /**
-     * Creates a room that holds <code>robotLimit</code> robots in a given {@link server.sim.World}.
+     * Creates a room that holds <code>robotLimit</code> robots in a given {@link server.sim.world.World}.
      */
     public Room(int robotLimit, World w) {
         nRobots = robotLimit;

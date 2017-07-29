@@ -8,7 +8,7 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import common.Constants;
-import server.sim.World;
+import server.sim.world.World;
 
 public class Test {
 
@@ -34,7 +34,7 @@ public class Test {
         // w.add(phys);
         // w.add(phys2);
         Manager manager = new Manager();
-        manager.addRoom(new Room(6, w));
+        manager.addRoom(new Room(1, w));
         TcpServer server = new TcpServer(manager);
         Thread t = new Thread(server);
         t.setDaemon(true);

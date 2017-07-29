@@ -13,7 +13,7 @@ import javafx.scene.paint.Color;
 /**
  * Receives messages from the network and notifies the game manager accordingly.
  */
-public class GameNetworkAdapter implements Runnable {
+public class GameNetworkAdapter implements GameAdapter {
 
     private Semaphore awaitingId = new Semaphore(1);
     private Semaphore awaitingSpectateOk = new Semaphore(1);
@@ -37,10 +37,12 @@ public class GameNetworkAdapter implements Runnable {
         return host;
     }
 
+    @Override
     public void setManager(GameManager manager) {
         g = manager;
     }
 
+    @Override
     public void sendJoin(short roomId, byte r, byte g, byte b) throws IOException {
         try {
             awaitingId.acquire();
@@ -56,6 +58,7 @@ public class GameNetworkAdapter implements Runnable {
         s.getOutputStream().write(bb.array());
     }
 
+    @Override
     public void sendSpectate(short roomId) throws IOException {
         try {
             awaitingSpectateOk.acquire();
@@ -68,6 +71,7 @@ public class GameNetworkAdapter implements Runnable {
         s.getOutputStream().write(bb.array());
     }
 
+    @Override
     public void sendRobotUpdate(short id, double ax, double ay, double rotation) throws IOException {
         ByteBuffer bb = ByteBuffer.allocate(13);
         bb.put((byte) 129);
@@ -78,6 +82,7 @@ public class GameNetworkAdapter implements Runnable {
         s.getOutputStream().write(bb.array());
     }
 
+    @Override
     public void sendRobotShootRequest(short id) throws IOException {
         ByteBuffer bb = ByteBuffer.allocate(3);
         bb.put((byte) 130);
@@ -85,6 +90,7 @@ public class GameNetworkAdapter implements Runnable {
         s.getOutputStream().write(bb.array());
     }
 
+    @Override
     public short getRobotId() {
         try {
             awaitingId.acquire();
@@ -96,6 +102,7 @@ public class GameNetworkAdapter implements Runnable {
         }
     }
 
+    @Override
     public void waitForSpectateOk() {
         try {
             awaitingSpectateOk.acquire();
