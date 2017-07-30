@@ -17,14 +17,14 @@ public class Bullet extends PhysicsEntity {
 	public void resolveCollision(PhysicsEntity other) {
 		super.resolveCollision(other);
 		if (other instanceof Robot) {
-			System.out.println("Bullet-side collision");
-			System.out.println(other);
 			Robot rother = (Robot) other;
 			rother.setHealth(rother.getHealth() - Constants.Bullet.DAMAGE);
 			markForRemoval();
 		} else if (other instanceof Bullet) {
 			markForRemoval();
 			other.markForRemoval();
+		} else if (other instanceof Obstacle) {
+			markForRemoval();
 		}
 	}
 

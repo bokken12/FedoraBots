@@ -38,8 +38,6 @@ public class Robot extends PhysicsEntity {
 	public void resolveCollision(PhysicsEntity other) {
 		super.resolveCollision(other);
 		if (other instanceof Bullet) {
-			System.out.println("Robot-side collision");
-			System.out.println(this);
 			setHealth(health - Constants.Bullet.DAMAGE);
 			other.markedForRemoval();
 		}
