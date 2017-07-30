@@ -113,19 +113,17 @@ public class GameSimAdapter implements GameAdapter {
         } finally {
             gameStartedLock.release();
         }
-        while (true) {
-            sim.tick(tick -> {
-                Collection<Robot> rvs = new LinkedList<Robot>();
-                updateState();
-                rvs.add(robot);
-                List<Robot> robotsChangedHealth = world.healthChangedRobots(rvs);
-                if (robotsChangedHealth.size() > 0) {
-                    Map<Short, Double> healthMap = new HashMap<Short, Double>();
-                    healthMap.put(robotId, robot.getHealth());
-                    g.updateHealths(healthMap);
-                }
-            });
-        }
+        sim.run(tick -> {
+            Collection<Robot> rvs = new LinkedList<Robot>();
+            updateState();
+            rvs.add(robot);
+            List<Robot> robotsChangedHealth = world.healthChangedRobots(rvs);
+            if (robotsChangedHealth.size() > 0) {
+                Map<Short, Double> healthMap = new HashMap<Short, Double>();
+                healthMap.put(robotId, robot.getHealth());
+                g.updateHealths(healthMap);
+            }
+        });
     }
 
     private GameState.RobotState[] robotState() {
