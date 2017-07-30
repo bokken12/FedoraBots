@@ -29,7 +29,7 @@ public class Display extends Application {
     private List<BulletFigure> bullets = new ArrayList<BulletFigure>();
 
     public Display() throws IOException {
-        gm = new GameManager(new GameNetworkAdapter());
+        gm = new GameManager();
         instance = this;
     }
 
@@ -97,7 +97,7 @@ public class Display extends Application {
         gm.addHealthListener(this::updateRobotHealths);
 
         if (getParameters().getRaw().size() > 0) {
-            gm.spectateGame(Short.parseShort(getParameters().getRaw().get(0)));
+            gm.spectateNetworkGame(Short.parseShort(getParameters().getRaw().get(0)));
         }
 
         latch.countDown();

@@ -33,8 +33,13 @@ public abstract class Robot {
         health = 1;
     }
 
-    public void joinGame(short roomId) {
-        id = gm.joinGame(this, roomId);
+    public void joinNetworkGame(short roomId) {
+        id = gm.joinNetworkGame(this, roomId);
+        inGame = true;
+    }
+
+    public void joinLocalGame() {
+        id = gm.joinLocalGame(this);
         inGame = true;
     }
 

@@ -19,14 +19,19 @@ public class GameManager {
     private Collection<BiConsumer<Double, Double>> velocityListeners = new ArrayList<BiConsumer<Double, Double>>();
     private Collection<Consumer<Map<Short, Double>>> healthListeners = new ArrayList<Consumer<Map<Short, Double>>>();
     private Map<Short, Color> colors;
-    private GameNetworkAdapter adapter;
+    private GameAdapter adapter;
 
-    public GameManager(GameNetworkAdapter adapter) {
-        adapter.setManager(this);
-        this.adapter = adapter;
-        Thread t = new Thread(adapter);
-        t.setDaemon(true);
-        t.start();
+    private void setAdapterClass(Class<? extends GameAdapter> adapterClass) {
+        try {
+            adapter = adapterClass.newInstance();
+            adapter.setManager(this);
+            Thread t = new Thread(adapter);
+            t.setDaemon(true);
+            t.start();
+        } catch (IllegalAccessException|InstantiationException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     public void addRobot(short robot, Color color) {
@@ -88,7 +93,8 @@ public class GameManager {
         }
     }
 
-    public short joinGame(Robot robot, short roomId) {
+    public short joinNetworkGame(Robot robot, short roomId) {
+        setAdapterClass(GameNetworkAdapter.class);
         Color c = robot.getColor();
         try {
             adapter.sendJoin(roomId,
@@ -101,13 +107,28 @@ public class GameManager {
         return adapter.getRobotId();
     }
 
-    public void spectateGame(short roomId) {
+    public void spectateNetworkGame(short roomId) {
+        setAdapterClass(GameNetworkAdapter.class);
         try {
             adapter.sendSpectate(roomId);
         } catch (IOException e) {
             throw new RuntimeException("Could not spectate a game because of a network error");
         }
         adapter.waitForSpectateOk();
+    }
+
+    public short joinLocalGame(Robot robot) {
+        setAdapterClass(GameSimAdapter.class);
+        Color c = robot.getColor();
+        try {
+            adapter.sendJoin((short) 0,
+                            (byte)(c.getRed() * 255),
+                            (byte)(c.getGreen() * 255),
+                            (byte)(c.getBlue() * 255));
+        } catch (IOException e) {
+            throw new RuntimeException("Could not join a game because of a network error");
+        }
+        return adapter.getRobotId();
     }
 
     public void sendRobotUpdate(short robotId, Robot robot) {

@@ -12,7 +12,7 @@ import java.util.Map;
  * A class that can be used statically to profile code execution times.
  */
 public class Profiler {
-    public static final boolean ENABLED = true;
+    public static final boolean ENABLED = false;
     private static final NumberFormat FORMATTER = new DecimalFormat("#0.00");
 
     private static Map<String, ProfileData> runningProfiles = new HashMap<String, ProfileData>();
