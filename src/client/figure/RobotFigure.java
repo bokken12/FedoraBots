@@ -2,8 +2,6 @@ package client.figure;
 
 import java.util.List;
 
-import afester.javafx.svg.SvgLoader;
-import client.Display;
 import common.Constants.Robot;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -14,7 +12,6 @@ import javafx.scene.paint.Stop;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.Shape;
 import javafx.scene.transform.Rotate;
-import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 
 /**
@@ -22,10 +19,8 @@ import javafx.scene.transform.Translate;
  * loads the robot SVG file then changes various properties such as the color
  * and shooter rotation.
  */
-public class RobotFigure extends Group {
-    private static final int ROBOT_SVG_SIZE = 64;
+public class RobotFigure extends Group implements Figure {
     private static final String ROBOT_SVG = "/tank.svg";
-    private static final SvgLoader LOADER = new SvgLoader();
     private static final int NUM_THRUSTERS = 3;
     private static final double HB_RADIUS_O = Robot.RADIUS + 5;
     private static final double HB_RADIUS_I = Robot.RADIUS + 2;
@@ -44,7 +39,7 @@ public class RobotFigure extends Group {
     private Rotate rotate;
 
     public RobotFigure(double radius, Color color) {
-        super(healthBar(), LOADER.loadSvg(Display.class.getResourceAsStream(ROBOT_SVG)));
+        super(healthBar(), Figure.loadSvg(ROBOT_SVG));
         health = (SVGPath) getChildren().get(0);
         child = (Group) getChildren().get(1);
         body = (Shape) child.lookup("#body");
@@ -63,19 +58,12 @@ public class RobotFigure extends Group {
 
         // Rotate the blaster around the center
         double blasterCenterY = blaster.getBoundsInParent().getMinY() + blaster.getBoundsInParent().getHeight() / 2.0;
-        blaster.getTransforms().add(new Translate(0, blasterCenterY - ROBOT_SVG_SIZE / 2.0));
-        blaster.setTranslateY(ROBOT_SVG_SIZE / 2.0 - blasterCenterY);
+        blaster.getTransforms().add(new Translate(0, blasterCenterY - Figure.SVG_SIZE / 2.0));
+        blaster.setTranslateY(Figure.SVG_SIZE / 2.0 - blasterCenterY);
 
-        // Scale down the robot to the correct size
-        double scale = radius * 2 / ROBOT_SVG_SIZE;
-        child.getTransforms().add(new Scale(scale, scale, ROBOT_SVG_SIZE/2, ROBOT_SVG_SIZE/2));
+        Figure.setGroupSize(child, radius * 2);
 
-        // The SVG has a center (0, 0) but the program needs a center of
-        // (width/2, height/2)
-        child.setTranslateX(-ROBOT_SVG_SIZE/2);
-        child.setTranslateY(-ROBOT_SVG_SIZE/2);
-
-        child.getTransforms().add(rotate = new Rotate(0, ROBOT_SVG_SIZE/2, ROBOT_SVG_SIZE/2));
+        child.getTransforms().add(rotate = new Rotate(0, Figure.SVG_SIZE/2, Figure.SVG_SIZE/2));
 
         setColor(color);
         setThrusterRotate(0);
