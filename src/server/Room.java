@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import common.Profiler;
-import server.sim.Bullet;
-import server.sim.Robot;
 import server.sim.Sim;
+import server.sim.entity.Bullet;
+import server.sim.entity.Robot;
 import server.sim.world.World;
 
 /**

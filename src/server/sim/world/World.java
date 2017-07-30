@@ -14,9 +14,9 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import common.Profiler;
-import server.sim.Bullet;
-import server.sim.Entity;
-import server.sim.Robot;
+import server.sim.entity.Bullet;
+import server.sim.entity.Entity;
+import server.sim.entity.Robot;
 
 /**
  * @author joelmanning

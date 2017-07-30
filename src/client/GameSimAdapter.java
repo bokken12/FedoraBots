@@ -10,9 +10,9 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 import common.Constants;
-import server.sim.Bullet;
-import server.sim.Robot;
 import server.sim.Sim;
+import server.sim.entity.Bullet;
+import server.sim.entity.Robot;
 import server.sim.world.World;
 
 /**

@@ -1,4 +1,4 @@
-package server.sim;
+package server.sim.entity;
 
 import java.awt.Color;
 
