@@ -1,4 +1,4 @@
-package client;
+package client.figure;
 
 import common.Constants.Bullet;
 import javafx.scene.paint.Color;

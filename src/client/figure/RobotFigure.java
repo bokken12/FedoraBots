@@ -1,8 +1,9 @@
-package client;
+package client.figure;
 
 import java.util.List;
 
 import afester.javafx.svg.SvgLoader;
+import client.Display;
 import common.Constants.Robot;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -41,10 +42,6 @@ public class RobotFigure extends Group {
     private Color thrusterColorOpaque;
     private Color thrusterColorTransparent;
     private Rotate rotate;
-
-    // static {
-    //     for (int i = 0; i < )
-    // }
 
     public RobotFigure(double radius, Color color) {
         super(healthBar(), LOADER.loadSvg(Display.class.getResourceAsStream(ROBOT_SVG)));

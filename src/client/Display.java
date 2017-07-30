@@ -10,6 +10,8 @@ import java.util.concurrent.CountDownLatch;
 
 import client.GameState.BulletState;
 import client.GameState.RobotState;
+import client.figure.BulletFigure;
+import client.figure.RobotFigure;
 import common.Constants;
 import javafx.application.Application;
 import javafx.application.Platform;
