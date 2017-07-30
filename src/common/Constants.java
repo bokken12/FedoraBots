@@ -26,4 +26,32 @@ public class Constants {
         public static final double MASS = 2;
         public static final double DAMAGE = 0.25;
     }
+
+    public class Obstacle {
+        public static final double RADIUS = 10;
+        /**
+         * Milliseconds that the turret's turret must take to cooldown between each shot
+         */
+        public static final double TURRET_SHOOT_FREQUENCY = 5000;
+        /**
+         * The distance measured from the center of the turret to the edge of
+         * the robot that must be between the two for the turret to shoot the
+         * robot.
+         */
+        public static final double TURRET_RANGE = 20;
+        /**
+         * Milliseconds that the vaporizer must take to cooldown between each pulse
+         */
+        public static final double VAPORIZER_PULSE_FREQUENCY = 5000;
+        /**
+         * Milliseconds that the vaporizer's pulse takes to reach it's hightest point
+         */
+        public static final double VAPORIZER_PULSE_LENGTH = 1000;
+        /**
+         * The distance measured from the center of the vaporizer to the edge of
+         * the robot that must be between the two for the vaporizer to pulse the
+         * robot.
+         */
+        public static final double VAPORIZER_RANGE = 20;
+    }
 }
