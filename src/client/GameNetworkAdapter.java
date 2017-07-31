@@ -121,7 +121,7 @@ public class GameNetworkAdapter implements GameAdapter {
                 int numEntities = 0;
 
                 int bufferLen = 0;
-                if (mType == 0 || mType == 1 || mType == 2) {
+                if (mType == 0 || mType == 1 || mType == 2 || mType == 3) {
                     numEntities = inp.read();
 
                     if (mType == 0) {
@@ -133,9 +133,10 @@ public class GameNetworkAdapter implements GameAdapter {
                         bufferLen = numEntities * 8 + 8 + numBullets * 4;
                     }
                     if (mType == 2) bufferLen = numEntities * 3;
+                    if (mType == 3) bufferLen = numEntities * 2;
                 } else if (mType == 64) {
                     bufferLen = 2;
-                } else if (mType == 3 || mType == 65 || mType == 66) {
+                } else if (mType == 4 || mType == 65 || mType == 66) {
                     bufferLen = 0;
                 } else {
                     throw new RuntimeException("Unknown message type " + mType + ".");
@@ -164,7 +165,8 @@ public class GameNetworkAdapter implements GameAdapter {
             case 0:  parseStart(buffer, numEntities); break;
             case 1:  parseState(buffer, numEntities); break;
             case 2:  parseHealths(buffer); break;
-            case 3:  parseSpectateOk(buffer); break;
+            case 3:  parseObstacles(buffer); break;
+            case 4:  parseSpectateOk(buffer); break;
             case 64: parseJoined(buffer); break;
             case 65: throwError("The room the robot tried to join does not exist."); break;
             case 66: throwError("The room the robot tried to join already started its game."); break;
@@ -232,6 +234,15 @@ public class GameNetworkAdapter implements GameAdapter {
             healths.put(bb.getShort(), (bb.get() & 0xFF) / 255.0);
         }
         g.updateHealths(healths);
+    }
+
+    private void parseObstacles(byte[] buffer) {
+        ByteBuffer bb = ByteBuffer.wrap(buffer);
+        Map<Byte, Byte> rotations = new HashMap<Byte, Byte>();
+        for (int i = 0; i < buffer.length; i += 2) {
+            rotations.put(bb.get(), bb.get());
+        }
+        g.updateObstacles(rotations);
     }
 
     private void parseJoined(byte[] buffer) {

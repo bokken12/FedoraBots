@@ -18,6 +18,7 @@ public class GameManager {
     private Collection<Consumer<GameState>> endListeners = new ArrayList<Consumer<GameState>>();
     private Collection<BiConsumer<Double, Double>> velocityListeners = new ArrayList<BiConsumer<Double, Double>>();
     private Collection<Consumer<Map<Short, Double>>> healthListeners = new ArrayList<Consumer<Map<Short, Double>>>();
+    private Collection<Consumer<Map<Byte, Byte>>> obstacleListeners = new ArrayList<Consumer<Map<Byte, Byte>>>();
     private Map<Short, Color> colors;
     private GameAdapter adapter;
 
@@ -66,6 +67,10 @@ public class GameManager {
         healthListeners.add(listener);
     }
 
+    public void addObstacleListener(Consumer<Map<Byte, Byte>> listener) {
+        obstacleListeners.add(listener);
+    }
+
     public void startGame(GameState st, Map<Short, Color> colorMap) {
         colors = colorMap;
         st.setColorMap(colors);
@@ -90,6 +95,12 @@ public class GameManager {
     public void updateHealths(Map<Short, Double> healths) {
         for (Consumer<Map<Short, Double>> hl : healthListeners) {
             hl.accept(healths);
+        }
+    }
+
+    public void updateObstacles(Map<Byte, Byte> obstacles) {
+        for (Consumer<Map<Byte, Byte>> ol : obstacleListeners) {
+            ol.accept(obstacles);
         }
     }
 

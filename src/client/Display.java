@@ -100,6 +100,7 @@ public class Display extends Application {
         gm.addBeginListener(this::initializeRobots);
         gm.addEndListener(this::destroyRobots);
         gm.addHealthListener(this::updateRobotHealths);
+        gm.addObstacleListener(this::updateObstacleRotations);
 
         if (getParameters().getRaw().size() > 0) {
             gm.spectateNetworkGame(Short.parseShort(getParameters().getRaw().get(0)));
@@ -192,6 +193,13 @@ public class Display extends Application {
                     robotCircles.getChildren().remove(robots.get(entry.getKey()));
                 });
             }
+        }
+    }
+
+    private void updateObstacleRotations(Map<Byte, Byte> obsRotations) {
+        for (Map.Entry<Byte, Byte> entry : obsRotations.entrySet()) {
+            System.out.println(entry.getValue() & 0xFF);
+            obstacles.get(entry.getKey()).setRotation((entry.getValue() & 0xFF) / 255.0 * 360);
         }
     }
 

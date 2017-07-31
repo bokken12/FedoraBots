@@ -36,9 +36,7 @@ public class Turret extends Obstacle {
      * there is a robot to shoot at.
      */
     private boolean aim(World world) {
-        System.out.println("---------------------------------");
         Robot robot = getClosestRobotInRange(Constants.Obstacle.TURRET_RANGE, world);
-        System.out.println("POW! " + robot);
         if (robot == null) {
             return false;
         }

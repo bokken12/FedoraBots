@@ -168,12 +168,17 @@ public class Room {
                     Profiler.timeEnd("Broadcast state");
                     List<Robot> robotsChangedHealth = world.healthChangedRobots(rvs);
                     if (robotsChangedHealth.size() > 0) {
-                        manager.broadcastHealths(server, this, world.healthStates(robotsChangedHealth));
+                        manager.broadcastBuf(server, this, world.healthStates(robotsChangedHealth));
                         for (Robot robot : robotsChangedHealth) {
                             if (robot.getHealth() == 0) {
                                 robots.remove(robot.getId());
                             }
                         }
+                    }
+                    List<Obstacle> obstaclesChangedRotation = world.rotationChangedObstacles(obstacles);
+                    if (obstaclesChangedRotation.size() > 0) {
+                        System.out.println("SENDING");
+                        manager.broadcastBuf(server, this, world.obstacleStates(obstaclesChangedRotation));
                     }
                 });
             }

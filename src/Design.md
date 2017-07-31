@@ -70,7 +70,7 @@ Server response after a display spectates a game for success (sent to display):
 
 | Message type |
 | :----------: |
-|  3 (1 byte)  |
+|  4 (1 byte)  |
 
 Robot request to join game (sent to server):
 

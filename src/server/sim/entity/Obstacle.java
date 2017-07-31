@@ -10,8 +10,10 @@ import server.sim.world.World;
 
 public abstract class Obstacle extends PhysicsEntity {
 
+    private boolean rotationChanged = false;
+
 	public Obstacle(byte id, double x, double y) {
-		super(id, null, x, y, 0, Constants.Obstacle.RADIUS, Double.POSITIVE_INFINITY);
+		super(id, null, x, y, 0, Constants.Obstacle.RADIUS, Double.MAX_VALUE);
 	}
 
     public abstract byte getObstacleType();
@@ -82,6 +84,18 @@ public abstract class Obstacle extends PhysicsEntity {
         } catch (NoSuchElementException e) {
             return null;
         }
+    }
+
+    @Override
+    public void setRotation(double rot) {
+        super.setRotation(rot);
+        rotationChanged = true;
+    }
+
+    public boolean hasRotationChanged() {
+        boolean res = rotationChanged;
+        rotationChanged = false;
+        return res;
     }
 
 	/* (non-Javadoc)

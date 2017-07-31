@@ -15,7 +15,7 @@ public class VaporizerFigure extends ObstacleFigure {
     }
 
     public void setRotation(double angle) {
-        double scale = angle / 2 / Math.PI;
+        double scale = angle / 360;
         pulse.setScaleX(scale);
         pulse.setScaleY(scale);
     }

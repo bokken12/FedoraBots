@@ -182,7 +182,7 @@ public class Manager {
         }
 
         ByteBuffer out = ByteBuffer.allocate(1);
-        out.put((byte) 3);
+        out.put((byte) 4);
         out.rewind();
         channel.write(out);
 
@@ -244,8 +244,7 @@ public class Manager {
         }
     }
 
-    public void broadcastHealths(TcpServer server, Room room, byte[] healthStates) {
-        ByteBuffer msgBuf = ByteBuffer.wrap(healthStates);
+    public void broadcastBuf(TcpServer server, Room room, ByteBuffer msgBuf) {
         synchronized (idMap) {
             for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
                 if (room.equals(robotRooms.get(connection.getValue()))) {

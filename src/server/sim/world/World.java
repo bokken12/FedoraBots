@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import common.Profiler;
 import server.sim.entity.Bullet;
@@ -350,7 +351,7 @@ public abstract class World {
 		return hcRobots;
 	}
 
-	public byte[] healthStates(List<Robot> robots) {
+	public ByteBuffer healthStates(List<Robot> robots) {
 		ByteBuffer healthStates = ByteBuffer.allocate(robots.size() * 3 + 2);
 		healthStates.put((byte) 2);
 		healthStates.put((byte) robots.size());
@@ -359,7 +360,25 @@ public abstract class World {
 			healthStates.put((byte) (robot.getHealth() * 255));
 		}
 
-		return healthStates.array();
+		healthStates.rewind();
+		return healthStates;
+	}
+
+	public List<Obstacle> rotationChangedObstacles(Collection<Obstacle> obstacles) {
+		return obstacles.stream().filter(Obstacle::hasRotationChanged).collect(Collectors.toList());
+	}
+
+	public ByteBuffer obstacleStates(List<Obstacle> obstacles) {
+		ByteBuffer obstacleStates = ByteBuffer.allocate(obstacles.size() * 2 + 2);
+		obstacleStates.put((byte) 3);
+		obstacleStates.put((byte) obstacles.size());
+		for (Obstacle obstacle : obstacles) {
+			obstacleStates.put((byte) obstacle.getId());
+			obstacleStates.put((byte) (obstacle.getRotation() / 2 / Math.PI * 255));
+		}
+
+		obstacleStates.rewind();
+		return obstacleStates;
 	}
 
 	public static int stateLength(Collection<Robot> robots, Collection<Bullet> bullets) {
