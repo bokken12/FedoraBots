@@ -20,12 +20,12 @@ public class Vaporizer extends Obstacle {
     private static final double PULSE_START_TIME = Constants.Obstacle.VAPORIZER_PULSE_FREQUENCY - Constants.Obstacle.VAPORIZER_PULSE_LENGTH;
 
     private double totalTime = 0;
-    private Set<Robot> damagedRobots;
+    private Set<Short> damagedRobots;
     private Mode mode;
 
     public Vaporizer(byte id, double x, double y) {
         super(id, x, y);
-        damagedRobots = new HashSet<Robot>();
+        damagedRobots = new HashSet<Short>();
         mode = Mode.CHARGING;
     }
 
@@ -66,7 +66,7 @@ public class Vaporizer extends Obstacle {
     private void handlePulse(Entity entity) {
         if (entity instanceof Robot) {
             Robot robot = (Robot) entity;
-            boolean newRobot = damagedRobots.add(robot);
+            boolean newRobot = damagedRobots.add(robot.getId());
             if (newRobot) {
                 robot.setHealth(robot.getHealth() - Constants.Bullet.DAMAGE);
             }
