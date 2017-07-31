@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import common.Profiler;
+import javafx.geometry.Point2D;
 import server.sim.Sim;
 import server.sim.entity.Bullet;
 import server.sim.entity.Obstacle;
@@ -118,6 +119,24 @@ public class Room {
     }
 
     /**
+     * Adds an obstacle to the room's world.
+     *
+     * If the obstacle's location is (-1, -1), it's location will be
+     * automatically generated.
+     */
+    public void addObstacle(Obstacle o) {
+        if (o.getX() == -1 && o.getY() == -1) {
+            Point2D location = RoomLayout.getLocation(this);
+            o.setPositionUnsafe(location.getX(), location.getY());
+            System.out.println(location);
+        }
+        synchronized (world) {
+            world.add(o);
+        }
+        obstacles.add(o);
+    }
+
+    /**
      * Returns the number of robots in the room.
      */
     public int occupancy() {
@@ -195,6 +214,7 @@ public class Room {
         buf.put((byte) 0);
         buf.put((byte) rvs.size());
         buf.put((byte) obstacles.size());
+        System.out.println(obstacles);
         world.writeStartingState(buf, rvs, obstacles);
         return buf;
     }

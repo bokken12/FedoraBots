@@ -8,6 +8,7 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import common.Constants;
+import server.sim.entity.Meteorite;
 import server.sim.entity.Turret;
 import server.sim.entity.Vaporizer;
 import server.sim.world.World;
@@ -29,8 +30,12 @@ public class Test {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         World w = World.generateScrollingWorld(0, 0, Constants.World.WIDTH, Constants.World.HEIGHT);
-        w.add(new Turret((byte) 0, 300, 200));
-        w.add(new Vaporizer((byte) 1, 200, 200));
+        Room room = new Room(1, w);
+        room.addObstacle(new Turret((byte) 0, -1, -1));
+        room.addObstacle(new Vaporizer((byte) 1, -1, -1));
+        for (byte i = 2; i < 22; i++) {
+            room.addObstacle(new Meteorite(i, -1, -1));
+        }
         // TestEntity phys = new TestEntity((short) 0, 16, 17, 10);
 		// phys.setAcceleration(0.1, 0);
 		// TestEntity phys2 = new TestEntity((short) 1, 263, 20, 10);
@@ -38,7 +43,7 @@ public class Test {
         // w.add(phys);
         // w.add(phys2);
         Manager manager = new Manager();
-        manager.addRoom(new Room(1, w));
+        manager.addRoom(room);
         TcpServer server = new TcpServer(manager);
         Thread t = new Thread(server);
         t.setDaemon(true);

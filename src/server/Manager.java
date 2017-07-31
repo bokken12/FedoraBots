@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import common.Constants;
 import common.Profiler;
+import javafx.geometry.Point2D;
 import server.Room.GameAlreadyStartedException;
 import server.sim.Sim;
 import server.sim.entity.Bullet;
@@ -55,12 +56,6 @@ public class Manager {
     private void handleRobotJoin(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
         short roomId = bb.getShort();
         Color robotColor = new Color(bb.get() & 0xFF, bb.get() & 0xFF, bb.get() & 0xFF);
-        Robot ent = new Robot(id, robotColor,
-                              Math.random() * Constants.World.WIDTH,
-                              Math.random() * Constants.World.HEIGHT,
-                              Math.random() * 2 * Math.PI,
-                              Constants.Robot.RADIUS,
-                              Constants.Robot.MASS);
         Room room = rooms.get(roomId);
         if (room == null) {
             ByteBuffer out = ByteBuffer.allocate(1);
@@ -69,6 +64,13 @@ public class Manager {
             channel.write(out);
             throw new ParseException("Cannot add a robot to a nonexistent room with id " + id + ".");
         }
+        Point2D location = RoomLayout.getLocation(room);
+        Robot ent = new Robot(id, robotColor,
+                              location.getX(),
+                              location.getY(),
+                              Math.random() * 2 * Math.PI,
+                              Constants.Robot.RADIUS,
+                              Constants.Robot.MASS);
 
         synchronized (idMap) {
 

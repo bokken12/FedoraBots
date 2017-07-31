@@ -121,6 +121,6 @@ public abstract class Obstacle extends PhysicsEntity {
 	 */
 	@Override
 	public String toString() {
-		return "Bullet" + super.toString().substring(13);
+		return "Obstacle" + super.toString().substring(13);
 	}
 }
