@@ -45,7 +45,7 @@ public class Vaporizer extends Obstacle {
             totalTime %= Constants.Obstacle.VAPORIZER_PULSE_FREQUENCY;
         } else if (totalTime > PULSE_START_TIME) {
             if (mode == Mode.CHARGING) {
-                if (getClosestRobotInRange(Constants.Obstacle.VAPORIZER_RANGE, world) == null) {
+                if (getClosestRobotInRange(Constants.Obstacle.VAPORIZER_RANGE, world, true) == null) {
                     mode = Mode.NOTARGET;
                 } else {
                     mode = Mode.PULSING;
@@ -54,28 +54,19 @@ public class Vaporizer extends Obstacle {
             if (mode == Mode.PULSING) {
                 double pulsePercent = (totalTime - PULSE_START_TIME) / Constants.Obstacle.VAPORIZER_PULSE_LENGTH;
                 setRotation(pulsePercent * 2 * Math.PI);
-                double origRadius = getRadius();
-                double pulseRadius = origRadius + pulsePercent * (Constants.Obstacle.VAPORIZER_RANGE - origRadius);
-                world.remove(this);
-                setRadius(pulseRadius);
-                world.add(this);
-                world.forCollidingUnsafe(this, this::handlePulse);
-                world.remove(this);
-                setRadius(origRadius);
-                world.add(this);
+                double pulseRadius = getRadius() + pulsePercent * (Constants.Obstacle.VAPORIZER_RANGE - getRadius());
+
+                robotsInRange(pulseRadius, world, false).forEach(this::handlePulse);
             }
         }
     }
 
-    private void handlePulse(Entity entity) {
-        if (entity instanceof Robot) {
-            Robot robot = (Robot) entity;
-            boolean newRobot = damagedRobots.add(robot.getId());
-            System.out.println("robot");
-            if (newRobot) {
-                System.out.println("damage");
-                robot.setHealth(robot.getHealth() - Constants.Bullet.DAMAGE);
-            }
+    private void handlePulse(Robot robot) {
+        boolean newRobot = damagedRobots.add(robot.getId());
+        System.out.println("robot");
+        if (newRobot) {
+            System.out.println("damage");
+            robot.setHealth(robot.getHealth() - Constants.Bullet.DAMAGE);
         }
     }
 

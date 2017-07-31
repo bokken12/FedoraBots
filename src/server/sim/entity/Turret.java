@@ -36,7 +36,7 @@ public class Turret extends Obstacle {
      * there is a robot to shoot at.
      */
     private boolean aim(World world) {
-        Robot robot = getClosestRobotInRange(Constants.Obstacle.TURRET_RANGE, world);
+        Robot robot = getClosestRobotInRange(Constants.Obstacle.TURRET_RANGE, world, true);
         if (robot == null) {
             return false;
         }
