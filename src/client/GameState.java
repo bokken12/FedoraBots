@@ -14,6 +14,7 @@ public class GameState {
     private Map<Short, Color> colorMap;
     private RobotState[] robotStates;
     private BulletState[] bulletStates;
+    private ObstacleState[] obstacleStates;
 
     /**
      * Creates a GameState with the specified robot states. Note that these
@@ -27,11 +28,30 @@ public class GameState {
     }
 
     /**
+     * Creates a GameState with the specified robot states and obstacle states.
+     * Note that these robot states will be modified as a side effect.
+     */
+    public GameState(RobotState[] robotStates, ObstacleState[] obstacleStates) {
+        this(robotStates);
+        this.obstacleStates = obstacleStates;
+    }
+
+    /**
      * Creates a GameState with the specified robot states and bullet states.
      * Note that these robot states will be modified as a side effect.
      */
     public GameState(RobotState[] robotStates, BulletState[] bulletStates) {
         this(robotStates);
+        this.bulletStates = bulletStates;
+    }
+
+    /**
+     * Creates a GameState with the specified robot states, obstacle states, and bullet states.
+     * Note that these robot states will be modified as a side effect.
+     */
+    public GameState(RobotState[] robotStates, ObstacleState[] obstacleStates, BulletState[] bulletStates) {
+        this(robotStates);
+        this.obstacleStates = obstacleStates;
         this.bulletStates = bulletStates;
     }
 
@@ -85,6 +105,28 @@ public class GameState {
         public byte getRotation() { return rotation; }
     }
 
+    public static class ObstacleState {
+        private byte id;
+        private byte type;
+        private int x;
+        private int y;
+        private byte rotation;
+
+        public ObstacleState(byte id, byte type, int x, int y, byte rotation) {
+            this.id = id;
+            this.type = type;
+            this.x = x;
+            this.y = y;
+            this.rotation = rotation;
+        }
+
+        public byte getId() { return id; }
+        public byte getType() { return type; }
+        public int getX() { return x; }
+        public int getY() { return y; }
+        public byte getRotation() { return rotation; }
+    }
+
     public void setColorMap(Map<Short, Color> cmap) {
         colorMap = cmap;
     }
@@ -95,6 +137,10 @@ public class GameState {
 
     public BulletState[] bulletStates() {
         return bulletStates;
+    }
+
+    public ObstacleState[] obstacleStates() {
+        return obstacleStates;
     }
 
     private Color colorForRobot(short id) {

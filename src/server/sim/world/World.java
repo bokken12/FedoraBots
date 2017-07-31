@@ -16,6 +16,7 @@ import java.util.function.Predicate;
 import common.Profiler;
 import server.sim.entity.Bullet;
 import server.sim.entity.Entity;
+import server.sim.entity.Obstacle;
 import server.sim.entity.Robot;
 
 /**
@@ -242,6 +243,12 @@ public abstract class World {
 		return "World [x=" + x + ", y=" + y + ", width=" + width + ", height=" + height + "]";
 	}
 
+	private void writePosition(ByteBuffer buf, double x, double y) {
+		buf.put((byte) ((int) x >> 4));
+		buf.put((byte) ((((int) x & 0x0F) << 4) + ((int) y >> 8)));
+		buf.put((byte) ((int) y & 0xFF));
+	}
+
 	private void writeState(ByteBuffer buf, int offset, Collection<Robot> robots) {
 		Profiler.time("Compute state");;
 
@@ -249,9 +256,7 @@ public abstract class World {
 			// System.out.print(entity.getX() + " " + entity.getY() + "        ");
 			buf.put((byte) (entity.getId() >> 8));
 			buf.put((byte) (entity.getId() & 0xFF));
-			buf.put((byte) ((int) entity.getX() >> 4));
-			buf.put((byte) ((((int) entity.getX() & 0x0F) << 4) + ((int) entity.getY() >> 8)));
-			buf.put((byte) ((int) entity.getY() & 0xFF));
+			writePosition(buf, entity.getX(), entity.getY());
 			buf.put((byte) (entity.getRotation() / 2 / Math.PI * 255));
 			Robot pe = (Robot) entity;
 			buf.put((byte) ((Math.atan2(pe.getVy(), pe.getVx()) + Math.PI / 2) / 2 / Math.PI * 255));
@@ -266,7 +271,7 @@ public abstract class World {
 		writeState(buf, 8, robots);
 	}
 
-	public void writeStartingState(ByteBuffer buf, Collection<Robot> robots) {
+	public void writeStartingState(ByteBuffer buf, Collection<Robot> robots, Collection<Obstacle> obstacles) {
 		writeState(buf, 11, robots);
 		 // Go back to beginning, then forward 8
 		buf.position(buf.position() - robots.size() * 11 + 8);
@@ -280,6 +285,12 @@ public abstract class World {
 			if (i > 0) {
 				buf.position(buf.position() + 8);
 			}
+		}
+
+		for (Obstacle obs : obstacles) {
+			buf.put((byte) obs.getId());
+			buf.put(obs.getObstacleType());
+			writePosition(buf, obs.getX(), obs.getY());
 		}
 	}
 
@@ -297,23 +308,29 @@ public abstract class World {
 		return m;
 	}
 
-	public Collection<Bullet> getBullets() {
-		Collection<Bullet> bullets = new ArrayList<Bullet>();
+	private <T> Collection<T> getEntitiesOfClass(Class<T> cl) {
+		Collection<T> entities = new ArrayList<T>();
 		forEachUnsafe(entity -> {
-			if (entity instanceof Bullet) {
-				bullets.add((Bullet) entity);
+			if (cl.isInstance(entity)) {
+				entities.add(cl.cast(entity));
 			}
 		});
-		return bullets;
+		return entities;
+	}
+
+	public Collection<Bullet> getBullets() {
+		return getEntitiesOfClass(Bullet.class);
+	}
+
+	public Collection<Obstacle> getObstacles() {
+		return getEntitiesOfClass(Obstacle.class);
 	}
 
 	public void writeBulletStates(ByteBuffer buf, Collection<Bullet> bullets) {
 		Profiler.time("Compute bul states");
 
 		for (Bullet bullet : bullets) {
-			buf.put((byte) ((int) bullet.getX() >> 4));
-			buf.put((byte) ((((int) bullet.getX() & 0x0F) << 4) + ((int) bullet.getY() >> 8)));
-			buf.put((byte) ((int) bullet.getY() & 0xFF));
+			writePosition(buf, bullet.getX(), bullet.getY());
 			buf.put((byte) (Math.atan2(bullet.getVy(), bullet.getVx()) / 2 / Math.PI * 255));
 		}
 		Profiler.timeEnd("Compute bul states");
@@ -349,7 +366,7 @@ public abstract class World {
 		return 8 + robots.size() * 8 + bullets.size() * 4;
 	}
 
-	public static int initialStateLength(Collection<Robot> robots) {
-		return 11 * robots.size();
+	public static int initialStateLength(Collection<Robot> robots, Collection<Obstacle> obstacles) {
+		return robots.size() * 11 + obstacles.size() * 5;
 	}
 }

@@ -8,6 +8,7 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import common.Constants;
+import server.sim.entity.Turret;
 import server.sim.world.World;
 
 public class Test {
@@ -27,6 +28,7 @@ public class Test {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         World w = World.generateScrollingWorld(0, 0, Constants.World.WIDTH, Constants.World.HEIGHT);
+        w.add(new Turret((byte) 0, 300, 200));
         // TestEntity phys = new TestEntity((short) 0, 16, 17, 10);
 		// phys.setAcceleration(0.1, 0);
 		// TestEntity phys2 = new TestEntity((short) 1, 263, 20, 10);

@@ -23,8 +23,8 @@ public class Vaporizer extends Obstacle {
     private Set<Robot> damagedRobots;
     private Mode mode;
 
-    public Vaporizer(double x, double y) {
-        super(x, y);
+    public Vaporizer(byte id, double x, double y) {
+        super(id, x, y);
         damagedRobots = new HashSet<Robot>();
         mode = Mode.CHARGING;
     }

@@ -2,8 +2,8 @@ package server.sim.entity;
 
 public class Meteorite extends Obstacle {
 
-    public Meteorite(double x, double y) {
-        super(x, y);
+    public Meteorite(byte id, double x, double y) {
+        super(id, x, y);
     }
 
     @Override

@@ -8,8 +8,8 @@ class CircleBot extends Robot {
     public static void main(String[] args) throws InterruptedException {
         CircleBot b = new CircleBot();
         b.setColor(Color.ORANGERED);
-        // b.joinNetworkGame((short) 0);
-        b.joinLocalGame();
+        b.joinNetworkGame((short) 0);
+        // b.joinLocalGame();
         b.setAcceleration(20, 0);
         while (b.getVx() < 25) {
             Thread.sleep(10);
@@ -24,9 +24,9 @@ class CircleBot extends Robot {
             double displayAngle = accelerationAngle + Math.PI / 2;
             b.setRotation(displayAngle * 180 / Math.PI);
 
-            if (b.canShoot()) {
-                b.shoot();
-            }
+            // if (b.canShoot()) {
+            //     b.shoot();
+            // }
 
             // System.out.println(Math.sqrt(b.getVx() * b.getVx() + b.getVy() * b.getVy()));
             Thread.sleep(40);

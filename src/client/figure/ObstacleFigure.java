@@ -22,4 +22,14 @@ public abstract class ObstacleFigure extends Group implements Figure {
         return child;
     }
 
+    public static ObstacleFigure forType(byte type, double radius) {
+        switch (type) {
+            case 0: return new MeteoriteFigure(radius);
+            case 1: return new TurretFigure(radius);
+            case 2: return new VaporizerFigure(radius);
+            case 3: return new JammerFigure(radius);
+            default: throw new RuntimeException("No obstacle figure for type " + type + ".");
+        }
+    }
+
 }

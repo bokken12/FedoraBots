@@ -54,11 +54,14 @@ public class GameSimAdapter implements GameAdapter {
         world.add(robot);
 
         GameState.RobotState[] initialState = robotState();
+        GameState.ObstacleState[] obstacles = world.getObstacles().stream().map(obs -> new GameState.ObstacleState(
+            (byte) obs.getId(), obs.getObstacleType(), (int) obs.getX(), (int) obs.getY(), (byte) (obs.getRotation() / 2 / Math.PI * 255)
+        )).toArray(GameState.ObstacleState[]::new);
 
         Map<Short, javafx.scene.paint.Color> colorMap = new HashMap<Short, javafx.scene.paint.Color>();
         colorMap.put(robotId, javafx.scene.paint.Color.rgb(robotColor.getRed(), robotColor.getGreen(), robotColor.getBlue()));
 
-        this.g.startGame(new GameState(initialState), colorMap);
+        this.g.startGame(new GameState(initialState, obstacles), colorMap);
         gameStartedLock.release();
         System.out.println("Starting");
     }

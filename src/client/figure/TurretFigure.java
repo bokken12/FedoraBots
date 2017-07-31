@@ -7,7 +7,7 @@ public class TurretFigure extends ObstacleFigure {
     private Group turret;
 
     public TurretFigure(double radius) {
-        super(radius, "obstacles/turret.svg");
+        super(radius, "/obstacles/turret.svg");
 
         turret = (Group) getChild().lookup("#turret");
 

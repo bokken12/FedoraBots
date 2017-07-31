@@ -6,7 +6,7 @@ public class VaporizerFigure extends ObstacleFigure {
     private Shape pulse;
 
     public VaporizerFigure(double radius) {
-        super(radius, "obstacles/vaporizer.svg");
+        super(radius, "/obstacles/vaporizer.svg");
 
         pulse = (Shape) getChild().lookup("#pulse");
 

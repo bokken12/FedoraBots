@@ -100,6 +100,7 @@ public class ScrollingWorld extends World {
 		for(Entity e : things) {
 			if(!e.markedForRemoval() && !source.equals(e) && condition.test(e)) {
 				double d = Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2);
+				System.out.println("matches");
 				if(d < dmin) {
 					dmin = d;
 					closest = e;

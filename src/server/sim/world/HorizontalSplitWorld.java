@@ -84,18 +84,20 @@ public class HorizontalSplitWorld extends World {
 	 */
 	@Override
 	public Entity closest(Entity source) {
-		Entity closest;
-		double dmin;
+		Entity closest = null;
+		double dmin = Double.MAX_VALUE;
 		if(source.getY() + source.getRadius() < getY() + getHeight() / 2) {
 			closest = top.closest(source);
 			if(closest == null)
 				closest = bottom.closest(source);
-			dmin = Math.pow(source.getX() - closest.getX(), 2) + Math.pow(source.getY() - closest.getY(), 2);
+			if(closest != null)
+				dmin = Math.pow(source.getX() - closest.getX(), 2) + Math.pow(source.getY() - closest.getY(), 2);
 		} else if(source.getY() - source.getRadius() > getY() + getHeight() / 2) {
 			closest = bottom.closest(source);
 			if(closest == null)
 				closest = top.closest(source);
-			dmin = (int) (Math.pow(source.getX() - closest.getX(), 2) + Math.pow(source.getY() - closest.getY(), 2));
+			if(closest != null)
+				dmin = (int) (Math.pow(source.getX() - closest.getX(), 2) + Math.pow(source.getY() - closest.getY(), 2));
 		} else {
 			closest = null;
 			dmin = Double.MAX_VALUE;
@@ -103,6 +105,7 @@ public class HorizontalSplitWorld extends World {
 		for(Entity e : things) {
 			if(!e.markedForRemoval() && !source.equals(e)) {
 				double d = Math.pow(source.getX() - e.getX(), 2) + Math.pow(source.getY() - e.getY(), 2);
+				System.out.println("matches");
 				if(d < dmin) {
 					dmin = d;
 					closest = e;

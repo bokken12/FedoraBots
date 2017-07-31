@@ -2,8 +2,8 @@ package server.sim.entity;
 
 public class Jammer extends Obstacle {
 
-    public Jammer(double x, double y) {
-        super(x, y);
+    public Jammer(byte id, double x, double y) {
+        super(id, x, y);
     }
 
     @Override

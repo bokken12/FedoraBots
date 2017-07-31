@@ -124,7 +124,10 @@ public class GameNetworkAdapter implements GameAdapter {
                 if (mType == 0 || mType == 1 || mType == 2) {
                     numEntities = inp.read();
 
-                    if (mType == 0) bufferLen = numEntities * 11;
+                    if (mType == 0) {
+                        int numObstacles = inp.read();
+                        bufferLen = numEntities * 11 + numObstacles * 5;
+                    }
                     if (mType == 1) {
                         int numBullets = (inp.read() << 8) + inp.read();
                         bufferLen = numEntities * 8 + 8 + numBullets * 4;
@@ -158,7 +161,7 @@ public class GameNetworkAdapter implements GameAdapter {
 
     private void parseBuffer(int type, byte[] buffer, int numEntities) {
         switch (type) {
-            case 0:  parseStart(buffer); break;
+            case 0:  parseStart(buffer, numEntities); break;
             case 1:  parseState(buffer, numEntities); break;
             case 2:  parseHealths(buffer); break;
             case 3:  parseSpectateOk(buffer); break;
@@ -169,21 +172,32 @@ public class GameNetworkAdapter implements GameAdapter {
         }
     }
 
-    private void parseStart(byte[] buffer) {
-        GameState.RobotState[] state = new GameState.RobotState[buffer.length / 11];
+    private void parseStart(byte[] buffer, int numEntities) {
+        GameState.RobotState[] state = new GameState.RobotState[numEntities];
+        GameState.ObstacleState[] obstacles = new GameState.ObstacleState[(buffer.length - numEntities*11) / 5];
         Map<Short, Color> colors = new HashMap<Short, Color>();
 
-        for (int i = 0; i < buffer.length; i += 11) {
-            short id = (short) ((buffer[i] << 8) + buffer[i + 1]);
-            int x = (buffer[i + 2] << 4) + (buffer[i + 3] & 0x10);
-            int y = (buffer[i + 3] << 8) + buffer[i + 4];
+        for (int i = 0; i < numEntities * 11; i += 11) {
+            short id = (short) (((buffer[i] & 0xFF) << 8) + (buffer[i + 1] & 0xFF));
+            int x = ((buffer[i + 2] & 0xFF) << 4) + ((buffer[i + 3] & 0xFF) >> 4);
+            int y = ((buffer[i + 3] & 0x0F) << 8) + (buffer[i + 4] & 0xFF);
             byte rot = (byte) buffer[i + 5];
             byte vangle = (byte) buffer[i + 6];
             byte aangle = (byte) buffer[i + 7];
             state[i/11] = new GameState.RobotState(id, x, y, rot, vangle, aangle);
             colors.put(id, Color.rgb(buffer[i + 8] & 0xFF, buffer[i + 9] & 0xFF, buffer[i + 10] & 0xFF));
         }
-        g.startGame(new GameState(state), colors);
+
+        for (int j = 0; j < obstacles.length; j++) {
+            int i = numEntities * 11 + j * 5;
+            byte id = buffer[i + 0];
+            byte type = buffer[i + 1];
+            int x = ((buffer[i + 2] & 0xFF) << 4) + ((buffer[i + 3] & 0xFF) >> 4);
+            int y = ((buffer[i + 3] & 0x0F) << 8) + (buffer[i + 4] & 0xFF);
+            obstacles[j] = new GameState.ObstacleState(id, type, x, y, (byte) 0);
+        }
+
+        g.startGame(new GameState(state, obstacles), colors);
     }
 
     private void parseState(byte[] buffer, int numEntities) {

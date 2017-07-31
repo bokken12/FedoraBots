@@ -10,8 +10,8 @@ public class Turret extends Obstacle {
 
     private double totalTime = 0;
 
-    public Turret(double x, double y) {
-        super(x, y);
+    public Turret(byte id, double x, double y) {
+        super(id, x, y);
     }
 
     @Override
@@ -36,21 +36,24 @@ public class Turret extends Obstacle {
      * there is a robot to shoot at.
      */
     private boolean aim(World world) {
+        System.out.println("---------------------------------");
         Robot robot = getClosestRobotInRange(Constants.Obstacle.TURRET_RANGE, world);
+        System.out.println("POW! " + robot);
         if (robot == null) {
             return false;
         }
 
-        double angle = Math.atan2(robot.getY() - getY(), robot.getX() - getX());
-        setRotation(angle);
+        double angle = Math.atan2(getY() - robot.getY(), robot.getX() - getX());
+        setRotation(-angle + Math.PI / 2);
         return true;
     }
 
     private void shoot(World world) {
         double rotation = -getRotation() + Math.PI / 2;
+        System.out.println(getRotation());
         double vx = Constants.Bullet.VELOCITY/1e3 * Math.cos(rotation);
         double vy = - (Constants.Bullet.VELOCITY/1e3 * Math.sin(rotation));
-        double dist = (Constants.Robot.RADIUS + Constants.Bullet.RADIUS) * 1.1;
+        double dist = (Constants.Obstacle.RADIUS + Constants.Bullet.RADIUS) * 1.1;
         double x = getX() + dist * Math.cos(rotation);
         double y = getY() - dist * Math.sin(rotation);
         world.add(new Bullet(x, y, Constants.Bullet.RADIUS, Constants.Bullet.MASS, vx, vy));

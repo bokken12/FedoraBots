@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import common.Profiler;
 import server.sim.Sim;
 import server.sim.entity.Bullet;
+import server.sim.entity.Obstacle;
 import server.sim.entity.Robot;
 import server.sim.world.World;
 
@@ -22,6 +23,7 @@ public class Room {
     private Sim sim;
     private short id;
     private Map<Short, Robot> robots;
+    private Collection<Obstacle> obstacles;
     private boolean gameStarted = false;
     private Manager manager;
 
@@ -49,6 +51,7 @@ public class Room {
         sim = new Sim(world);
         id = globalId++;
         robots = new HashMap<Short, Robot>();
+        obstacles = world.getObstacles();
     }
 
     /**
@@ -184,10 +187,11 @@ public class Room {
      */
     public ByteBuffer initialState() {
         Collection<Robot> rvs = robots.values();
-        ByteBuffer buf = ByteBuffer.allocate(World.initialStateLength(rvs) + 2);
+        ByteBuffer buf = ByteBuffer.allocate(World.initialStateLength(rvs, obstacles) + 3);
         buf.put((byte) 0);
         buf.put((byte) rvs.size());
-        world.writeStartingState(buf, rvs);
+        buf.put((byte) obstacles.size());
+        world.writeStartingState(buf, rvs, obstacles);
         return buf;
     }
 

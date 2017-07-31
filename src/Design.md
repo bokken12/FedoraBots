@@ -18,11 +18,23 @@ However, in Java they are kept as integers so that they are compaitible with gen
 * `128 - 191`: Robot --> server messages
 * `192 - 255`: Display --> server messages
 
-Start of game (11 bytes per entity):
+Start of game (11 bytes per entity, 5 bytes per obstacle):
 
-| Message type | Number of entities | *For each entity:* ID | *For each entity:* X | *For each entity:* Y | *For each entity:* Rotation | *For each entity:* V angle | *For each entity:* A angle | *For each entity:* Color |
-| :----------: | :----------------: | :-------------------: | :------------------: | :------------------: | :-------------------------: | :------------------------: | :------------------------: | :----------------------: |
-|  0 (1 byte)  |       1 byte       |        2 bytes        |        12 bits       |        12 bits       |           1 byte            |           1 byte           |           1 byte           |       3 bytes (rgb)      |
+| Message type | Number of entities | Number of obstacles |
+| :----------: | :----------------: | :-----------------: |
+|  0 (1 byte)  |       1 byte       |       1 byte        |
+
+Continued...
+
+| *For each entity:* ID | *For each entity:* X | *For each entity:* Y | *For each entity:* Rotation | *For each entity:* V angle | *For each entity:* A angle | *For each entity:* Color |
+| :-------------------: | :------------------: | :------------------: | :-------------------------: | :------------------------: | :------------------------: | :----------------------: |
+|        2 bytes        |        12 bits       |        12 bits       |           1 byte            |           1 byte           |           1 byte           |       3 bytes (rgb)      |
+
+Continued...
+
+| *For each obstacle:* ID | *For each obstacle*: type | *For each obstacle*: X | *For each obstacle*: Y |
+| :---------------------: | :-----------------------: | :--------------------: | :--------------------: |
+|         1 byte          |          1 byte           |        12 bits         |         12 bits        |
 
 Game state (8 bytes per entity and 4 bytes per bullet):
 
@@ -47,6 +59,12 @@ Health update (3 bytes per entity):
 | Message type | Number of entities | *For each entity:* ID | *For each entity:* Health |
 | :----------: | :----------------: | :-------------------: | :-----------------------: |
 |  2 (1 byte)  |       1 byte       |        2 bytes        |           1 byte          |
+
+Obstacle update (2 bytes per obstacle):
+
+| Message type | Number of obstacles | *For each obstacle:* ID | *For each obstacle:* Rotation |
+| :----------: | :-----------------: | :---------------------: | :---------------------------: |
+|  3 (1 byte)  |       1 byte        |         1 byte          |            1 byte             |
 
 Server response after a display spectates a game for success (sent to display):
 

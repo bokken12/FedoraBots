@@ -9,8 +9,10 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import client.GameState.BulletState;
+import client.GameState.ObstacleState;
 import client.GameState.RobotState;
 import client.figure.BulletFigure;
+import client.figure.ObstacleFigure;
 import client.figure.RobotFigure;
 import common.Constants;
 import javafx.application.Application;
@@ -29,6 +31,7 @@ public class Display extends Application {
     private Group robotCircles;
     private GameManager gm;
     private List<BulletFigure> bullets = new ArrayList<BulletFigure>();
+    private Map<Byte, ObstacleFigure> obstacles = new HashMap<Byte, ObstacleFigure>();
 
     public Display() throws IOException {
         gm = new GameManager();
@@ -108,14 +111,28 @@ public class Display extends Application {
     private void initializeRobots(GameState state) {
         for (RobotState rs : state.robotStates()) {
             RobotFigure robot = new RobotFigure(Constants.Robot.RADIUS, rs.getColor()); // new Circle(10, rs.getColor());
+            robot.setTranslateX(rs.getX());
+            robot.setTranslateY(rs.getY());
             if (robots.put(rs.getId(), robot) != null) {
                 throw new RuntimeException("A robot with ID " + rs.getId() + " wasn't cleared from the display.");
+            }
+        }
+
+        for (ObstacleState os : state.obstacleStates()) {
+            ObstacleFigure obs = ObstacleFigure.forType(os.getType(), Constants.Obstacle.RADIUS);
+            obs.setTranslateX(os.getX());
+            obs.setTranslateY(os.getY());
+            if (obstacles.put(os.getId(), obs) != null) {
+                throw new RuntimeException("An obstacle with ID " + os.getId() + " wasn't cleared from the display.");
             }
         }
 
         Platform.runLater(() -> {
             for (RobotState rs : state.robotStates()) {
                 robotCircles.getChildren().add(robots.get(rs.getId()));
+            }
+            for (ObstacleState os : state.obstacleStates()) {
+                robotCircles.getChildren().add(obstacles.get(os.getId()));
             }
         });
     }
