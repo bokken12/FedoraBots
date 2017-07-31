@@ -42,12 +42,10 @@ public abstract class Entity {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((color == null) ? 0 : color.hashCode());
+		result = prime * result + id;
 		long temp;
 		temp = Double.doubleToLongBits(radius);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(x);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(y);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
@@ -64,13 +62,14 @@ public abstract class Entity {
 		if(getClass() != obj.getClass())
 			return false;
 		Entity other = (Entity) obj;
+		if(color == null) {
+			if(other.color != null)
+				return false;
+		} else if(!color.equals(other.color))
+			return false;
 		if(id != other.id)
 			return false;
 		if(Double.doubleToLongBits(radius) != Double.doubleToLongBits(other.radius))
-			return false;
-		if(Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x))
-			return false;
-		if(Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y))
 			return false;
 		return true;
 	}
