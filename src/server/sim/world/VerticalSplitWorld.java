@@ -119,21 +119,20 @@ public class VerticalSplitWorld extends World {
 	 */
 	@Override
 	public Entity closest(Entity source, Predicate<Entity> condition) {
-		Entity closest;
-		double dmin;
+		Entity closest = null;
+		double dmin = Double.MAX_VALUE;
 		if(source.getX() + source.getRadius() < getX() + getWidth() / 2) {
 			closest = left.closest(source, condition);
 			if(closest == null)
 				closest = right.closest(source, condition);
-			dmin = Math.pow(source.getX() - closest.getX(), 2) + Math.pow(source.getY() - closest.getY(), 2);
+			if(closest != null)
+				dmin = Math.pow(source.getX() - closest.getX(), 2) + Math.pow(source.getY() - closest.getY(), 2);
 		} else if(source.getX() - source.getRadius() > getX() + getWidth() / 2) {
 			closest = right.closest(source, condition);
 			if(closest == null)
 				closest = left.closest(source, condition);
-			dmin = (int) (Math.pow(source.getX() - closest.getX(), 2) + Math.pow(source.getY() - closest.getY(), 2));
-		} else {
-			closest = null;
-			dmin = Double.MAX_VALUE;
+			if(closest != null)
+				dmin = (int) (Math.pow(source.getX() - closest.getX(), 2) + Math.pow(source.getY() - closest.getY(), 2));
 		}
 		for(Entity e : things) {
 			if(!e.markedForRemoval() && !source.equals(e) && condition.test(e)) {
