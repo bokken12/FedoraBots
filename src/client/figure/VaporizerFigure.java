@@ -8,7 +8,7 @@ public class VaporizerFigure extends ObstacleFigure {
     private static double MIN_SCALE = Constants.Obstacle.RADIUS / Constants.Obstacle.VAPORIZER_RANGE;
 
     public VaporizerFigure(double radius) {
-        super(radius, "/obstacles/vaporizer.svg");
+        super(radius, "/obstacles/vaporizer.svg", Constants.Obstacle.VAPORIZER_RANGE);
 
         pulse = (Shape) getChild().lookup("#pulse");
 

@@ -1,5 +1,6 @@
 package client.figure;
 
+import common.Constants;
 import javafx.scene.Group;
 import javafx.scene.transform.Translate;
 
@@ -7,7 +8,7 @@ public class TurretFigure extends ObstacleFigure {
     private Group turret;
 
     public TurretFigure(double radius) {
-        super(radius, "/obstacles/turret.svg");
+        super(radius, "/obstacles/turret.svg", Constants.Obstacle.TURRET_RANGE);
 
         turret = (Group) getChild().lookup("#turret");
 

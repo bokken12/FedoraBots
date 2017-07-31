@@ -18,6 +18,7 @@ import common.Constants;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -129,6 +130,14 @@ public class Display extends Application {
         }
 
         Platform.runLater(() -> {
+            for (ObstacleState os : state.obstacleStates()) {
+                Node rangeMarker = obstacles.get(os.getId()).getRangeMarker();
+                if (rangeMarker != null) {
+                    rangeMarker.setTranslateX(os.getX());
+                    rangeMarker.setTranslateY(os.getY());
+                    robotCircles.getChildren().add(rangeMarker);
+                }
+            }
             for (RobotState rs : state.robotStates()) {
                 robotCircles.getChildren().add(robots.get(rs.getId()));
             }
