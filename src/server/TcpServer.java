@@ -33,7 +33,7 @@ public class TcpServer implements Runnable {
 	public TcpServer(Manager manager) throws IOException {
 		this.manager = manager;
 		this.ssc = ServerSocketChannel.open();
-		this.ssc.socket().bind(new InetSocketAddress(PORT));
+		this.ssc.socket().bind(new InetSocketAddress("0.0.0.0", PORT));
 		this.ssc.configureBlocking(false);
 		this.selector = Selector.open();
 
