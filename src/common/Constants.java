@@ -52,6 +52,6 @@ public class Constants {
          * the robot that must be between the two for the vaporizer to pulse the
          * robot.
          */
-        public static final double VAPORIZER_RANGE = 20;
+        public static final double VAPORIZER_RANGE = 50;
     }
 }

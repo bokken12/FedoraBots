@@ -198,7 +198,6 @@ public class Display extends Application {
 
     private void updateObstacleRotations(Map<Byte, Byte> obsRotations) {
         for (Map.Entry<Byte, Byte> entry : obsRotations.entrySet()) {
-            System.out.println(entry.getValue() & 0xFF);
             obstacles.get(entry.getKey()).setRotation((entry.getValue() & 0xFF) / 255.0 * 360);
         }
     }

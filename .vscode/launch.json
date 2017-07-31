@@ -8,24 +8,29 @@
             "stopOnEntry": false,
             "jdkPath": "${env:JAVA_HOME}/bin",
             "cwd": "${workspaceRoot}",
-            "startupClass": "server.Test",
-            "sourcePath": ["${workspaceRoot}/src"],
-            "options": [
-                "-classpath",
-                "${workspaceRoot}/bin"
+            "startupClass": "example.CircleBot",
+            "sourcePath": [
+                "${workspaceRoot}/src"
+            ],
+            "classpath": [
+                "${workspaceRoot}/bin",
+                "${workspaceRoot}/build/lib/FedoraBots.jar"
             ]
         },
         {
             "name": "Java Console App",
             "type": "java",
             "request": "launch",
-            "stopOnEntry": true,
+            "stopOnEntry": false,
             "jdkPath": "${env:JAVA_HOME}/bin",
             "cwd": "${fileDirname}",
-            "startupClass": "${fileBasename}",
-            "options": [
-                "-classpath",
-                "\"${fileDirname};.\""
+            "startupClass": "example.CircleBot",
+            "sourcePath": [
+                "${workspaceRoot}/src"
+            ],
+            "classpath": [
+                "${workspaceRoot}/bin",
+                "${workspaceRoot}/build/lib/FedoraBots.jar"
             ],
             "externalConsole": true
         }

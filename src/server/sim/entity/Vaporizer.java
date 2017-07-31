@@ -55,10 +55,14 @@ public class Vaporizer extends Obstacle {
                 double pulsePercent = (totalTime - PULSE_START_TIME) / Constants.Obstacle.VAPORIZER_PULSE_LENGTH;
                 setRotation(pulsePercent * 2 * Math.PI);
                 double origRadius = getRadius();
-                double pulseRadius = pulsePercent * Constants.Obstacle.VAPORIZER_RANGE;
+                double pulseRadius = origRadius + pulsePercent * (Constants.Obstacle.VAPORIZER_RANGE - origRadius);
+                world.remove(this);
                 setRadius(pulseRadius);
+                world.add(this);
                 world.forCollidingUnsafe(this, this::handlePulse);
+                world.remove(this);
                 setRadius(origRadius);
+                world.add(this);
             }
         }
     }
@@ -67,7 +71,9 @@ public class Vaporizer extends Obstacle {
         if (entity instanceof Robot) {
             Robot robot = (Robot) entity;
             boolean newRobot = damagedRobots.add(robot.getId());
+            System.out.println("robot");
             if (newRobot) {
+                System.out.println("damage");
                 robot.setHealth(robot.getHealth() - Constants.Bullet.DAMAGE);
             }
         }

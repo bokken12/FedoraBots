@@ -30,7 +30,7 @@
          id="stop6907" />
       <stop
          id="stop6913"
-         offset="0.5"
+         offset="0.19999999"
          style="stop-color:#87cefa;stop-opacity:1" />
       <stop
          style="stop-color:#87cefa;stop-opacity:0.40000001"
@@ -68,7 +68,8 @@
        fx="32"
        fy="32"
        r="64"
-       gradientUnits="userSpaceOnUse" />
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(2.5,0,0,2.5,-48,-48)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -77,7 +78,7 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4.7714273"
+     inkscape:zoom="2.3857137"
      inkscape:cx="41.288446"
      inkscape:cy="25.82334"
      inkscape:document-units="px"
@@ -128,8 +129,8 @@
        id="pulse"
        cx="32"
        cy="32"
-       r="64"
-       inkscape:label="pulse" />
+       inkscape:label="pulse"
+       r="160" />
     <circle
        style="opacity:1;fill:url(#linearGradient4852);fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path4844"

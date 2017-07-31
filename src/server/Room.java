@@ -177,7 +177,6 @@ public class Room {
                     }
                     List<Obstacle> obstaclesChangedRotation = world.rotationChangedObstacles(obstacles);
                     if (obstaclesChangedRotation.size() > 0) {
-                        System.out.println("SENDING");
                         manager.broadcastBuf(server, this, world.obstacleStates(obstaclesChangedRotation));
                     }
                 });

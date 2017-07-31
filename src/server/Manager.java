@@ -56,8 +56,8 @@ public class Manager {
         short roomId = bb.getShort();
         Color robotColor = new Color(bb.get() & 0xFF, bb.get() & 0xFF, bb.get() & 0xFF);
         Robot ent = new Robot(id, robotColor,
-                              Math.random() * Constants.World.WIDTH,
-                              Math.random() * Constants.World.HEIGHT,
+                              170, //Math.random() * Constants.World.WIDTH,
+                              180, //Math.random() * Constants.World.HEIGHT,
                               Math.random() * 2 * Math.PI,
                               Constants.Robot.RADIUS,
                               Constants.Robot.MASS);

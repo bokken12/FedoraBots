@@ -48,7 +48,6 @@ public class Turret extends Obstacle {
 
     private void shoot(World world) {
         double rotation = -getRotation() + Math.PI / 2;
-        System.out.println(getRotation());
         double vx = Constants.Bullet.VELOCITY/1e3 * Math.cos(rotation);
         double vy = - (Constants.Bullet.VELOCITY/1e3 * Math.sin(rotation));
         double dist = (Constants.Obstacle.RADIUS + Constants.Bullet.RADIUS) * 1.1;
