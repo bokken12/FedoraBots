@@ -38,7 +38,7 @@ public class Constants {
          * the robot that must be between the two for the turret to shoot the
          * robot.
          */
-        public static final double TURRET_RANGE = 200;
+        public static final double TURRET_RANGE = 100;
         /**
          * Milliseconds that the vaporizer must take to cooldown between each pulse
          */
