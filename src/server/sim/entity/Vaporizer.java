@@ -63,9 +63,7 @@ public class Vaporizer extends Obstacle {
 
     private void handlePulse(Robot robot) {
         boolean newRobot = damagedRobots.add(robot.getId());
-        System.out.println("robot");
         if (newRobot) {
-            System.out.println("damage");
             robot.setHealth(robot.getHealth() - Constants.Bullet.DAMAGE);
         }
     }
