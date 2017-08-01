@@ -1,5 +1,12 @@
 package example;
 
+import java.awt.Dimension;
+
+import boofcv.gui.image.ImagePanel;
+import boofcv.gui.image.ShowImages;
+import boofcv.io.image.ConvertBufferedImage;
+import boofcv.struct.image.GrayF32;
+import boofcv.struct.image.Planar;
 import client.Robot;
 import javafx.scene.paint.Color;
 
@@ -14,6 +21,9 @@ class CircleBot extends Robot {
         while (b.getVx() < 25) {
             Thread.sleep(10);
         }
+        ImagePanel gui = new ImagePanel();
+        gui.setPreferredSize(new Dimension(b.getDisplayImage().getWidth(), b.getDisplayImage().getHeight()));
+        ShowImages.showWindow(gui, "Image", true);
         while (!b.isDead()) {
             double velocityAngle = Math.atan2(b.getVy(), b.getVx());
             double accelerationAngle = velocityAngle + Math.PI / 2;
@@ -30,6 +40,10 @@ class CircleBot extends Robot {
 
             // System.out.println(Math.sqrt(b.getVx() * b.getVx() + b.getVy() * b.getVy()));
             Thread.sleep(40);
+
+            // Planar<GrayF32> input = ConvertBufferedImage.convertFromMulti(b.getDisplayImage(),null,true,GrayF32.class);
+            // ShowImages.showWindow(input, "Image");
+            gui.setBufferedImageSafe(b.getDisplayImage());
         }
     }
 
