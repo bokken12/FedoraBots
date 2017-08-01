@@ -8,6 +8,7 @@ repositories {
 
 dependencies {
     compile 'com.github.afester:FranzXaver:master'
+    compile group: 'org.boofcv', name: 'core', version: '0.26'
 }
 
 sourceSets {
@@ -25,8 +26,8 @@ targetCompatibility = '1.8'
 
 jar {
     from {
-            configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-        }
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
 
 eclipse.classpath.file.whenMerged {
