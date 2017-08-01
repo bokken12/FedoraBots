@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
 import client.GameState.BulletState;
 import client.GameState.ObstacleState;
@@ -114,7 +115,23 @@ public class Display extends Application {
     }
 
     public BufferedImage getImage() {
-        return SwingFXUtils.fromFXImage(scene.snapshot(null), null);
+        Semaphore awaitingImageSemaphore = new Semaphore(1);
+        try {
+            awaitingImageSemaphore.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        BufferedImage result = new BufferedImage((int) scene.getWidth(), (int) scene.getHeight(), 3);
+        Platform.runLater(() -> {
+            SwingFXUtils.fromFXImage(scene.snapshot(null), result);
+            awaitingImageSemaphore.release();
+        });
+        try {
+            awaitingImageSemaphore.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     private void initializeRobots(GameState state) {
