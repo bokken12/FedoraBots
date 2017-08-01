@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
+import java.util.function.Supplier;
 
 import client.GameState.BulletState;
 import client.GameState.ObstacleState;
@@ -20,11 +21,16 @@ import common.Constants;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.EventHandler;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class Display extends Application {
 
@@ -37,6 +43,13 @@ public class Display extends Application {
     private GameManager gm;
     private List<BulletFigure> bullets = new ArrayList<BulletFigure>();
     private Map<Byte, ObstacleFigure> obstacles = new HashMap<Byte, ObstacleFigure>();
+
+    private static SnapshotParameters snapshotParams = new SnapshotParameters();
+
+    static {
+        snapshotParams.setViewport(new Rectangle2D(0, 0, Constants.World.WIDTH, Constants.World.HEIGHT));
+        snapshotParams.setFill(Color.LIGHTGRAY);
+    }
 
     public Display() throws IOException {
         gm = new GameManager();
@@ -111,19 +124,27 @@ public class Display extends Application {
             gm.spectateNetworkGame(Short.parseShort(getParameters().getRaw().get(0)));
         }
 
+        primaryStage.setOnHidden(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                ImageDisplay.closeAllWindows();
+                Platform.exit();
+            }
+        });
+
         latch.countDown();
     }
 
-    public BufferedImage getImage() {
+    public static BufferedImage snapshot(Supplier<WritableImage> generator, int width, int height) {
         Semaphore awaitingImageSemaphore = new Semaphore(1);
         try {
             awaitingImageSemaphore.acquire();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        BufferedImage result = new BufferedImage((int) scene.getWidth(), (int) scene.getHeight(), 3);
+        BufferedImage result = new BufferedImage(width, height, 3);
         Platform.runLater(() -> {
-            SwingFXUtils.fromFXImage(scene.snapshot(null), result);
+            SwingFXUtils.fromFXImage(generator.get(), result);
             awaitingImageSemaphore.release();
         });
         try {
@@ -132,6 +153,10 @@ public class Display extends Application {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public BufferedImage getImage() {
+        return snapshot(() -> robotCircles.snapshot(snapshotParams, null), Constants.World.WIDTH, Constants.World.HEIGHT);
     }
 
     private void initializeRobots(GameState state) {

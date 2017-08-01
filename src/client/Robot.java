@@ -2,10 +2,11 @@ package client;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
+import java.util.function.Supplier;
 
-import boofcv.core.image.ConvertImage;
-import boofcv.io.image.ConvertBufferedImage;
 import common.Constants;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 /**
@@ -86,7 +87,33 @@ public abstract class Robot {
     }
 
     public BufferedImage getDisplayImage() {
-        return d.getImage();
+        // return d.getImage();
+        return staticImage();
+    }
+
+    private BufferedImage staticImage() {
+        // Algorithm adapted from http://sarathsaleem.github.io/grained
+        double grainOpacity = 0.61;
+        int grainDensity = 3;
+        double grainWidth = 2.39 * 1.5;
+        double grainHeight = 2.49 * 1.5;
+
+        Canvas canvas = new Canvas(Constants.World.WIDTH, Constants.World.HEIGHT);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.setFill(Color.WHITE);
+
+        for (int w = 0; w < canvas.getWidth(); w += grainDensity) {
+            for (int h = 0; h < canvas.getHeight(); h += grainDensity) {
+                double val = Math.random() * grainOpacity + (1 - grainOpacity);
+                Supplier<Double> colorVal = () -> {
+                    return Math.min(Math.max(val + Math.random()*0.2 - 0.1, 0), 1);
+                };
+                gc.setFill(Color.color(colorVal.get(), colorVal.get(), colorVal.get()));
+                gc.fillRect(w, h, grainWidth, grainHeight);
+            }
+        }
+
+        return Display.snapshot(() -> canvas.snapshot(null, null), (int) canvas.getWidth(), (int) canvas.getHeight());
     }
 
     public double getAx() {
