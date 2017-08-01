@@ -1,5 +1,6 @@
 package client;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import client.figure.RobotFigure;
 import common.Constants;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -29,6 +31,7 @@ public class Display extends Application {
     private static CountDownLatch latch = new CountDownLatch(1);
 
     private Map<Short, RobotFigure> robots = new HashMap<Short, RobotFigure>();
+    private Scene scene;
     private Group robotCircles;
     private GameManager gm;
     private List<BulletFigure> bullets = new ArrayList<BulletFigure>();
@@ -89,7 +92,7 @@ public class Display extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Framey");
 		Group root = new Group();
-		Scene scene = new Scene(root, Constants.World.WIDTH, Constants.World.HEIGHT, Color.LIGHTGRAY);
+		scene = new Scene(root, Constants.World.WIDTH, Constants.World.HEIGHT, Color.LIGHTGRAY);
         primaryStage.setScene(scene);
 
         robotCircles = new Group();
@@ -108,6 +111,10 @@ public class Display extends Application {
         }
 
         latch.countDown();
+    }
+
+    public BufferedImage getImage() {
+        return SwingFXUtils.fromFXImage(scene.snapshot(null), null);
     }
 
     private void initializeRobots(GameState state) {
