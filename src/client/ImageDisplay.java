@@ -34,6 +34,8 @@ public abstract class ImageDisplay {
                 info = new MapInfo();
                 info.image = SwingFXUtils.toFXImage(image, null);
                 info.stage = new Stage();
+                info.stage.setX(info.stage.getX() + 50);
+                info.stage.setY(info.stage.getY() + 50);
                 info.stage.setTitle(name);
                 info.view = new ImageView();
                 info.stage.setScene(new Scene(new Group(info.view), image.getWidth(), image.getHeight()));
