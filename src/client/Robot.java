@@ -4,7 +4,9 @@ import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import client.GameState.RobotState;
 import common.Constants;
+import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -23,6 +25,8 @@ public abstract class Robot {
     private double ay;
     private double vx;
     private double vy;
+    private int x;
+    private int y;
     private double rotation;
     private long lastShoot;
     private double health;
@@ -34,6 +38,7 @@ public abstract class Robot {
             this.vx = vx;
             this.vy = vy;
         });
+        gm.addStateListener(this::handleState);
         gm.addHealthListener(this::updateHealth);
         health = 1;
     }
@@ -87,8 +92,13 @@ public abstract class Robot {
     }
 
     public BufferedImage getDisplayImage() {
-        // return d.getImage();
-        return staticImage();
+        for (Point2D center : d.getJammerCenters()) {
+            if (center.distance(x, y) <= Constants.Obstacle.JAMMER_RANGE - Constants.Robot.RADIUS) {
+                return staticImage();
+            }
+        }
+
+        return d.getImage();
     }
 
     private BufferedImage staticImage() {
@@ -150,6 +160,15 @@ public abstract class Robot {
 
     public boolean isDead() {
         return health == 0;
+    }
+
+    private void handleState(GameState st) {
+        for (RobotState rs : st.robotStates()) {
+            if (rs.getId() == id) {
+                x = rs.getX();
+                y = rs.getY();
+            }
+        }
     }
 
     private void updateHealth(Map<Short, Double> healthMap) {

@@ -8,6 +8,7 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import common.Constants;
+import server.sim.entity.Jammer;
 import server.sim.entity.Meteorite;
 import server.sim.entity.Turret;
 import server.sim.entity.Vaporizer;
@@ -33,7 +34,8 @@ public class Test {
         Room room = new Room(1, w);
         room.addObstacle(new Turret((byte) 0, -1, -1));
         room.addObstacle(new Vaporizer((byte) 1, -1, -1));
-        for (byte i = 2; i < 22; i++) {
+        room.addObstacle(new Jammer((byte) 2, -1, -1));
+        for (byte i = 3; i < 23; i++) {
             room.addObstacle(new Meteorite(i, -1, -1));
         }
         // TestEntity phys = new TestEntity((short) 0, 16, 17, 10);

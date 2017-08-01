@@ -10,11 +10,13 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import client.GameState.BulletState;
 import client.GameState.ObstacleState;
 import client.GameState.RobotState;
 import client.figure.BulletFigure;
+import client.figure.JammerFigure;
 import client.figure.ObstacleFigure;
 import client.figure.RobotFigure;
 import common.Constants;
@@ -22,6 +24,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -258,6 +261,13 @@ public class Display extends Application {
         for (Map.Entry<Byte, Byte> entry : obsRotations.entrySet()) {
             obstacles.get(entry.getKey()).setRotation((entry.getValue() & 0xFF) / 255.0 * 360);
         }
+    }
+
+    public List<Point2D> getJammerCenters() {
+        return obstacles.values().stream()
+            .filter(JammerFigure.class::isInstance)
+            .map(fig -> new Point2D(fig.getTranslateX(), fig.getTranslateY()))
+            .collect(Collectors.toList());
     }
 
 }

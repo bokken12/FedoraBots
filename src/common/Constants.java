@@ -53,5 +53,11 @@ public class Constants {
          * robot.
          */
         public static final double VAPORIZER_RANGE = 50;
+        /**
+         * The distance measured from the center of the jammer to the edge of
+         * the robot that must be between the two for the jammer to disrupt the
+         * robot's sensors.
+         */
+        public static final double JAMMER_RANGE = 200;
     }
 }
