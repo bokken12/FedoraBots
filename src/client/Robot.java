@@ -1,7 +1,10 @@
 package client;
 
+import java.awt.image.BufferedImage;
 import java.util.Map;
 
+import boofcv.core.image.ConvertImage;
+import boofcv.io.image.ConvertBufferedImage;
 import common.Constants;
 import javafx.scene.paint.Color;
 
@@ -9,6 +12,7 @@ import javafx.scene.paint.Color;
  * User-accessible class for creating robots
  */
 public abstract class Robot {
+    private Display d;
     private Color color = Color.BLACK;
     private short id;
     private boolean inGame = false;
@@ -23,7 +27,7 @@ public abstract class Robot {
     private double health;
 
     public Robot() {
-        Display d = Display.getInstance();
+        d = Display.getInstance();
         gm = d.getGameManager();
         gm.addVelocityListener((vx, vy) -> {
             this.vx = vx;
@@ -79,6 +83,10 @@ public abstract class Robot {
             lastShoot = cTime;
             gm.sendRobotShootRequest(id);
         }
+    }
+
+    public BufferedImage getDisplayImage() {
+        return d.getImage();
     }
 
     public double getAx() {
