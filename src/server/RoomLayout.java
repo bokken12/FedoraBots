@@ -3,8 +3,7 @@ package server;
 import java.util.HashMap;
 import java.util.Map;
 
-import common.Constants;
-import common.HaltonGenerator;
+import common.LowDiscrepancySeq;
 import javafx.geometry.Point2D;
 
 public class RoomLayout {
@@ -18,8 +17,7 @@ public class RoomLayout {
             indexes.put(room, index);
         }
 
-        Point2D p = new Point2D(HaltonGenerator.nth(index, 2) * Constants.World.WIDTH,
-            HaltonGenerator.nth(index, 3) * Constants.World.HEIGHT);
+        Point2D p = LowDiscrepancySeq.haltonPoint(index);
         indexes.put(room, index + 1);
         return p;
     }
