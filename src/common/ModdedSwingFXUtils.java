@@ -76,51 +76,6 @@ public class ModdedSwingFXUtils {
     }
 
     /**
-     * Determine the optimal BufferedImage type to use for the specified
-     * {@code fxFormat} allowing for the specified {@code bimg} to be used
-     * as a potential default storage space if it is not null and is compatible.
-     *
-     * @param fxFormat the PixelFormat of the source FX Image
-     * @param bimg an optional existing {@code BufferedImage} to be used
-     *             for storage if it is compatible, or null
-     * @return
-     */
-    private static int
-        getBestBufferedImageType(PixelFormat<?> fxFormat, BufferedImage bimg)
-    {
-        if (bimg != null) {
-            int bimgType = bimg.getType();
-            if (bimgType == BufferedImage.TYPE_INT_ARGB ||
-                bimgType == BufferedImage.TYPE_INT_ARGB_PRE)
-            {
-                // We will allow the caller to give us a BufferedImage
-                // that has an alpha channel, but we might not otherwise
-                // construct one ourselves.
-                // We will also allow them to choose their own premultiply
-                // type which may not match the image.
-                // If left to our own devices we might choose a more specific
-                // format as indicated by the choices below.
-                return bimgType;
-            }
-        }
-        switch (fxFormat.getType()) {
-            default:
-            case BYTE_BGRA_PRE:
-            case INT_ARGB_PRE:
-                return BufferedImage.TYPE_INT_ARGB_PRE;
-            case BYTE_BGRA:
-            case INT_ARGB:
-                return BufferedImage.TYPE_INT_ARGB;
-            case BYTE_RGB:
-                return BufferedImage.TYPE_INT_RGB;
-            case BYTE_INDEXED:
-                return (fxFormat.isPremultiplied()
-                        ? BufferedImage.TYPE_INT_ARGB_PRE
-                        : BufferedImage.TYPE_INT_ARGB);
-        }
-    }
-
-    /**
      * Determine the appropriate {@link WritablePixelFormat} type that can
      * be used to transfer data into the indicated BufferedImage.
      *
@@ -183,11 +138,11 @@ public class ModdedSwingFXUtils {
         }
         int iw = (int) img.getWidth();
         int ih = (int) img.getHeight();
-        int prefBimgType = getBestBufferedImageType(pr.getPixelFormat(), bimg);
+        int prefBimgType = BufferedImage.TYPE_INT_RGB;
         if (bimg != null) {
             int bw = bimg.getWidth();
             int bh = bimg.getHeight();
-            if (bw < iw || bh < ih) {
+            if (bw < iw || bh < ih || bimg.getType() != prefBimgType) {
                 bimg = null;
             } else if (iw < bw || ih < bh) {
                 Graphics2D g2d = bimg.createGraphics();
