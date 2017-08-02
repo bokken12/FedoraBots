@@ -1,8 +1,10 @@
 package example;
 
 import boofcv.alg.color.ColorHsv;
+import boofcv.alg.filter.binary.ThresholdImageOps;
 import boofcv.io.image.ConvertBufferedImage;
 import boofcv.struct.image.GrayF32;
+import boofcv.struct.image.GrayU8;
 import boofcv.struct.image.Planar;
 import client.ImageDisplay;
 import client.Robot;
@@ -39,13 +41,11 @@ class CircleBot extends Robot {
             Planar<GrayF32> hsv = rgb.createSameShape();
             ColorHsv.rgbToHsv_F32(rgb, hsv);
 
-            GrayF32 H = hsv.getBand(0);
-            GrayF32 S = hsv.getBand(1);
             GrayF32 V = hsv.getBand(2);
+            int brightness = (int) (Color.LIGHTGRAY.getBrightness() * 255) - 1;
+            GrayU8 threshed = ThresholdImageOps.threshold(V, null, brightness, true);
 
-            ImageDisplay.showImage("H", H, false);
-            ImageDisplay.showImage("S", S, false);
-            ImageDisplay.showImage("V", V, false);
+            ImageDisplay.showImage("Image", threshed, true);
 
             Thread.sleep(40);
         }
