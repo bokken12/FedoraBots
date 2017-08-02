@@ -58,6 +58,6 @@ public class Constants {
          * the robot that must be between the two for the jammer to disrupt the
          * robot's sensors.
          */
-        public static final double JAMMER_RANGE = 200;
+        public static final double JAMMER_RANGE = 150;
     }
 }
