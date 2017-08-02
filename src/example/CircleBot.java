@@ -16,8 +16,8 @@ class CircleBot extends Robot {
     public static void main(String[] args) throws InterruptedException {
         CircleBot b = new CircleBot();
         b.setColor(Color.ORANGERED);
-        b.joinNetworkGame((short) 0);
-        // b.joinLocalGame();
+        // b.joinNetworkGame((short) 0);
+        b.joinLocalGame(9);
         b.setAcceleration(20, 0);
         while (b.getVx() < 25) {
             Thread.sleep(10);

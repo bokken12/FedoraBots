@@ -2,6 +2,7 @@ package client;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -10,9 +11,17 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 import common.Constants;
+import javafx.geometry.Point2D;
+import server.RoomLayout;
 import server.sim.Sim;
 import server.sim.entity.Bullet;
+import server.sim.entity.Entity;
+import server.sim.entity.Jammer;
+import server.sim.entity.Meteorite;
+import server.sim.entity.Obstacle;
 import server.sim.entity.Robot;
+import server.sim.entity.Turret;
+import server.sim.entity.Vaporizer;
 import server.sim.world.World;
 
 /**
@@ -26,6 +35,7 @@ public class GameSimAdapter implements GameAdapter {
     private short robotId = 0;
     private Semaphore gameStartedLock = new Semaphore(1);
     private Robot robot;
+    private Collection<Obstacle> obstacles;
 
     public GameSimAdapter() {
         try {
@@ -43,7 +53,8 @@ public class GameSimAdapter implements GameAdapter {
     }
 
     @Override
-    public void sendJoin(short roomId, byte r, byte g, byte b) {
+    public void sendJoin(short difficulty, byte r, byte g, byte b) {
+        RoomConfiguration config = getRoomConfiguration(difficulty);
         Color robotColor = new Color(r & 0xFF, g & 0xFF, b & 0xFF);
         robot = new Robot(robotId, robotColor,
                           Math.random() * Constants.World.WIDTH,
@@ -51,17 +62,28 @@ public class GameSimAdapter implements GameAdapter {
                           Math.random() * 2 * Math.PI,
                           Constants.Robot.RADIUS,
                           Constants.Robot.MASS);
-        world.add(robot);
+        List<Entity> entitiesToAdd = config.getObstacles();
+        entitiesToAdd.add(robot);
+        int i = 0;
+        while (!entitiesToAdd.isEmpty()) {
+            int index = (int) (Math.random() * entitiesToAdd.size());
+            Entity entity = entitiesToAdd.remove(index);
+            Point2D location = RoomLayout.getLocation(i++);
+
+            entity.setPositionUnsafe(location.getX(), location.getY());
+            world.add(entity);
+        }
 
         GameState.RobotState[] initialState = robotState();
-        GameState.ObstacleState[] obstacles = world.getObstacles().stream().map(obs -> new GameState.ObstacleState(
+        obstacles = world.getObstacles();
+        GameState.ObstacleState[] obstacleStates = obstacles.stream().map(obs -> new GameState.ObstacleState(
             (byte) obs.getId(), obs.getObstacleType(), (int) obs.getX(), (int) obs.getY(), (byte) (obs.getRotation() / 2 / Math.PI * 255)
         )).toArray(GameState.ObstacleState[]::new);
 
         Map<Short, javafx.scene.paint.Color> colorMap = new HashMap<Short, javafx.scene.paint.Color>();
         colorMap.put(robotId, javafx.scene.paint.Color.rgb(robotColor.getRed(), robotColor.getGreen(), robotColor.getBlue()));
 
-        this.g.startGame(new GameState(initialState, obstacles), colorMap);
+        this.g.startGame(new GameState(initialState, obstacleStates), colorMap);
         gameStartedLock.release();
         System.out.println("Starting");
     }
@@ -126,6 +148,14 @@ public class GameSimAdapter implements GameAdapter {
                 healthMap.put(robotId, robot.getHealth());
                 g.updateHealths(healthMap);
             }
+            List<Obstacle> obstaclesChangedRotation = world.rotationChangedObstacles(obstacles);
+            if (obstaclesChangedRotation.size() > 0) {
+                Map<Byte, Byte> obstacleMap = new HashMap<Byte, Byte>();
+                for (Obstacle obs : obstaclesChangedRotation) {
+                    obstacleMap.put((byte) obs.getId(), (byte) (obs.getRotation() / 2 / Math.PI * 255));
+                }
+                g.updateObstacles(obstacleMap);
+            }
         });
     }
 
@@ -155,6 +185,54 @@ public class GameSimAdapter implements GameAdapter {
     private void throwError(String error) {
         new RuntimeException(error).printStackTrace();
         System.exit(1);
+    }
+
+    private static class RoomConfiguration {
+        public int numJammers;
+        public int numMeteorites;
+        public int numTurrets;
+        public int numVaporizers;
+
+        public RoomConfiguration(int jammers, int meteorites, int turrets, int vaporizers) {
+            numJammers = jammers;
+            numMeteorites = meteorites;
+            numTurrets = turrets;
+            numVaporizers = vaporizers;
+        }
+
+        public List<Entity> getObstacles() {
+            List<Entity> obstacles = new ArrayList<Entity>(numJammers + numMeteorites + numTurrets + numVaporizers);
+            byte obstacleIndex = 0;
+            for (int i = 0; i < numJammers; i++) {
+                obstacles.add(new Jammer(obstacleIndex++, -1, -1));
+            }
+            for (int i = 0; i < numMeteorites; i++) {
+                obstacles.add(new Meteorite(obstacleIndex++, -1, -1));
+            }
+            for (int i = 0; i < numTurrets; i++) {
+                obstacles.add(new Turret(obstacleIndex++, -1, -1));
+            }
+            for (int i = 0; i < numVaporizers; i++) {
+                obstacles.add(new Vaporizer(obstacleIndex++, -1, -1));
+            }
+            return obstacles;
+        }
+    }
+
+    private static RoomConfiguration getRoomConfiguration(short difficulty) {
+        switch (difficulty) {
+            case 0:  return new RoomConfiguration(0,  0,  0,  0 );
+            case 1:  return new RoomConfiguration(0,  10, 0,  0 );
+            case 2:  return new RoomConfiguration(0,  5,  2,  0 );
+            case 3:  return new RoomConfiguration(0,  0,  0,  3 );
+            case 4:  return new RoomConfiguration(2,  0,  0,  0 );
+            case 5:  return new RoomConfiguration(2,  5,  2,  0 );
+            case 6:  return new RoomConfiguration(0,  5,  3,  8 );
+            case 7:  return new RoomConfiguration(3,  5,  3,  8 );
+            case 8:  return new RoomConfiguration(3,  2,  6,  8 );
+            case 9:  return new RoomConfiguration(4,  0, 10, 10 );
+            default: throw new RuntimeException("Difficulty must be in the range 0 to 9 inclusive.");
+        }
     }
 
 }

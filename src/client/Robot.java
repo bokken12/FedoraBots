@@ -48,8 +48,8 @@ public abstract class Robot {
         inGame = true;
     }
 
-    public void joinLocalGame() {
-        id = gm.joinLocalGame(this);
+    public void joinLocalGame(int difficulty) {
+        id = gm.joinLocalGame(this, difficulty);
         inGame = true;
     }
 

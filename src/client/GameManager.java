@@ -128,11 +128,11 @@ public class GameManager {
         adapter.waitForSpectateOk();
     }
 
-    public short joinLocalGame(Robot robot) {
+    public short joinLocalGame(Robot robot, int difficulty) {
         setAdapterClass(GameSimAdapter.class);
         Color c = robot.getColor();
         try {
-            adapter.sendJoin((short) 0,
+            adapter.sendJoin((short) difficulty,
                             (byte)(c.getRed() * 255),
                             (byte)(c.getGreen() * 255),
                             (byte)(c.getBlue() * 255));
