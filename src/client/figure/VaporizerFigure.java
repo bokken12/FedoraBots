@@ -12,12 +12,12 @@ public class VaporizerFigure extends ObstacleFigure {
 
         pulse = (Shape) getChild().lookup("#pulse");
 
-        pulse.setScaleX(MIN_SCALE);
-        pulse.setScaleY(MIN_SCALE);
+        pulse.setScaleX(0);
+        pulse.setScaleY(0);
     }
 
     public void setRotation(double angle) {
-        double scale = MIN_SCALE + angle / 360 * (1 - MIN_SCALE);
+        double scale = angle == 0 ? 0 : (MIN_SCALE + angle / 360 * (1 - MIN_SCALE));
         pulse.setScaleX(scale);
         pulse.setScaleY(scale);
     }
