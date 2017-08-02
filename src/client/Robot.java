@@ -91,11 +91,18 @@ public abstract class Robot {
         }
     }
 
-    public BufferedImage getDisplayImage() {
+    private boolean isAffectedByJammer() {
         for (Point2D center : d.getJammerCenters()) {
-            if (center.distance(x, y) <= Constants.Obstacle.JAMMER_RANGE - Constants.Robot.RADIUS) {
-                return staticImage();
+            if (center.distance(x, y) <= Constants.Obstacle.JAMMER_RANGE + Constants.Robot.RADIUS) {
+                return true;
             }
+        }
+        return false;
+    }
+
+    public BufferedImage getDisplayImage() {
+        if (isAffectedByJammer()) {
+            return staticImage();
         }
 
         return d.getImage();
