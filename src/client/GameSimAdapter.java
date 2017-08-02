@@ -85,7 +85,6 @@ public class GameSimAdapter implements GameAdapter {
 
         this.g.startGame(new GameState(initialState, obstacleStates), colorMap);
         gameStartedLock.release();
-        System.out.println("Starting");
     }
 
     @Override
