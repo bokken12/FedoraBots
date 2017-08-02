@@ -128,7 +128,6 @@ public class Room {
         if (o.getX() == -1 && o.getY() == -1) {
             Point2D location = RoomLayout.getLocation(this);
             o.setPositionUnsafe(location.getX(), location.getY());
-            System.out.println(location);
         }
         synchronized (world) {
             world.add(o);
@@ -214,7 +213,6 @@ public class Room {
         buf.put((byte) 0);
         buf.put((byte) rvs.size());
         buf.put((byte) obstacles.size());
-        System.out.println(obstacles);
         world.writeStartingState(buf, rvs, obstacles);
         return buf;
     }

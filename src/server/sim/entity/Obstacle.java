@@ -90,12 +90,6 @@ public abstract class Obstacle extends PhysicsEntity {
         //     return null;
         // }
         try  {
-            world.forEachUnsafe(entity -> {
-                if (entity instanceof Robot) {
-                    System.out.println(entity.getWorld().getClass().getName());
-                    System.out.println(entity.markedForRemoval());
-                }
-            });
             return robotsInRange(range, world, cache).stream().min(Comparator.comparingDouble(ent ->
                 Math.sqrt(Math.pow(ent.getX() - getX(), 2) + Math.pow(ent.getY() - getY(), 2))
             )).get();
