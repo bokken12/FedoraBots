@@ -1,7 +1,6 @@
 package example;
 
 import boofcv.alg.color.ColorHsv;
-import boofcv.gui.image.ShowImages;
 import boofcv.io.image.ConvertBufferedImage;
 import boofcv.struct.image.GrayF32;
 import boofcv.struct.image.Planar;

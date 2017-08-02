@@ -1,4 +1,6 @@
 /*
+ * Original license:
+ *
  * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
@@ -26,34 +28,22 @@
  package common;
 
 import java.awt.AlphaComposite;
-import java.awt.EventQueue;
 import java.awt.Graphics2D;
-import java.awt.SecondaryLoop;
 import java.awt.image.BufferedImage;
 import java.nio.IntBuffer;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.concurrent.atomic.AtomicBoolean;
-import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.image.WritablePixelFormat;
-import com.sun.javafx.application.PlatformImpl;
-import com.sun.javafx.tk.Toolkit;
-import sun.awt.AWTAccessor;
-import sun.awt.FwDispatcher;
 import sun.awt.image.IntegerComponentRaster;
-
-import javax.swing.*;
 
 /**
  * This class provides utility methods for converting data types between
- * Swing/AWT and JavaFX formats.
+ * Swing/AWT and JavaFX formats. It has been modified from the class provided by
+ * JavaFx, eliminating the check in fromFXImage to make sure the BufferedImage
+ * has an alpha channel.
  * @since JavaFX 2.2
  */
 public class ModdedSwingFXUtils {
@@ -82,52 +72,7 @@ public class ModdedSwingFXUtils {
      * @since JavaFX 2.2
      */
     public static WritableImage toFXImage(BufferedImage bimg, WritableImage wimg) {
-        int bw = bimg.getWidth();
-        int bh = bimg.getHeight();
-        switch (bimg.getType()) {
-            case BufferedImage.TYPE_INT_ARGB:
-            case BufferedImage.TYPE_INT_ARGB_PRE:
-                break;
-            default:
-                BufferedImage converted =
-                    new BufferedImage(bw, bh, BufferedImage.TYPE_INT_ARGB_PRE);
-                Graphics2D g2d = converted.createGraphics();
-                g2d.drawImage(bimg, 0, 0, null);
-                g2d.dispose();
-                bimg = converted;
-                break;
-        }
-        // assert(bimg.getType == TYPE_INT_ARGB[_PRE]);
-        if (wimg != null) {
-            int iw = (int) wimg.getWidth();
-            int ih = (int) wimg.getHeight();
-            if (iw < bw || ih < bh) {
-                wimg = null;
-            } else if (bw < iw || bh < ih) {
-                int empty[] = new int[iw];
-                PixelWriter pw = wimg.getPixelWriter();
-                PixelFormat<IntBuffer> pf = PixelFormat.getIntArgbPreInstance();
-                if (bw < iw) {
-                    pw.setPixels(bw, 0, iw-bw, bh, pf, empty, 0, 0);
-                }
-                if (bh < ih) {
-                    pw.setPixels(0, bh, iw, ih-bh, pf, empty, 0, 0);
-                }
-            }
-        }
-        if (wimg == null) {
-            wimg = new WritableImage(bw, bh);
-        }
-        PixelWriter pw = wimg.getPixelWriter();
-        IntegerComponentRaster icr = (IntegerComponentRaster) bimg.getRaster();
-        int data[] = icr.getDataStorage();
-        int offset = icr.getDataOffset(0);
-        int scan = icr.getScanlineStride();
-        PixelFormat<IntBuffer> pf = (bimg.isAlphaPremultiplied() ?
-                                     PixelFormat.getIntArgbPreInstance() :
-                                     PixelFormat.getIntArgbInstance());
-        pw.setPixels(0, 0, bw, bh, pf, data, offset, scan);
-        return wimg;
+        return SwingFXUtils.toFXImage(bimg, wimg);
     }
 
     /**
@@ -261,118 +206,5 @@ public class ModdedSwingFXUtils {
         WritablePixelFormat<IntBuffer> pf = getAssociatedPixelFormat(bimg);
         pr.getPixels(0, 0, iw, ih, pf, data, offset, scan);
         return bimg;
-    }
-
-    /**
-     * If called from the FX Application Thread
-     * invokes a runnable directly blocking the calling code
-     * Otherwise
-     * uses Platform.runLater without blocking
-     */
-    static void runOnFxThread(Runnable runnable) {
-        if (Platform.isFxApplicationThread()) {
-            runnable.run();
-        } else {
-            Platform.runLater(runnable);
-        }
-    }
-
-    /**
-     * If called from the event dispatch thread
-     * invokes a runnable directly blocking the calling code
-     * Otherwise
-     * uses SwingUtilities.invokeLater without blocking
-     */
-    static void runOnEDT(final Runnable r) {
-        if (SwingUtilities.isEventDispatchThread()) {
-            r.run();
-        } else {
-            SwingUtilities.invokeLater(r);
-        }
-    }
-
-    private static final Set<Object> eventLoopKeys = new HashSet<>();
-
-    /**
-     * The runnable is responsible for leaving the nested event loop.
-     */
-    static void runOnEDTAndWait(Object nestedLoopKey, Runnable r) {
-        Toolkit.getToolkit().checkFxUserThread();
-
-        if (SwingUtilities.isEventDispatchThread()) {
-            r.run();
-        } else {
-            eventLoopKeys.add(nestedLoopKey);
-            SwingUtilities.invokeLater(r);
-            Toolkit.getToolkit().enterNestedEventLoop(nestedLoopKey);
-        }
-    }
-
-    static void leaveFXNestedLoop(Object nestedLoopKey) {
-        if (!eventLoopKeys.contains(nestedLoopKey)) return;
-
-        if (Platform.isFxApplicationThread()) {
-            Toolkit.getToolkit().exitNestedEventLoop(nestedLoopKey, null);
-        } else {
-            Platform.runLater(() -> {
-                Toolkit.getToolkit().exitNestedEventLoop(nestedLoopKey, null);
-            });
-        }
-
-        eventLoopKeys.remove(nestedLoopKey);
-    }
-
-    private static class FwSecondaryLoop implements SecondaryLoop {
-
-        private final AtomicBoolean isRunning = new AtomicBoolean(false);
-
-        @Override public boolean enter() {
-            if (isRunning.compareAndSet(false, true)) {
-                PlatformImpl.runAndWait(() -> {
-                    Toolkit.getToolkit().enterNestedEventLoop(FwSecondaryLoop.this);
-                });
-                return true;
-            }
-            return false;
-        }
-
-        @Override public boolean exit() {
-            if (isRunning.compareAndSet(true, false)) {
-                PlatformImpl.runAndWait(() -> {
-                    Toolkit.getToolkit().exitNestedEventLoop(FwSecondaryLoop.this, null);
-                });
-                return true;
-            }
-            return false;
-        }
-    }
-
-    private static class FXDispatcher implements FwDispatcher {
-        @Override public boolean isDispatchThread() {
-            return Platform.isFxApplicationThread();
-        }
-
-        @Override public void scheduleDispatch(Runnable runnable) {
-            Platform.runLater(runnable);
-        }
-
-        @Override public SecondaryLoop createSecondaryLoop() {
-            return new FwSecondaryLoop();
-        }
-    }
-
-    private static EventQueue getEventQueue() {
-        return AccessController.doPrivileged(
-                (PrivilegedAction<EventQueue>) () -> java.awt.Toolkit.getDefaultToolkit().getSystemEventQueue());
-    }
-
-    //Called with reflection from PlatformImpl to avoid dependency
-    private static void installFwEventQueue() {
-        AWTAccessor.getEventQueueAccessor().setFwDispatcher(getEventQueue(), new FXDispatcher());
-    }
-
-    //Called with reflection from PlatformImpl to avoid dependency
-    private static void removeFwEventQueue() {
-        AWTAccessor.getEventQueueAccessor().setFwDispatcher(getEventQueue(), null);
     }
 }
