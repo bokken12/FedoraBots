@@ -20,9 +20,10 @@ import client.figure.JammerFigure;
 import client.figure.ObstacleFigure;
 import client.figure.RobotFigure;
 import common.Constants;
-import common.ModdedSwingFXUtils;
+import common.ModdedBufferedImage;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -145,9 +146,11 @@ public class Display extends Application {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        ModdedBufferedImage result = new ModdedBufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        result.setFakeType(true);
         Platform.runLater(() -> {
-            ModdedSwingFXUtils.fromFXImage(generator.get(), result);
+            SwingFXUtils.fromFXImage(generator.get(), result);
+            result.setFakeType(false);
             awaitingImageSemaphore.release();
         });
         try {
