@@ -8,15 +8,17 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import common.Constants;
+import javafx.geometry.Point3D;
 import server.sim.world.World;
 
 public abstract class Obstacle extends PhysicsEntity {
 
     private boolean rotationChanged = false;
-    private static Map<World, Map<Double, Entity>> rangeEntities;
+    // For the Point3D, x and y are x and y but z = the radius
+    private static Map<World, Map<Point3D, Entity>> rangeEntities;
 
     static {
-        rangeEntities = new HashMap<World, Map<Double, Entity>>();
+        rangeEntities = new HashMap<World, Map<Point3D, Entity>>();
     }
 
 	public Obstacle(byte id, double x, double y) {
@@ -35,14 +37,15 @@ public abstract class Obstacle extends PhysicsEntity {
 
     protected Collection<Robot> robotsInRange(double range, World world, boolean cache) {
         if (rangeEntities.get(world) == null) {
-            rangeEntities.put(world, new HashMap<Double, Entity>());
+            rangeEntities.put(world, new HashMap<Point3D, Entity>());
         }
         Entity rangeEntity;
         double radius = range + Constants.Robot.RADIUS;
-        if ((rangeEntity = rangeEntities.get(world).get(radius)) == null) {
+        Point3D mapKey = new Point3D(getX(), getY(), radius);
+        if ((rangeEntity = rangeEntities.get(world).get(mapKey)) == null) {
             rangeEntity = new PhysicsEntity((short) 0, null, getX(), getY(), 0, radius, 0);
             if (cache) {
-                rangeEntities.get(world).put(radius, rangeEntity);
+                rangeEntities.get(world).put(mapKey, rangeEntity);
             }
         }
 
