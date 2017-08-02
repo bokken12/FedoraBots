@@ -23,19 +23,19 @@
      id="defs4">
     <linearGradient
        inkscape:collect="always"
-       id="linearGradient6905">
+       id="linearGradient7571">
       <stop
-         style="stop-color:#87cefa;stop-opacity:1"
+         style="stop-color:#87cefa;stop-opacity:1;"
          offset="0"
-         id="stop6907" />
+         id="stop7573" />
       <stop
-         id="stop6913"
+         id="stop7579"
          offset="0.19999999"
          style="stop-color:#87cefa;stop-opacity:1" />
       <stop
          style="stop-color:#87cefa;stop-opacity:0.40000001"
          offset="1"
-         id="stop6909" />
+         id="stop7575" />
     </linearGradient>
     <linearGradient
        inkscape:collect="always"
@@ -53,23 +53,21 @@
        inkscape:collect="always"
        xlink:href="#linearGradient4201"
        id="linearGradient4852"
-       x1="-29.499998"
-       y1="21"
-       x2="-4.499999"
-       y2="35"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.28,0,0,2.2857143,53.759998,-31.999998)" />
+       x1="16"
+       y1="16"
+       x2="48"
+       y2="48"
+       gradientUnits="userSpaceOnUse" />
     <radialGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient6905"
-       id="radialGradient6911"
+       xlink:href="#linearGradient7571"
+       id="radialGradient7577"
        cx="32"
        cy="32"
        fx="32"
        fy="32"
-       r="64"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(2.5,0,0,2.5,-48,-48)" />
+       r="160"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -78,9 +76,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.3857137"
+     inkscape:zoom="1.6869543"
      inkscape:cx="41.288446"
-     inkscape:cy="25.82334"
+     inkscape:cy="73.246082"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -125,7 +123,7 @@
      inkscape:groupmode="layer"
      id="layer1">
     <circle
-       style="opacity:1;fill:url(#radialGradient6911);fill-opacity:1;stroke:none;stroke-width:0;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.09661835"
+       style="opacity:1;fill:url(#radialGradient7577);fill-opacity:1;stroke:none;stroke-width:0;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.09661835"
        id="pulse"
        cx="32"
        cy="32"

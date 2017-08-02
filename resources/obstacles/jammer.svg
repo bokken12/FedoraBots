@@ -37,12 +37,11 @@
        inkscape:collect="always"
        xlink:href="#linearGradient4201"
        id="linearGradient4852"
-       x1="-29.499998"
-       y1="21"
-       x2="-4.499999"
-       y2="35"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.28,0,0,2.2857143,53.759998,-31.999998)" />
+       x1="16"
+       y1="16"
+       x2="48"
+       y2="48"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
      id="base"
