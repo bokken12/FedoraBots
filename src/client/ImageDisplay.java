@@ -4,6 +4,11 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
+import boofcv.alg.misc.GImageStatistics;
+import boofcv.gui.image.VisualizeImageData;
+import boofcv.io.image.ConvertBufferedImage;
+import boofcv.struct.image.ImageBase;
+import boofcv.struct.image.ImageGray;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
@@ -48,6 +53,22 @@ public abstract class ImageDisplay {
             }
             info.view.setImage(info.image);
         });
+    }
+
+    public static void showImage(String name, ImageBase<?> image) {
+		BufferedImage buff = ConvertBufferedImage.convertTo(image, null, true);
+		showImage(name, buff);
+	}
+
+    public static void showImage(String name, ImageGray<?> image, boolean showMagnitude) {
+        double max = GImageStatistics.maxAbs(image);
+		BufferedImage buff;
+		if( showMagnitude )
+			buff = VisualizeImageData.grayMagnitude(image, null, max);
+		else
+			buff = VisualizeImageData.colorizeSign(image, null, max);
+
+		showImage(name, buff);
     }
 
     public static void closeAllWindows() {

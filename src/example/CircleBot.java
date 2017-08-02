@@ -1,8 +1,6 @@
 package example;
 
-import java.awt.Dimension;
-
-import boofcv.gui.image.ImagePanel;
+import boofcv.alg.color.ColorHsv;
 import boofcv.gui.image.ShowImages;
 import boofcv.io.image.ConvertBufferedImage;
 import boofcv.struct.image.GrayF32;
@@ -17,7 +15,7 @@ class CircleBot extends Robot {
         CircleBot b = new CircleBot();
         b.setColor(Color.ORANGERED);
         // b.joinNetworkGame((short) 0);
-        b.joinLocalGame(9);
+        b.joinLocalGame(6);
         b.setAcceleration(20, 0);
         while (b.getVx() < 25) {
             Thread.sleep(10);
@@ -37,11 +35,20 @@ class CircleBot extends Robot {
             // }
 
             // System.out.println(Math.sqrt(b.getVx() * b.getVx() + b.getVy() * b.getVy()));
-            Thread.sleep(40);
 
-            // Planar<GrayF32> input = ConvertBufferedImage.convertFromMulti(b.getDisplayImage(),null,true,GrayF32.class);
-            // ShowImages.showWindow(input, "Image");
-            ImageDisplay.showImage("Image", b.getDisplayImage());
+            Planar<GrayF32> rgb = ConvertBufferedImage.convertFromMulti(b.getDisplayImage(),null,true,GrayF32.class);
+            Planar<GrayF32> hsv = rgb.createSameShape();
+            ColorHsv.rgbToHsv_F32(rgb, hsv);
+
+            GrayF32 H = hsv.getBand(0);
+            GrayF32 S = hsv.getBand(1);
+            GrayF32 V = hsv.getBand(2);
+
+            ImageDisplay.showImage("H", H, false);
+            ImageDisplay.showImage("S", S, false);
+            ImageDisplay.showImage("V", V, false);
+
+            Thread.sleep(40);
         }
     }
 
