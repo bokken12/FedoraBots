@@ -18,6 +18,10 @@ public class Constants {
          * Milliseconds that the turret must take to cooldown between each shot
          */
         public static final long SHOOT_FREQUENCY = 1000;
+        /**
+         * Maximum distance that robot can see other robots and obstacles
+         */
+        public static final double DETECTION_RANGE = 100;
     }
 
     public static class Bullet {

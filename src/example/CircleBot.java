@@ -38,9 +38,10 @@ class CircleBot extends Robot {
             double displayAngle = accelerationAngle + Math.PI / 2;
             b.setRotation(displayAngle * 180 / Math.PI);
 
-            // if (b.canShoot()) {
-            //     b.shoot();
-            // }
+            if (b.canShoot()) {
+                System.out.println(b.nearbyEntities());
+                b.shoot();
+            }
 
             // System.out.println(Math.sqrt(b.getVx() * b.getVx() + b.getVy() * b.getVy()));
 

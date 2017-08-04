@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +20,15 @@ import client.GameState.RobotState;
 import client.event.Vaporizer;
 import client.figure.BulletFigure;
 import client.figure.JammerFigure;
+import client.figure.MeteoriteFigure;
 import client.figure.ObstacleFigure;
 import client.figure.RobotFigure;
+import client.figure.TurretFigure;
+import client.figure.VaporizerFigure;
+import client.sensor.DetectedEntity;
+import client.sensor.DetectedObstacle;
+import client.sensor.DetectedRobot;
+import client.sensor.DetectedObstacle.ObstacleType;
 import common.Constants;
 import common.ModdedBufferedImage;
 import javafx.application.Application;
@@ -278,6 +286,30 @@ public class Display extends Application {
     public Vaporizer vaporizerById(byte id) {
         ObstacleFigure obstacle = obstacles.get(id);
         return new Vaporizer((int) obstacle.getTranslateX(), (int) obstacle.getTranslateY());
+    }
+
+    private static ObstacleType toObstacleType(ObstacleFigure fig) {
+        if (fig instanceof JammerFigure) return ObstacleType.JAMMER;
+        if (fig instanceof MeteoriteFigure) return ObstacleType.METEORITE;
+        if (fig instanceof TurretFigure) return ObstacleType.TURRET;
+        if (fig instanceof VaporizerFigure) return ObstacleType.VAPORIZER;
+        throw new RuntimeException("Cannot find obstacle type for class " + fig.getClass().getSimpleName());
+    }
+
+    public Collection<DetectedEntity> nearbyEntities(Point2D point) {
+        Collection<DetectedEntity> entities = new ArrayList<DetectedEntity>();
+        for (RobotFigure robot : robots.values()) {
+            double distance = point.distance(robot.getTranslateX(), robot.getTranslateY());
+            if (distance <= Constants.Robot.DETECTION_RANGE && distance > 1) {
+                entities.add(new DetectedRobot((int) robot.getTranslateX(), (int) robot.getTranslateY(), robot.getColor()));
+            }
+        }
+        for (ObstacleFigure obstacle : obstacles.values()) {
+            if (point.distance(obstacle.getTranslateX(), obstacle.getTranslateY()) <= Constants.Robot.DETECTION_RANGE) {
+                entities.add(new DetectedObstacle((int) obstacle.getTranslateX(), (int) obstacle.getTranslateY(), toObstacleType(obstacle)));
+            }
+        }
+        return entities;
     }
 
 }

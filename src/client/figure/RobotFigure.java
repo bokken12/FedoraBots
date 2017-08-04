@@ -73,6 +73,10 @@ public class RobotFigure extends Group implements Figure {
         body.setFill(color);
     }
 
+    public Color getColor() {
+        return (Color) body.getFill();
+    }
+
     public void setBlasterRotate(double angle) {
         blaster.setRotate(angle);
     }

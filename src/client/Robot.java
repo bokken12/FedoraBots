@@ -2,6 +2,7 @@ package client;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -14,6 +15,7 @@ import client.event.BulletDamageEvent;
 import client.event.Event;
 import client.event.EventHandler;
 import client.event.VaporizerDamageEvent;
+import client.sensor.DetectedEntity;
 import common.Constants;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
@@ -187,6 +189,10 @@ public abstract class Robot {
 
     public void addVaporizerDamageListener(EventHandler<VaporizerDamageEvent> listener) {
         vaporizerListeners.add(listener);
+    }
+
+    public Collection<DetectedEntity> nearbyEntities() {
+        return d.nearbyEntities(new Point2D(x, y));
     }
 
     private void handleState(GameState st) {

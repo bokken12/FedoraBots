@@ -32,7 +32,7 @@ public class Bullet {
 
     @Override
     public String toString() {
-        return "Bullet [angle=" + (getAngle() * 180 / Math.PI) + " Fgetdeg, vx=" + getVx() + ", vy=" + getVy() + "]";
+        return "Bullet [angle=" + (getAngle() * 180 / Math.PI) + " deg, vx=" + getVx() + ", vy=" + getVy() + "]";
     }
 
 }
