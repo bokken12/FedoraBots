@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import client.GameState.HealthMapState;
 import javafx.scene.paint.Color;
 
 /**
@@ -17,7 +18,7 @@ public class GameManager {
     private Collection<Consumer<GameState>> beginListeners = new ArrayList<Consumer<GameState>>();
     private Collection<Consumer<GameState>> endListeners = new ArrayList<Consumer<GameState>>();
     private Collection<BiConsumer<Double, Double>> velocityListeners = new ArrayList<BiConsumer<Double, Double>>();
-    private Collection<Consumer<Map<Short, Double>>> healthListeners = new ArrayList<Consumer<Map<Short, Double>>>();
+    private Collection<Consumer<Map<Short, HealthMapState>>> healthListeners = new ArrayList<Consumer<Map<Short, HealthMapState>>>();
     private Collection<Consumer<Map<Byte, Byte>>> obstacleListeners = new ArrayList<Consumer<Map<Byte, Byte>>>();
     private Map<Short, Color> colors;
     private GameAdapter adapter;
@@ -63,7 +64,7 @@ public class GameManager {
         velocityListeners.add(listener);
     }
 
-    public void addHealthListener(Consumer<Map<Short, Double>> listener) {
+    public void addHealthListener(Consumer<Map<Short, HealthMapState>> listener) {
         healthListeners.add(listener);
     }
 
@@ -92,8 +93,8 @@ public class GameManager {
         }
     }
 
-    public void updateHealths(Map<Short, Double> healths) {
-        for (Consumer<Map<Short, Double>> hl : healthListeners) {
+    public void updateHealths(Map<Short, HealthMapState> healths) {
+        for (Consumer<Map<Short, HealthMapState>> hl : healthListeners) {
             hl.accept(healths);
         }
     }

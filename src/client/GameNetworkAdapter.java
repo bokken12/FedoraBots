@@ -132,7 +132,7 @@ public class GameNetworkAdapter implements GameAdapter {
                         int numBullets = (inp.read() << 8) + inp.read();
                         bufferLen = numEntities * 8 + 8 + numBullets * 4;
                     }
-                    if (mType == 2) bufferLen = numEntities * 3;
+                    if (mType == 2) bufferLen = numEntities * 5;
                     if (mType == 3) bufferLen = numEntities * 2;
                 } else if (mType == 64) {
                     bufferLen = 2;
@@ -229,9 +229,17 @@ public class GameNetworkAdapter implements GameAdapter {
 
     private void parseHealths(byte[] buffer) {
         ByteBuffer bb = ByteBuffer.wrap(buffer);
-        Map<Short, Double> healths = new HashMap<Short, Double>();
-        for (int i = 0; i < buffer.length; i += 3) {
-            healths.put(bb.getShort(), (bb.get() & 0xFF) / 255.0);
+        Map<Short, GameState.HealthMapState> healths = new HashMap<Short, GameState.HealthMapState>();
+        for (int i = 0; i < buffer.length; i += 5) {
+            short robotId = bb.getShort();
+            double health = (bb.get() & 0xFF) / 255.0;
+            short angle = bb.getShort();
+            GameState.HealthMapState prev = healths.get(robotId);
+            if (prev == null) {
+                healths.put(robotId, new GameState.HealthMapState(health, angle));
+            } else {
+                prev.addAngle(angle);
+            }
         }
         g.updateHealths(healths);
     }

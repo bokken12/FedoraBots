@@ -14,7 +14,9 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import common.Constants;
 import common.Profiler;
+import javafx.geometry.Point2D;
 import server.sim.entity.Bullet;
 import server.sim.entity.Entity;
 import server.sim.entity.Obstacle;
@@ -351,13 +353,28 @@ public abstract class World {
 		return hcRobots;
 	}
 
+	public static short formatDamageAngle(Point2D angle) {
+		if (angle.magnitude() > Constants.Bullet.VELOCITY * 2 / 1e3) {
+			return (short) angle.getY();
+		} else {
+			int toPut = 0x8000 | (int) ((Math.atan2(angle.getY(), angle.getX()) + Math.PI / 2) / 2 / Math.PI * 0x7FFF);
+			return (short) toPut;
+		}
+	}
+
 	public ByteBuffer healthStates(List<Robot> robots) {
-		ByteBuffer healthStates = ByteBuffer.allocate(robots.size() * 3 + 2);
+		int numStates = robots.stream().collect(Collectors.summingInt(robot -> robot.getDamageAngles().size()));
+
+		ByteBuffer healthStates = ByteBuffer.allocate(numStates * 5 + 2);
 		healthStates.put((byte) 2);
-		healthStates.put((byte) robots.size());
+		healthStates.put((byte) numStates);
 		for (Robot robot : robots) {
-			healthStates.putShort(robot.getId());
-			healthStates.put((byte) (robot.getHealth() * 255));
+			for (Point2D bulletAngle : robot.getDamageAngles()) {
+				healthStates.putShort(robot.getId());
+				healthStates.put((byte) (robot.getHealth() * 255));
+				healthStates.putShort(formatDamageAngle(bulletAngle));
+			}
+			robot.clearDamageAngles();
 		}
 
 		healthStates.rewind();

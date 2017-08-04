@@ -13,8 +13,10 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import client.GameState.BulletState;
+import client.GameState.HealthMapState;
 import client.GameState.ObstacleState;
 import client.GameState.RobotState;
+import client.event.Vaporizer;
 import client.figure.BulletFigure;
 import client.figure.JammerFigure;
 import client.figure.ObstacleFigure;
@@ -249,10 +251,10 @@ public class Display extends Application {
         robots.clear();
     }
 
-    private void updateRobotHealths(Map<Short, Double> healths) {
-        for (Map.Entry<Short, Double> entry : healths.entrySet()) {
-            robots.get(entry.getKey()).setHealth(entry.getValue());
-            if (entry.getValue() == 0) {
+    private void updateRobotHealths(Map<Short, HealthMapState> healths) {
+        for (Map.Entry<Short, HealthMapState> entry : healths.entrySet()) {
+            robots.get(entry.getKey()).setHealth(entry.getValue().getHealth());
+            if (entry.getValue().getHealth() == 0) {
                 Platform.runLater(() -> {
                     robotCircles.getChildren().remove(robots.get(entry.getKey()));
                 });
@@ -271,6 +273,11 @@ public class Display extends Application {
             .filter(JammerFigure.class::isInstance)
             .map(fig -> new Point2D(fig.getTranslateX(), fig.getTranslateY()))
             .collect(Collectors.toList());
+    }
+
+    public Vaporizer vaporizerById(byte id) {
+        ObstacleFigure obstacle = obstacles.get(id);
+        return new Vaporizer((int) obstacle.getTranslateX(), (int) obstacle.getTranslateY());
     }
 
 }

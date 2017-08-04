@@ -1,5 +1,7 @@
 package client;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javafx.scene.paint.Color;
@@ -125,6 +127,47 @@ public class GameState {
         public int getX() { return x; }
         public int getY() { return y; }
         public byte getRotation() { return rotation; }
+    }
+
+    public static class HealthMapState {
+
+        public static class DamageAngle {
+            private short angle;
+
+            public DamageAngle(short angle) {
+                this.angle = angle;
+            }
+
+            public short getAngle() {
+                return angle;
+            }
+
+            public boolean hasDamageAngle() {
+                return (angle & 0x8000) != 0;
+            }
+
+            public double getDamageAngleRadians() {
+                return (double) (angle & 0x7FFF) / 0x7FFF * 2 * Math.PI;
+            }
+
+            public byte getObstacleId() {
+                return (byte) (angle & 0xFF);
+            }
+        }
+
+        private double health;
+        private List<DamageAngle> angles;
+
+        public HealthMapState(double health, short angle) {
+            this.health = health;
+            this.angles = new ArrayList<DamageAngle>(3);
+            angles.add(new DamageAngle(angle));
+        }
+
+        public double getHealth() { return health; }
+        public List<DamageAngle> getAngles() { return angles; }
+        public void addAngle(short angle) { angles.add(new DamageAngle(angle)); }
+
     }
 
     public void setColorMap(Map<Short, Color> cmap) {

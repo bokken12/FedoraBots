@@ -1,10 +1,19 @@
 package client;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import client.GameState.HealthMapState;
 import client.GameState.RobotState;
+import client.GameState.HealthMapState.DamageAngle;
+import client.event.Bullet;
+import client.event.BulletDamageEvent;
+import client.event.Event;
+import client.event.EventHandler;
+import client.event.VaporizerDamageEvent;
 import common.Constants;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
@@ -30,6 +39,9 @@ public abstract class Robot {
     private double rotation;
     private long lastShoot;
     private double health;
+
+    private List<EventHandler<BulletDamageEvent>> bulletListeners = new ArrayList<EventHandler<BulletDamageEvent>>();
+    private List<EventHandler<VaporizerDamageEvent>> vaporizerListeners = new ArrayList<EventHandler<VaporizerDamageEvent>>();
 
     public Robot() {
         d = Display.getInstance();
@@ -169,6 +181,14 @@ public abstract class Robot {
         return health == 0;
     }
 
+    public void addBulletDamageListener(EventHandler<BulletDamageEvent> listener) {
+        bulletListeners.add(listener);
+    }
+
+    public void addVaporizerDamageListener(EventHandler<VaporizerDamageEvent> listener) {
+        vaporizerListeners.add(listener);
+    }
+
     private void handleState(GameState st) {
         for (RobotState rs : st.robotStates()) {
             if (rs.getId() == id) {
@@ -178,10 +198,25 @@ public abstract class Robot {
         }
     }
 
-    private void updateHealth(Map<Short, Double> healthMap) {
-        Double newHealth = healthMap.get(id);
+    private <T extends Event> void fireEvent(T event, List<EventHandler<T>> handlers) {
+        for (EventHandler<T> handler : handlers) {
+            handler.handle(event);
+        }
+    }
+
+    private void updateHealth(Map<Short, HealthMapState> healthMap) {
+        HealthMapState newHealth = healthMap.get(id);
         if (newHealth != null) {
-            health = newHealth;
+            health = newHealth.getHealth();
+            for (DamageAngle angle : newHealth.getAngles()) {
+                if (angle.hasDamageAngle()) {
+                    BulletDamageEvent event = new BulletDamageEvent(new Bullet(angle.getDamageAngleRadians()), this, Constants.Bullet.DAMAGE);
+                    fireEvent(event, bulletListeners);
+                } else {
+                    VaporizerDamageEvent event = new VaporizerDamageEvent(d.vaporizerById(angle.getObstacleId()), this, Constants.Bullet.DAMAGE);
+                    fireEvent(event, vaporizerListeners);
+                }
+            }
         }
     }
 

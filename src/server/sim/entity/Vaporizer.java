@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import common.Constants;
+import javafx.geometry.Point2D;
 import server.sim.world.World;
 
 /**
@@ -65,6 +66,7 @@ public class Vaporizer extends Obstacle {
         boolean newRobot = damagedRobots.add(robot.getId());
         if (newRobot) {
             robot.setHealth(robot.getHealth() - Constants.Bullet.DAMAGE);
+            robot.addDamageAngle(new Point2D(2.1 * Constants.Bullet.VELOCITY / 1e3, getId()));
         }
     }
 

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
+import client.GameState.HealthMapState;
 import common.Constants;
 import javafx.geometry.Point2D;
 import server.RoomLayout;
@@ -143,8 +144,13 @@ public class GameSimAdapter implements GameAdapter {
             rvs.add(robot);
             List<Robot> robotsChangedHealth = world.healthChangedRobots(rvs);
             if (robotsChangedHealth.size() > 0) {
-                Map<Short, Double> healthMap = new HashMap<Short, Double>();
-                healthMap.put(robotId, robot.getHealth());
+                Map<Short, HealthMapState> healthMap = new HashMap<Short, HealthMapState>();
+                HealthMapState st = new HealthMapState(robot.getHealth(), World.formatDamageAngle(robot.getDamageAngles().get(0)));
+                for (int i = 1; i < robot.getDamageAngles().size(); i++) {
+                    st.addAngle(World.formatDamageAngle(robot.getDamageAngles().get(i)));
+                }
+                robot.clearDamageAngles();
+                healthMap.put(robotId, st);
                 g.updateHealths(healthMap);
             }
             List<Obstacle> obstaclesChangedRotation = world.rotationChangedObstacles(obstacles);

@@ -54,11 +54,13 @@ Continued...
 | :------------------: | :------------------: | :-------------------------: |
 |        12 bits       |        12 bits       |            1 byte           |
 
-Health update (3 bytes per entity):
+Health update (5 bytes per entity):
 
-| Message type | Number of entities | *For each entity:* ID | *For each entity:* Health |
-| :----------: | :----------------: | :-------------------: | :-----------------------: |
-|  2 (1 byte)  |       1 byte       |        2 bytes        |           1 byte          |
+| Message type | Number of entities | *For each entity:* ID | *For each entity:* Health | *For each entity:* Bullet Angle |
+| :----------: | :----------------: | :-------------------: | :-----------------------: | :-----------------------------: |
+|  2 (1 byte)  |       1 byte       |        2 bytes        |           1 byte          | exists = 1 bit, angle = 11 bits |
+
+*Note: If the bullet comes from a vaporizer, exists will = 0 and the value of angle will be the id of the vaporizer.*
 
 Obstacle update (2 bytes per obstacle):
 

@@ -1,6 +1,7 @@
 package server.sim.entity;
 
 import common.Constants;
+import javafx.geometry.Point2D;
 
 public class Bullet extends PhysicsEntity {
 
@@ -19,6 +20,7 @@ public class Bullet extends PhysicsEntity {
 		if (other instanceof Robot) {
 			Robot rother = (Robot) other;
 			rother.setHealth(rother.getHealth() - Constants.Bullet.DAMAGE);
+			rother.addDamageAngle(new Point2D(getVx(), getVy()));
 			markForRemoval();
 		} else if (other instanceof Bullet) {
 			markForRemoval();

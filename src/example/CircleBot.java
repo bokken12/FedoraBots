@@ -18,6 +18,13 @@ class CircleBot extends Robot {
         // b.joinNetworkGame((short) 0);
         b.joinLocalGame(6);
         b.setAcceleration(20, 0);
+
+        b.addBulletDamageListener(event -> {
+            System.out.println(event.getSource());
+        });
+        b.addVaporizerDamageListener(event -> {
+            System.out.println(event.getSource());
+        });
         while (b.getVx() < 25) {
             Thread.sleep(10);
         }
