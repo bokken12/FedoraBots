@@ -25,7 +25,7 @@ import javafx.scene.paint.Color;
 /**
  * User-accessible class for creating robots
  */
-public abstract class Robot {
+public class Robot {
     private Display d;
     private Color color = Color.BLACK;
     private short id;
@@ -82,7 +82,7 @@ public abstract class Robot {
         gm.sendRobotUpdate(id, this);
     }
 
-    public void setRotation(double rot) {
+    public void setBlasterRotation(double rot) {
         if (isDead()) {
             throw new RuntimeException("This robot has died");
         }

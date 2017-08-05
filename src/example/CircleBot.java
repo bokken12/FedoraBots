@@ -36,7 +36,7 @@ class CircleBot extends Robot {
 
             // For display angle = 0 is up, but for calculations angle = 0 is to the left.
             double displayAngle = accelerationAngle + Math.PI / 2;
-            b.setRotation(displayAngle * 180 / Math.PI);
+            b.setBlasterRotation(displayAngle * 180 / Math.PI);
 
             if (b.canShoot()) {
                 System.out.println(b.nearbyEntities());
