@@ -9,4 +9,10 @@ public class VaporizerDamageEvent extends HealthDamageEvent {
         super(source, target, healthChange);
     }
 
+
+    @Override
+    public Vaporizer getSource() {
+        return (Vaporizer) super.getSource();
+    }
+
 }

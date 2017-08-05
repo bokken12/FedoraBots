@@ -9,4 +9,9 @@ public class BulletDamageEvent extends HealthDamageEvent {
         super(source, target, healthChange);
     }
 
+    @Override
+    public Bullet getSource() {
+        return (Bullet) super.getSource();
+    }
+
 }
