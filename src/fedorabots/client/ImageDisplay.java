@@ -11,10 +11,12 @@ import boofcv.struct.image.ImageBase;
 import boofcv.struct.image.ImageGray;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.Group;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 /**
@@ -44,7 +46,13 @@ public abstract class ImageDisplay {
                 info.stage.setY(info.stage.getY() + 50);
                 info.stage.setTitle(name);
                 info.view = new ImageView();
-                info.stage.setScene(new Scene(new Group(info.view), image.getWidth(), image.getHeight()));
+                info.view.fitWidthProperty().bind(info.stage.widthProperty());
+                info.view.fitHeightProperty().bind(info.stage.heightProperty());
+                info.view.setPreserveRatio(true);
+                StackPane p = new StackPane();
+                p.getChildren().add(info.view);
+                StackPane.setAlignment(info.view, Pos.CENTER);
+                info.stage.setScene(new Scene(p, image.getWidth(), image.getHeight(), Color.BLACK));
                 windows.put(name, info);
             } else {
                 SwingFXUtils.toFXImage(image, info.image);
