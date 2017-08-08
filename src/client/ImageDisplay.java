@@ -33,6 +33,7 @@ public abstract class ImageDisplay {
     private static Map<String, MapInfo> windows = new HashMap<String, MapInfo>();
 
     public static void showImage(String name, BufferedImage image) {
+        DisplayManager.getInstance(); // Make sure JavaFX is initialized
         Platform.runLater(() -> {
             MapInfo info = windows.get(name);
             if (info == null) {
