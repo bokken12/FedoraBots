@@ -10,10 +10,10 @@ import client.ImageDisplay;
 import client.Robot;
 import javafx.scene.paint.Color;
 
-class CircleBot extends Robot {
+class CircleBot {
 
     public static void main(String[] args) throws InterruptedException {
-        CircleBot b = new CircleBot();
+        Robot b = new Robot();
         b.setColor(Color.ORANGERED);
         // b.joinNetworkGame((short) 0);
         b.joinLocalGame(6);
