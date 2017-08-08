@@ -1,6 +1,7 @@
 package client;
 
 import java.awt.image.BufferedImage;
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -46,7 +47,15 @@ public class Robot {
     private List<EventHandler<VaporizerDamageEvent>> vaporizerListeners = new ArrayList<EventHandler<VaporizerDamageEvent>>();
 
     public Robot() {
-        d = Display.getInstance();
+        try {
+            d = new Display();
+        } catch (ConnectException e) {
+            new RuntimeException("Could not connect to server", e).printStackTrace();
+            System.exit(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
         gm = d.getGameManager();
         gm.addVelocityListener((vx, vy) -> {
             this.vx = vx;

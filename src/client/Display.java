@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -31,7 +30,6 @@ import client.sensor.DetectedRobot;
 import client.sensor.DetectedObstacle.ObstacleType;
 import common.Constants;
 import common.ModdedBufferedImage;
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
@@ -46,10 +44,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-public class Display extends Application {
-
-    private static Display instance;
-    private static CountDownLatch latch = new CountDownLatch(1);
+public class Display {
 
     private Map<Short, RobotFigure> robots = new HashMap<Short, RobotFigure>();
     private Scene scene;
@@ -67,34 +62,12 @@ public class Display extends Application {
 
     public Display() throws IOException {
         gm = new GameManager();
-        instance = this;
+        DisplayManager.getInstance().run(this::start);
     }
 
-    public synchronized static Display getInstance() {
-        if (instance == null) {
-            Thread displayLauncher = new Thread(() -> {
-                try {
-                    launch();
-                    System.exit(0);
-                } catch (Exception e) {
-                    Throwable cause = e.getCause().getCause();
-                    if (cause instanceof ConnectException) {
-                        new RuntimeException("Could not connect to server", cause).printStackTrace();
-                    } else {
-                        cause.printStackTrace();
-                    }
-                    System.exit(1);
-                }
-            });
-            displayLauncher.setDaemon(false);
-            displayLauncher.start();
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        return instance;
+    public Display(short gameId) throws IOException {
+        gm = new GameManager();
+        DisplayManager.getInstance().run(() -> start(gameId));
     }
 
     public GameManager getGameManager() {
@@ -108,25 +81,36 @@ public class Display extends Application {
         }
 
         try {
-            Short.parseShort(args[0]);
+            short gameId = Short.parseShort(args[0]);
+            new Display(gameId);
         } catch (NumberFormatException e) {
             System.err.println("The provided room id must be a valid number.");
             System.exit(1);
+        } catch (ConnectException e) {
+            new RuntimeException("Could not connect to server", e).printStackTrace();
+            System.exit(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
         }
-
-        Application.launch(args);
     }
 
-    public void start(Stage primaryStage) {
-        primaryStage.setTitle("Framey");
+    public void start(short gameId) {
+        start();
+        gm.spectateNetworkGame(gameId);
+    }
+
+    public void start() {
+        Stage stage = new Stage();
+        stage.setTitle("Framey");
 		Group root = new Group();
 		scene = new Scene(root, Constants.World.WIDTH, Constants.World.HEIGHT, Color.LIGHTGRAY);
-        primaryStage.setScene(scene);
+        stage.setScene(scene);
 
         robotCircles = new Group();
         root.getChildren().add(robotCircles);
 
-        primaryStage.show();
+        stage.show();
 
         gm.addStateListener(this::draw);
         gm.addBeginListener(this::initializeRobots);
@@ -134,19 +118,13 @@ public class Display extends Application {
         gm.addHealthListener(this::updateRobotHealths);
         gm.addObstacleListener(this::updateObstacleRotations);
 
-        if (getParameters().getRaw().size() > 0) {
-            gm.spectateNetworkGame(Short.parseShort(getParameters().getRaw().get(0)));
-        }
-
-        primaryStage.setOnHidden(new EventHandler<WindowEvent>() {
+        stage.setOnHidden(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
                 ImageDisplay.closeAllWindows();
                 Platform.exit();
             }
         });
-
-        latch.countDown();
     }
 
     public static BufferedImage snapshot(Supplier<WritableImage> generator, int width, int height) {
