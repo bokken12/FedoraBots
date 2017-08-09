@@ -72,10 +72,12 @@ public abstract class ImageDisplay {
     public static void showImage(String name, ImageGray<?> image, boolean showMagnitude) {
         double max = GImageStatistics.maxAbs(image);
 		BufferedImage buff;
-		if( showMagnitude )
+		if(showMagnitude && max > 0)
 			buff = VisualizeImageData.grayMagnitude(image, null, max);
-		else
-			buff = VisualizeImageData.colorizeSign(image, null, max);
+		else if (!showMagnitude)
+            buff = VisualizeImageData.colorizeSign(image, null, max);
+        else
+            buff = VisualizeImageData.grayMagnitude(image, null, 1); // Should be a black image
 
 		showImage(name, buff);
     }
