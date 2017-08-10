@@ -27,7 +27,7 @@ dependencies {
     configurations.javadocResolve.resolvedConfiguration.resolvedArtifacts.each {
         def props = it.moduleVersion.id.properties
         if (JAVADOC_GROUPS.contains(props.group)) {
-            javadocGen group: props.group, name: props.name, version: props.version, classifier: 'javadoc', transitive: false
+            javadocGen group: props.group, name: props.name, version: props.version, classifier: 'sources', transitive: false
         }
     }
 }
@@ -56,11 +56,21 @@ eclipse.classpath.file.whenMerged {
     container.accessRules << new org.gradle.plugins.ide.eclipse.model.AccessRule("accessible", "javafx/**")
 }
 
+task allJavadoc(type: Javadoc) {
+    source = configurations.javadocGen.collect { it.isDirectory() ? it : zipTree(it) }
+    source += project.fileTree('src').include('**/*.java')
+    classpath = files(configurations.compile.files)
+    include '**/*.java'
+
+    configure(options) {
+        failOnError = false
+    }
+}
+
 task javadocJar(type: Jar) {
-    dependsOn javadoc
+    dependsOn allJavadoc
     classifier = 'javadoc'
     from {
-        javadoc.destinationDir
-        configurations.javadocGen.collect { it.isDirectory() ? it : zipTree(it) }
+        allJavadoc.destinationDir
     }
 }
