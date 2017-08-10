@@ -6,9 +6,30 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 
+configurations {
+    javadocResolve {
+        description = 'Dependencies whose javadocs will be looked up'
+    }
+    javadocGen {
+        description = 'Dependencies whose javadocs will be downloaded'
+    }
+    compile {
+        extendsFrom javadocResolve
+    }
+}
+
+def JAVADOC_GROUPS = ['org.boofcv', 'org.georegression', 'org.deepboof']
+
 dependencies {
-    compile 'com.github.afester:FranzXaver:master'
-    compile group: 'org.boofcv', name: 'core', version: '0.26'
+    compile 'com.github.afester.FranzXaver:FranzXaver:master'
+    javadocResolve group: 'org.boofcv', name: 'core', version: '0.26'
+
+    configurations.javadocResolve.resolvedConfiguration.resolvedArtifacts.each {
+        def props = it.moduleVersion.id.properties
+        if (JAVADOC_GROUPS.contains(props.group)) {
+            javadocGen group: props.group, name: props.name, version: props.version, classifier: 'javadoc', transitive: false
+        }
+    }
 }
 
 sourceSets {
@@ -33,4 +54,13 @@ jar {
 eclipse.classpath.file.whenMerged {
     def container = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
     container.accessRules << new org.gradle.plugins.ide.eclipse.model.AccessRule("accessible", "javafx/**")
+}
+
+task javadocJar(type: Jar) {
+    dependsOn javadoc
+    classifier = 'javadoc'
+    from {
+        javadoc.destinationDir
+        configurations.javadocGen.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
