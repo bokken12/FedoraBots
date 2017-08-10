@@ -21,8 +21,8 @@ import fedorabots.server.sim.world.World;
 
 /**
  * The <code>Manager</code> manages (wow!) the rooms of the game as well as
- * messages that come from the {@link server.TcpServer}. It is also responsible
- * for putting robots into the {@link server.Room}.
+ * messages that come from the {@link fedorabots.server.TcpServer}. It is also responsible
+ * for putting robots into the {@link fedorabots.server.Room}.
  */
 public class Manager {
 

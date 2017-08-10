@@ -44,7 +44,7 @@ public class Room {
     }
 
     /**
-     * Creates a room that holds <code>robotLimit</code> robots in a given {@link server.sim.world.World}.
+     * Creates a room that holds <code>robotLimit</code> robots in a given {@link fedorabots.server.sim.world.World}.
      */
     public Room(int robotLimit, World w) {
         nRobots = robotLimit;
@@ -56,7 +56,7 @@ public class Room {
     }
 
     /**
-     * Sets the {@link server.Manager} that the room will use to dispatch state messages through.
+     * Sets the {@link fedorabots.server.Manager} that the room will use to dispatch state messages through.
      */
     public void setManager(Manager m) {
         manager = m;

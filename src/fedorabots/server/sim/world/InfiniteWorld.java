@@ -19,12 +19,6 @@ public class InfiniteWorld extends World {
 	private Set<Entity> things;
 	private World child;
 
-	/**
-	 * @param x
-	 * @param y
-	 * @param width
-	 * @param height
-	 */
 	public InfiniteWorld(World child) {
 		super(Double.NaN, Double.NaN, Double.NaN, Double.NaN, null);
 		this.child = child;

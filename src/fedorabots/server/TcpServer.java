@@ -16,7 +16,7 @@ import fedorabots.server.Manager.ParseException;
 
 /**
  * The Tcp Server is only responsible for handling incoming connections and
- * passing the raw buffer to the {@link server.Manager}.
+ * passing the raw buffer to the {@link fedorabots.server.Manager}.
  *
  * <p>Credits to https://gist.github.com/Botffy/3860641</p>
  */
