@@ -208,7 +208,7 @@ public class Robot {
         vaporizerListeners.add(listener);
     }
 
-    public Collection<DetectedEntity> nearbyEntities() {
+    public List<DetectedEntity> nearbyEntities() {
         return d.nearbyEntities(new Point2D(x, y));
     }
 

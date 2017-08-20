@@ -274,8 +274,8 @@ public class Display {
         throw new RuntimeException("Cannot find obstacle type for class " + fig.getClass().getSimpleName());
     }
 
-    public Collection<DetectedEntity> nearbyEntities(Point2D point) {
-        Collection<DetectedEntity> entities = new ArrayList<DetectedEntity>();
+    public List<DetectedEntity> nearbyEntities(Point2D point) {
+        List<DetectedEntity> entities = new ArrayList<DetectedEntity>();
         for (RobotFigure robot : robots.values()) {
             double distance = point.distance(robot.getTranslateX(), robot.getTranslateY());
             if (distance <= Constants.Robot.DETECTION_RANGE && distance > 1) {
