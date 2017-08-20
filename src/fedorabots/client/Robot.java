@@ -155,6 +155,14 @@ public class Robot {
 
         return Display.snapshot(() -> canvas.snapshot(null, null), (int) canvas.getWidth(), (int) canvas.getHeight());
     }
+    
+    public double getX() {
+    	return x;
+    }
+    
+    public double getY() {
+    	return y;
+    }
 
     public double getAx() {
         return ax;
