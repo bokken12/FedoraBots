@@ -81,7 +81,7 @@ public class Cli {
             System.out.println("If you do not want to create a new room do nothing.");
             System.out.println("If you want to exit this program and stop the server type \"quit\" then press enter.");
             System.out.println();
-            System.out.print("To create a new room please give it an id: ");
+            System.out.print("To create a new room please specify the number of robots it will hold: ");
 
             World w = World.generateScrollingWorld(0, 0, Constants.World.WIDTH, Constants.World.HEIGHT);
             Room room = new Room(getInteger(reader), w);
@@ -101,6 +101,7 @@ public class Cli {
             manager.addRoom(room);
 
             System.out.println("Yay you've successfully created a room!");
+            System.out.println("The room's id is " + room.getId() + ".");
             System.out.println();
         }
     }

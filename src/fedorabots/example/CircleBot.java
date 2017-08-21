@@ -14,9 +14,9 @@ class CircleBot {
 
     public static void main(String[] args) throws InterruptedException {
         Robot b = new Robot();
-        b.setColor(Color.ORANGERED);
-        // b.joinNetworkGame((short) 0);
-        b.joinLocalGame(6);
+        // b.setColor(Color.ORANGERED);
+        b.joinNetworkGame((short) 0);
+        // b.joinLocalGame(6);
         b.setAcceleration(20, 0);
 
         b.addBulletDamageListener(event -> {
