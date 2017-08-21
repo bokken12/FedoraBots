@@ -41,7 +41,7 @@ public class GameManager {
                 adapter = adapterClass.newInstance();
             } else {
                 Class<?>[] argTypes = Arrays.stream(arguments).map(Object::getClass).toArray(Class<?>[]::new);
-                adapterClass.getConstructor(argTypes).newInstance(arguments);
+                adapter = adapterClass.getConstructor(argTypes).newInstance(arguments);
             }
             adapter.setManager(this);
             Thread t = new Thread(adapter);
