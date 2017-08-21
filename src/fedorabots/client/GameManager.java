@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -25,9 +26,18 @@ public class GameManager {
     private Map<Short, Color> colors;
     private GameAdapter adapter;
 
+    private static boolean contains(Object needle, Object[] haystack) {
+        for (Object x : haystack) {
+            if (Objects.equals(needle, x)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void setAdapterClass(Class<? extends GameAdapter> adapterClass, Object... arguments) {
         try {
-            if (arguments == null || arguments.length == 0) {
+            if (arguments == null || arguments.length == 0 || contains(null, arguments)) {
                 adapter = adapterClass.newInstance();
             } else {
                 Class<?>[] argTypes = Arrays.stream(arguments).map(Object::getClass).toArray(Class<?>[]::new);
