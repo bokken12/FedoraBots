@@ -45,7 +45,7 @@ public class Cli {
         t.start();
 
         Thread tickThread = new Thread(() -> {
-            manager.loopTickAllRoom(server);
+            manager.loopTickAllRoom(server, true);
         });
         tickThread.setDaemon(true);
         tickThread.start();

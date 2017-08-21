@@ -44,15 +44,24 @@ public class Room {
     }
 
     /**
-     * Creates a room that holds <code>robotLimit</code> robots in a given {@link fedorabots.server.sim.world.World}.
+     * Creates a room that holds <code>robotLimit</code> robots in a given
+     * {@link fedorabots.server.sim.world.World}. A unique room id must also be
+     * passed.
      */
-    public Room(int robotLimit, World w) {
+    public Room(int robotLimit, World w, short roomId) {
         nRobots = robotLimit;
         world = w;
         sim = new Sim(world);
-        id = globalId++;
+        id = roomId;
         robots = new HashMap<Short, Robot>();
         obstacles = world.getObstacles();
+    }
+
+    /**
+     * Creates a room that holds <code>robotLimit</code> robots in a given {@link fedorabots.server.sim.world.World}.
+     */
+    public Room(int robotLimit, World w) {
+        this(robotLimit, w, globalId++);
     }
 
     /**
@@ -68,6 +77,14 @@ public class Room {
      */
     public short getId() {
         return id;
+    }
+
+    public int getRobotLimit() {
+        return nRobots;
+    }
+
+    public World getWorld() {
+        return world;
     }
 
     /**
@@ -147,6 +164,13 @@ public class Room {
      */
     public boolean hasStarted() {
         return gameStarted;
+    }
+
+    /**
+     * Returns a boolean indicating whether the game has ended
+     */
+    public boolean hasEnded() {
+        return gameStarted && robots.isEmpty();
     }
 
     /**

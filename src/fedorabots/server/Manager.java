@@ -7,6 +7,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -288,14 +289,23 @@ public class Manager {
     /**
      * Runs an infite loop where each room will tick.
      *
-     * @param server    The server to send state update messages through
+     * @param server      The server to send state update messages through
+     * @param respanRooms Whether rooms should be recreated once they end
      */
-    public void loopTickAllRoom(TcpServer server) {
+    public void loopTickAllRoom(TcpServer server, boolean reloadRooms) {
         while (true) {
             long totalTickTime = 0;
             synchronized (rooms) {
                 for (Room room : rooms.values()) {
                     totalTickTime += room.tick(server);
+                }
+                if (reloadRooms) {
+                    for (Map.Entry<Short, Room> ent : rooms.entrySet()) {
+                        Room room = ent.getValue();
+                        if (room.hasEnded()) {
+                            ent.setValue(new Room(room.getRobotLimit(), room.getWorld(), room.getId()));
+                        }
+                    }
                 }
             }
 
