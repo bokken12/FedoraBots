@@ -71,7 +71,7 @@ public class Robot {
     }
 
     public void joinNetworkGame(short roomId, String hostname) {
-        id = gm.joinNetworkGame(this, roomId);
+        id = gm.joinNetworkGame(hostname, this, roomId);
         inGame = true;
     }
 
@@ -159,11 +159,11 @@ public class Robot {
 
         return Display.snapshot(() -> canvas.snapshot(null, null), (int) canvas.getWidth(), (int) canvas.getHeight());
     }
-    
+
     public double getX() {
     	return x;
     }
-    
+
     public double getY() {
     	return y;
     }
