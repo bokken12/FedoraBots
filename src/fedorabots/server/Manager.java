@@ -127,6 +127,7 @@ public class Manager {
     }
 
     private void handleRobotUpdate(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
+        System.out.println(bb.position());
         short robotId = bb.getShort();
         synchronized (idMap) {
             if (robotId != idMap.get(key)) {
