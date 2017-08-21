@@ -24,7 +24,7 @@ public class TcpServer implements Runnable {
 	public static final int PORT = 8090;
 	private ServerSocketChannel ssc;
 	private Selector selector;
-	private ByteBuffer buf = ByteBuffer.allocate(256);
+	private ByteBuffer buf = ByteBuffer.allocate(512);
 
 	private Manager manager;
 
