@@ -265,7 +265,9 @@ public class Manager {
 
     public void addRoom(Room room) {
         room.setManager(this);
-        rooms.put(room.getId(), room);
+        synchronized (rooms) {
+            rooms.put(room.getId(), room);
+        }
     }
 
     /**
@@ -277,7 +279,9 @@ public class Manager {
         if (room.occupancy() > 0) {
             return false;
         }
-        rooms.remove(room.getId(), room);
+        synchronized (rooms) {
+            rooms.remove(room.getId(), room);
+        }
         return true;
     }
 
@@ -288,9 +292,11 @@ public class Manager {
      */
     public void loopTickAllRoom(TcpServer server) {
         while (true) {
-            long totalTickTime =0;
-            for (Room room : rooms.values()) {
-                totalTickTime += room.tick(server);
+            long totalTickTime = 0;
+            synchronized (rooms) {
+                for (Room room : rooms.values()) {
+                    totalTickTime += room.tick(server);
+                }
             }
 
             try {
