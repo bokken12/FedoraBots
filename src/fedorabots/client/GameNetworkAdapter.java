@@ -36,7 +36,7 @@ public class GameNetworkAdapter implements GameAdapter {
     private static String getHost() {
         String host = System.getProperty("server.host");
         if (host == null) {
-            return "localhost";
+            return "10.12.32.5";
         }
         return host;
     }
