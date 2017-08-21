@@ -110,13 +110,14 @@ public class TcpServer implements Runnable {
 	 * Sends a message (<code>buf</code>) to a client known by the given
 	 * <code>key</code>.
 	 */
-	public static void sendToKey(SelectionKey key, ByteBuffer buf) {
+	public static void sendToKey(SelectionKey key, ByteBuffer buf, Manager manager) {
 		if(key.isValid() && key.channel() instanceof SocketChannel) {
 			SocketChannel sch = (SocketChannel) key.channel();
 			try {
 				sch.write(buf);
 			} catch (IOException e) {
 				LOGGER.log(Level.WARNING, "Could not write to socket", e);
+				manager.handleClosed(key);
 			}
 		}
 	}

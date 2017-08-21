@@ -92,13 +92,13 @@ public class Manager {
                     for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
                         if (room.equals(robotRooms.get(connection.getValue()))) {
                             message.rewind();
-                            TcpServer.sendToKey(connection.getKey(), message);
+                            TcpServer.sendToKey(connection.getKey(), message, this);
                         }
                     }
                     for (Map.Entry<SelectionKey, Room> connection : spectatorMap.entrySet()) {
                         if (room.equals(connection.getValue())) {
                             message.rewind();
-                            TcpServer.sendToKey(connection.getKey(), message);
+                            TcpServer.sendToKey(connection.getKey(), message, this);
                         }
                     }
 
@@ -110,7 +110,7 @@ public class Manager {
                             out.put((byte) 64);
                             out.putShort(connection.getValue());
                             out.rewind();
-                            TcpServer.sendToKey(connection.getKey(), out);
+                            TcpServer.sendToKey(connection.getKey(), out, this);
                         }
                     }
                 }
@@ -234,13 +234,13 @@ public class Manager {
                         msgBuf.put(velocityStates.get(id));
                     }
                     msgBuf.rewind();
-                    TcpServer.sendToKey(connection.getKey(), msgBuf);
+                    TcpServer.sendToKey(connection.getKey(), msgBuf, this);
                 }
             }
             for (Map.Entry<SelectionKey, Room> connection : spectatorMap.entrySet()) {
                 if (room.equals(connection.getValue())) {
                     msgBuf.rewind();
-                    TcpServer.sendToKey(connection.getKey(), msgBuf);
+                    TcpServer.sendToKey(connection.getKey(), msgBuf, this);
                 }
             }
             Profiler.timeEnd("Send state");
@@ -252,13 +252,13 @@ public class Manager {
             for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
                 if (room.equals(robotRooms.get(connection.getValue()))) {
                     msgBuf.rewind();
-                    TcpServer.sendToKey(connection.getKey(), msgBuf);
+                    TcpServer.sendToKey(connection.getKey(), msgBuf, this);
                 }
             }
             for (Map.Entry<SelectionKey, Room> connection : spectatorMap.entrySet()) {
                 if (room.equals(connection.getValue())) {
                     msgBuf.rewind();
-                    TcpServer.sendToKey(connection.getKey(), msgBuf);
+                    TcpServer.sendToKey(connection.getKey(), msgBuf, this);
                 }
             }
         }
