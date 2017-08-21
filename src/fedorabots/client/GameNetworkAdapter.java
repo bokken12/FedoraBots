@@ -25,7 +25,11 @@ public class GameNetworkAdapter implements GameAdapter {
     private short robotId;
 
     public GameNetworkAdapter() throws IOException {
-        s = new Socket(getHost(), 8090);
+        this(getHost());
+    }
+
+    public GameNetworkAdapter(String host) throws IOException {
+        s = new Socket(host, 8090);
         inp = s.getInputStream();
     }
 

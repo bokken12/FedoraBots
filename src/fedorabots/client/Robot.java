@@ -67,6 +67,10 @@ public class Robot {
     }
 
     public void joinNetworkGame(short roomId) {
+        joinNetworkGame(roomId, null);
+    }
+
+    public void joinNetworkGame(short roomId, String hostname) {
         id = gm.joinNetworkGame(this, roomId);
         inGame = true;
     }

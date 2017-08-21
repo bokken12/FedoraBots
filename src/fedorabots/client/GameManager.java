@@ -1,7 +1,9 @@
 package fedorabots.client;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -23,14 +25,19 @@ public class GameManager {
     private Map<Short, Color> colors;
     private GameAdapter adapter;
 
-    private void setAdapterClass(Class<? extends GameAdapter> adapterClass) {
+    private void setAdapterClass(Class<? extends GameAdapter> adapterClass, Object... arguments) {
         try {
-            adapter = adapterClass.newInstance();
+            if (arguments == null || arguments.length == 0) {
+                adapter = adapterClass.newInstance();
+            } else {
+                Class<?>[] argTypes = Arrays.stream(arguments).map(Object::getClass).toArray(Class<?>[]::new);
+                adapterClass.getConstructor(argTypes).newInstance(arguments);
+            }
             adapter.setManager(this);
             Thread t = new Thread(adapter);
             t.setDaemon(true);
             t.start();
-        } catch (IllegalAccessException|InstantiationException e) {
+        } catch (IllegalAccessException|InstantiationException|NoSuchMethodException|InvocationTargetException e) {
             e.printStackTrace();
             System.exit(1);
         }
@@ -106,7 +113,11 @@ public class GameManager {
     }
 
     public short joinNetworkGame(Robot robot, short roomId) {
-        setAdapterClass(GameNetworkAdapter.class);
+        return joinNetworkGame(null, robot, roomId);
+    }
+
+    public short joinNetworkGame(String host, Robot robot, short roomId) {
+        setAdapterClass(GameNetworkAdapter.class, host);
         Color c = robot.getColor();
         try {
             adapter.sendJoin(roomId,
@@ -120,7 +131,11 @@ public class GameManager {
     }
 
     public void spectateNetworkGame(short roomId) {
-        setAdapterClass(GameNetworkAdapter.class);
+        spectateNetworkGame(null, roomId);
+    }
+
+    public void spectateNetworkGame(String host, short roomId) {
+        setAdapterClass(GameNetworkAdapter.class, host);
         try {
             adapter.sendSpectate(roomId);
         } catch (IOException e) {
