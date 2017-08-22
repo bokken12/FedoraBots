@@ -135,7 +135,7 @@ public class GameManager {
                             (byte)(c.getGreen() * 255),
                             (byte)(c.getBlue() * 255));
         } catch (IOException e) {
-            throw new RuntimeException("Could not join a game because of a network error");
+            throw new RuntimeException("Could not join a game because of a network error", e);
         }
         return adapter.getRobotId();
     }
@@ -149,7 +149,7 @@ public class GameManager {
         try {
             adapter.sendSpectate(roomId);
         } catch (IOException e) {
-            throw new RuntimeException("Could not spectate a game because of a network error");
+            throw new RuntimeException("Could not spectate a game because of a network error", e);
         }
         adapter.waitForSpectateOk();
     }
@@ -163,7 +163,7 @@ public class GameManager {
                             (byte)(c.getGreen() * 255),
                             (byte)(c.getBlue() * 255));
         } catch (IOException e) {
-            throw new RuntimeException("Could not join a game because of a network error");
+            throw new RuntimeException("Could not join a game because of a network error", e);
         }
         return adapter.getRobotId();
     }
@@ -172,7 +172,7 @@ public class GameManager {
         try {
             adapter.sendRobotUpdate(robotId, robot.getAx(), robot.getAy(), robot.getRotation());
         } catch (IOException e) {
-            System.out.println("Warning: Could not update the robot's state because of a network error");
+            System.err.println("Warning: Could not update the robot's state because of a network error\n" + e);
         }
     }
 
@@ -180,7 +180,7 @@ public class GameManager {
         try {
             adapter.sendRobotShootRequest(robotId);
         } catch (IOException e) {
-            System.out.println("Warning: Could not make the robot shoot because of a network error");
+            System.err.println("Warning: Could not make the robot shoot because of a network error\n" + e);
         }
     }
 }
