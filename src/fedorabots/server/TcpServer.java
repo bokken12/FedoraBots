@@ -86,7 +86,7 @@ public class TcpServer implements Runnable {
 						try {
 							manager.handleSent(buf, this, key, ch);
 						} catch (ParseException e) {
-							LOGGER.log(Level.WARNING, "Error parsing input " + Util.toString(buf.array()), e);
+							LOGGER.log(Level.WARNING, "Error parsing input " + Util.toString(buf), e);
 						}
 					} else {
 						LOGGER.warning("Dropped a buffer from " + key.attachment() + ".");
