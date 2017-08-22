@@ -81,13 +81,15 @@ public class TcpServer implements Runnable {
 					int numToRead = Manager.messageLength(buf.get(0) & 0xFF);
 					buf.limit(numToRead + 1);
 
-					if ((read = ch.read(buf)) > 0) {
+					if ((read = ch.read(buf)) == numToRead) {
 						buf.flip();
 						try {
 							manager.handleSent(buf, this, key, ch);
 						} catch (ParseException e) {
 							LOGGER.log(Level.WARNING, "Error parsing input " + Util.toString(buf.array()), e);
 						}
+					} else {
+						LOGGER.warning("Dropped a buffer from " + key.attachment() + ".");
 					}
 				}
 			} while (read > 0);
@@ -111,16 +113,17 @@ public class TcpServer implements Runnable {
 	 * Sends a message (<code>buf</code>) to a client known by the given
 	 * <code>key</code>.
 	 */
-	public static void sendToKey(SelectionKey key, ByteBuffer buf, Manager manager) {
+	public static boolean sendToKey(SelectionKey key, ByteBuffer buf, Manager manager) {
 		if(key.isValid() && key.channel() instanceof SocketChannel) {
 			SocketChannel sch = (SocketChannel) key.channel();
 			try {
 				sch.write(buf);
+				return true;
 			} catch (IOException e) {
 				LOGGER.log(Level.WARNING, "Could not write to socket", e);
-				manager.handleClosed(key);
 			}
 		}
+		return false;
 	}
 
 }

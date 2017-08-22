@@ -7,6 +7,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -88,29 +89,41 @@ public class Manager {
                 if (gameStarting) {
                     LOGGER.fine("Sending initial states to relevant robots");
                     ByteBuffer message = room.initialState();
-                    for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
-                        if (room.equals(robotRooms.get(connection.getValue()))) {
+                    Iterator<Map.Entry<SelectionKey, Short>> iter = idMap.entrySet().iterator();
+                    while(iter.hasNext()){
+                    	Map.Entry<SelectionKey, Short> connection = iter.next();
+                    	if (room.equals(robotRooms.get(connection.getValue()))) {
                             message.rewind();
-                            TcpServer.sendToKey(connection.getKey(), message, this);
+                            if(!TcpServer.sendToKey(connection.getKey(), message, this))
+                            	iter.remove();
                         }
                     }
-                    for (Map.Entry<SelectionKey, Room> connection : spectatorMap.entrySet()) {
-                        if (room.equals(connection.getValue())) {
+                    Iterator<Map.Entry<SelectionKey, Room>> iter2 = spectatorMap.entrySet().iterator();
+                    while(iter2.hasNext()){
+                    	Map.Entry<SelectionKey, Room> connection = iter2.next();
+                    	if (room.equals(connection.getValue())) {
                             message.rewind();
-                            TcpServer.sendToKey(connection.getKey(), message, this);
+                            if(!TcpServer.sendToKey(connection.getKey(), message, this))
+                            	iter2.remove();
                         }
                     }
 
                     LOGGER.fine("Telling robots in room with id " + room.getId() + " that the game has begun");
-                    for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
-                        if (room.equals(robotRooms.get(connection.getValue()))) {
+                    Iterator<Map.Entry<SelectionKey, Short>> iter3 = idMap.entrySet().iterator();
+                    while(iter3.hasNext()){
+                    	Map.Entry<SelectionKey, Short> connection = iter3.next();
+                    	if (room.equals(robotRooms.get(connection.getValue()))) {
                             LOGGER.finer("Telling " + connection.getKey().attachment());
                             ByteBuffer out = ByteBuffer.allocate(3);
                             out.put((byte) 64);
                             out.putShort(connection.getValue());
                             out.rewind();
-                            TcpServer.sendToKey(connection.getKey(), out, this);
+                            if(!TcpServer.sendToKey(connection.getKey(), out, this))
+                            	iter3.remove();
                         }
+                    }
+                    for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
+                        
                     }
                 }
             } catch (GameAlreadyStartedException e) {
@@ -232,22 +245,29 @@ public class Manager {
 
         synchronized (idMap) {
             Profiler.time("Send state");
-            for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
-                if (room.equals(robotRooms.get(connection.getValue()))) {
+            Iterator<Map.Entry<SelectionKey, Short>> iter = idMap.entrySet().iterator();
+            while(iter.hasNext()){
+            	Map.Entry<SelectionKey, Short> connection = iter.next();
+            	if (room.equals(robotRooms.get(connection.getValue()))) {
                     short id = connection.getValue();
                     if (velocityStates.get(id) != null) {
                         msgBuf.position(4);
                         msgBuf.put(velocityStates.get(id));
                     }
                     msgBuf.rewind();
-                    TcpServer.sendToKey(connection.getKey(), msgBuf, this);
+                    if(!TcpServer.sendToKey(connection.getKey(), msgBuf, this))
+                    	iter.remove();
                 }
             }
-            for (Map.Entry<SelectionKey, Room> connection : spectatorMap.entrySet()) {
-                if (room.equals(connection.getValue())) {
+            Iterator<Map.Entry<SelectionKey, Room>> iter2 = spectatorMap.entrySet().iterator();
+            while(iter2.hasNext()){
+            	Map.Entry<SelectionKey, Room> connection = iter2.next();
+            	if (room.equals(connection.getValue())) {
                     msgBuf.rewind();
-                    TcpServer.sendToKey(connection.getKey(), msgBuf, this);
+                    if(!TcpServer.sendToKey(connection.getKey(), msgBuf, this))
+                    	iter.remove();
                 }
+            	
             }
             Profiler.timeEnd("Send state");
         }
@@ -255,18 +275,24 @@ public class Manager {
 
     public void broadcastBuf(TcpServer server, Room room, ByteBuffer msgBuf) {
         synchronized (idMap) {
-            for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
-                if (room.equals(robotRooms.get(connection.getValue()))) {
+        	Iterator<Map.Entry<SelectionKey, Short>> iter = idMap.entrySet().iterator();
+        	while(iter.hasNext()){
+        		Map.Entry<SelectionKey, Short> connection = iter.next();
+        		if (room.equals(robotRooms.get(connection.getValue()))) {
                     msgBuf.rewind();
-                    TcpServer.sendToKey(connection.getKey(), msgBuf, this);
+                    if(!TcpServer.sendToKey(connection.getKey(), msgBuf, this))
+                    	iter.remove();
                 }
-            }
-            for (Map.Entry<SelectionKey, Room> connection : spectatorMap.entrySet()) {
-                if (room.equals(connection.getValue())) {
+        	}
+        	Iterator<Map.Entry<SelectionKey, Room>> iter2 = spectatorMap.entrySet().iterator();
+        	while(iter.hasNext()){
+        		Map.Entry<SelectionKey, Room> connection = iter2.next();
+        		if (room.equals(connection.getValue())) {
                     msgBuf.rewind();
-                    TcpServer.sendToKey(connection.getKey(), msgBuf, this);
+                    if(!TcpServer.sendToKey(connection.getKey(), msgBuf, this))
+                    	iter2.remove();
                 }
-            }
+        	}
         }
     }
 
