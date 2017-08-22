@@ -208,4 +208,9 @@ public class HorizontalSplitWorld extends World {
 			bottom.forCollidingUnsafe(x, y, width, height, consumer);
 		}
 	}
+
+	@Override
+	public World emptyClone() {
+		return new HorizontalSplitWorld(getX(), getY(), getWidth(), getHeight(), getParent());
+	}
 }

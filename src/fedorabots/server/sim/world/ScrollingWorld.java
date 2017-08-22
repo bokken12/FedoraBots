@@ -153,4 +153,9 @@ public class ScrollingWorld extends World {
 		return true;
 	}
 
+	@Override
+	public World emptyClone() {
+		return new ScrollingWorld(getX(), getY(), getWidth(), getHeight(), child.emptyClone());
+	}
+
 }

@@ -206,4 +206,9 @@ public class VerticalSplitWorld extends World {
 			right.forCollidingUnsafe(x, y, width, height, consumer);
 		}
 	}
+
+	@Override
+	public World emptyClone() {
+		return new VerticalSplitWorld(getX(), getY(), getWidth(), getHeight(), getParent());
+	}
 }

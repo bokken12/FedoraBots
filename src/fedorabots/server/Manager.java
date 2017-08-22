@@ -302,16 +302,14 @@ public class Manager {
         while (true) {
             long totalTickTime = 0;
             synchronized (rooms) {
-                for (Room room : rooms.values()) {
-                    totalTickTime += room.tick(server);
-                }
-                if (reloadRooms) {
-                    for (Map.Entry<Short, Room> ent : rooms.entrySet()) {
-                        Room room = ent.getValue();
-                        if (room.hasEnded()) {
-                            LOGGER.info("Resetting room with id " + room.getId());
-                            ent.setValue(new Room(room.getRobotLimit(), room.getWorld(), room.getId()));
-                        }
+                for (Map.Entry<Short, Room> ent : rooms.entrySet()) {
+                    Room room = ent.getValue();
+                    if (room.hasStarted()) {
+                        totalTickTime += room.tick(server);
+                    }
+                    if (reloadRooms && room.hasEnded()) {
+                        LOGGER.info("Resetting room with id " + room.getId());
+                        ent.setValue(room.resetCopy());
                     }
                 }
             }

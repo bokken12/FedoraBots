@@ -405,4 +405,9 @@ public abstract class World {
 	public static int initialStateLength(Collection<Robot> robots, Collection<Obstacle> obstacles) {
 		return robots.size() * 11 + obstacles.size() * 5;
 	}
+
+	/**
+	 * Returns an empty clone of the world
+	 */
+	public abstract World emptyClone();
 }

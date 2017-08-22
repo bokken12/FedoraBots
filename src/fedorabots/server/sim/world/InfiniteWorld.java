@@ -158,4 +158,9 @@ public class InfiniteWorld extends World {
 	public boolean fullyContains(Entity entity) {
 		return true;
 	}
+
+	@Override
+	public World emptyClone() {
+		return new InfiniteWorld(child.emptyClone());
+	}
 }

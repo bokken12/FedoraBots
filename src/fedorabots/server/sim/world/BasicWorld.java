@@ -141,4 +141,9 @@ public class BasicWorld extends World {
 			}
 		}
 	}
+
+	@Override
+	public World emptyClone() {
+		return new BasicWorld(getX(), getY(), getWidth(), getHeight(), getParent());
+	}
 }

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import fedorabots.common.Profiler;
 import javafx.geometry.Point2D;
@@ -239,6 +240,24 @@ public class Room {
         buf.put((byte) obstacles.size());
         world.writeStartingState(buf, rvs, obstacles);
         return buf;
+    }
+
+    /**
+     * Returns a copy of the room, but one that has been reset (i.e. there are
+     * no robots in it).
+     */
+    public Room resetCopy() {
+        World w = world.emptyClone();
+        Room r = new Room(getRobotLimit(), w, getId());
+        r.setManager(manager);
+
+        List<Obstacle> obstacles = world.getObstacles().stream().collect(Collectors.toList());
+        while (!obstacles.isEmpty()) {
+            Obstacle obs = obstacles.remove((int) (Math.random() * obstacles.size()));
+            r.addObstacle(obs);
+        }
+
+        return r;
     }
 
 }
