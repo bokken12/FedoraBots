@@ -119,5 +119,13 @@ public abstract class Obstacle extends PhysicsEntity {
 	@Override
 	public String toString() {
 		return "Obstacle" + super.toString().substring(13);
-	}
+    }
+
+    public Obstacle clone() {
+        try {
+            return getClass().getConstructor(byte.class, double.class, double.class).newInstance((byte) getId(), getX(), getY());
+        } catch (Exception e) {
+            throw new RuntimeException("Error cloning obstacle", e);
+        }
+    }
 }

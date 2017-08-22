@@ -250,7 +250,8 @@ public class Room {
 
         List<Obstacle> obstacles = world.getObstacles().stream().collect(Collectors.toList());
         while (!obstacles.isEmpty()) {
-            Obstacle obs = obstacles.remove((int) (Math.random() * obstacles.size()));
+            Obstacle obs = obstacles.remove((int) (Math.random() * obstacles.size())).clone();
+            obs.setPositionUnsafe(-1, -1);
             r.addObstacle(obs);
         }
 
