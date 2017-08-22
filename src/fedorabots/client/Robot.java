@@ -380,8 +380,25 @@ public class Robot {
         }
     }
 
+    /**
+     * Handles a key being pressed.
+     *
+     * @param event An event containing details on the key that was pressed
+     */
     public void onKeyPressed(KeyEvent event) {}
+
+    /**
+     * Handles a key being released.
+     *
+     * @param event An event containing details on the key that was pressed
+     */
     public void onKeyReleased(KeyEvent event) {}
+
+    /**
+     * Handles a key being typed.
+     *
+     * @param event An event containing details on the key that was pressed
+     */
     public void onKeyTyped(KeyEvent event) {}
 
 }
