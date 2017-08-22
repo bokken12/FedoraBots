@@ -55,6 +55,7 @@ public class Manager {
     }
 
     private void handleRobotJoin(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
+        LOGGER.fine("Handling robot join from " + key.attachment() + ".");
         short roomId = bb.getShort();
         Color robotColor = new Color(bb.get() & 0xFF, bb.get() & 0xFF, bb.get() & 0xFF);
         Room room = rooms.get(roomId);
@@ -139,6 +140,7 @@ public class Manager {
     }
 
     private void handleRobotUpdate(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
+        LOGGER.fine("Handling robot update from " + key.attachment() + ".");
         short robotId = bb.getShort();
         synchronized (idMap) {
             if (robotId != idMap.get(key)) {
@@ -155,6 +157,7 @@ public class Manager {
     }
 
     private void handleRobotShoot(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
+        LOGGER.fine("Handling robot shoot from " + key.attachment() + ".");
         short robotId = bb.getShort();
         synchronized (idMap) {
             if (robotId != idMap.get(key)) {
@@ -178,6 +181,7 @@ public class Manager {
     }
 
     private void handleDisplayJoin(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
+        LOGGER.fine("Handling display join from " + key.attachment() + ".");
         short roomId = bb.getShort();
 
         Room room = rooms.get(roomId);
