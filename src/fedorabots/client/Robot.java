@@ -20,6 +20,7 @@ import fedorabots.common.Constants;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 
 /**
@@ -63,6 +64,10 @@ public class Robot {
         gm.addStateListener(this::handleState);
         gm.addHealthListener(this::updateHealth);
         health = 1;
+
+        d.setOnKeyPressed(this::onKeyPressed);
+        d.setOnKeyReleased(this::onKeyReleased);
+        d.setOnKeyTyped(this::onKeyTyped);
     }
 
     /**
@@ -374,5 +379,9 @@ public class Robot {
             }
         }
     }
+
+    public void onKeyPressed(KeyEvent event) {}
+    public void onKeyReleased(KeyEvent event) {}
+    public void onKeyTyped(KeyEvent event) {}
 
 }

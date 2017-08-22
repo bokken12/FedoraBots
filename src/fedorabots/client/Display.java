@@ -39,6 +39,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -287,6 +288,18 @@ public class Display {
             }
         }
         return entities;
+    }
+
+    public void setOnKeyPressed(EventHandler<KeyEvent> handler) {
+        scene.setOnKeyPressed(handler);
+    }
+
+    public void setOnKeyReleased(EventHandler<KeyEvent> handler) {
+        scene.setOnKeyReleased(handler);
+    }
+
+    public void setOnKeyTyped(EventHandler<KeyEvent> handler) {
+        scene.setOnKeyTyped(handler);
     }
 
 }
