@@ -309,6 +309,7 @@ public class Manager {
                     for (Map.Entry<Short, Room> ent : rooms.entrySet()) {
                         Room room = ent.getValue();
                         if (room.hasEnded()) {
+                            LOGGER.info("Resetting room with id " + room.getId());
                             ent.setValue(new Room(room.getRobotLimit(), room.getWorld(), room.getId()));
                         }
                     }
