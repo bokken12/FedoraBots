@@ -57,6 +57,7 @@ eclipse.classpath.file.whenMerged {
 }
 
 task allJavadoc(type: Javadoc) {
+    dependsOn compileJava
     source = configurations.javadocGen.collect { it.isDirectory() ? it : zipTree(it) }
     source += project.fileTree('src').include('**/*.java')
     classpath = files(configurations.compile.files)
