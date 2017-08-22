@@ -127,7 +127,6 @@ public class Manager {
     }
 
     private void handleRobotUpdate(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
-        System.out.println(bb.position());
         short robotId = bb.getShort();
         synchronized (idMap) {
             if (robotId != idMap.get(key)) {
@@ -195,17 +194,24 @@ public class Manager {
         }
     }
 
-    public void handleSent(byte[] b, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
-        ByteBuffer bb = ByteBuffer.wrap(b);
-        while (bb.hasRemaining()) {
-            int mType = bb.get() & 0xFF;
-            switch (mType) {
-                case 128: handleRobotJoin(bb, server, key, channel); break;
-                case 129: handleRobotUpdate(bb, server, key, channel); break;
-                case 130: handleRobotShoot(bb, server, key, channel); break;
-                case 192: handleDisplayJoin(bb, server, key, channel); break;
-                default:  throw new ParseException("Unknown message type " + mType + ".");
-            }
+    public void handleSent(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
+        int mType = bb.get() & 0xFF;
+        switch (mType) {
+            case 128: handleRobotJoin(bb, server, key, channel); break;
+            case 129: handleRobotUpdate(bb, server, key, channel); break;
+            case 130: handleRobotShoot(bb, server, key, channel); break;
+            case 192: handleDisplayJoin(bb, server, key, channel); break;
+            default:  throw new ParseException("Unknown message type " + mType + ".");
+        }
+    }
+
+    public static int messageLength(int mType) {
+        switch (mType) {
+            case 128: return 5;
+            case 129: return 12;
+            case 130: return 2;
+            case 192: return 2;
+            default:  throw new ParseException("Unknown message type " + mType + ".");
         }
     }
 

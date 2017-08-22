@@ -24,7 +24,7 @@ public class TcpServer implements Runnable {
 	public static final int PORT = 8090;
 	private ServerSocketChannel ssc;
 	private Selector selector;
-	private ByteBuffer buf = ByteBuffer.allocate(1024);
+	private ByteBuffer buf = ByteBuffer.allocate(16);
 
 	private Manager manager;
 
@@ -74,22 +74,23 @@ public class TcpServer implements Runnable {
 		SocketChannel ch = (SocketChannel) key.channel();
 
 		try {
-			buf.clear();
 			int read = 0;
-			while ((read = ch.read(buf)) > 0) {
-				buf.flip();
-				if (buf.remaining() > 0) {
-					byte[] bytes = new byte[buf.limit()];
-					buf.get(bytes);
-					try {
-						manager.handleSent(bytes, this, key, ch);
-					} catch (ParseException e) {
-						LOGGER.log(Level.WARNING, "Error parsing input " + Util.toString(bytes), e);
+			do {
+				buf.clear().limit(1); // Allow for the message type byte to be read
+				if ((read = ch.read(buf)) > 0) {
+					int numToRead = Manager.messageLength(buf.get(0) & 0xFF);
+					buf.limit(numToRead + 1);
+
+					if ((read = ch.read(buf)) > 0) {
+						buf.flip();
+						try {
+							manager.handleSent(buf, this, key, ch);
+						} catch (ParseException e) {
+							LOGGER.log(Level.WARNING, "Error parsing input " + Util.toString(buf.array()), e);
+						}
 					}
 				}
-
-				buf.clear();
-			}
+			} while (read > 0);
 
 			if (read < 0) {
 				LOGGER.fine(key.attachment() + " closed its session.");
