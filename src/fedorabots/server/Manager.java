@@ -298,7 +298,7 @@ public class Manager {
      * @param server      The server to send state update messages through
      * @param respanRooms Whether rooms should be recreated once they end
      */
-    public void loopTickAllRoom(TcpServer server, boolean reloadRooms) {
+    public void loopTickAllRooms(TcpServer server, boolean reloadRooms) {
         while (true) {
             long totalTickTime = 0;
             synchronized (rooms) {

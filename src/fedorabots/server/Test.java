@@ -52,6 +52,6 @@ public class Test {
         t.start();
         Thread.sleep(5000);
         // sim.run(tick -> manager.broadcastState(server, w.state(), w.velocityStates()));
-        manager.loopTickAllRoom(server, true);
+        manager.loopTickAllRooms(server, true);
     }
 }
