@@ -296,7 +296,7 @@ public class Manager {
      * Runs an infite loop where each room will tick.
      *
      * @param server      The server to send state update messages through
-     * @param respanRooms Whether rooms should be recreated once they end
+     * @param reloadRooms Whether rooms should be recreated once they end
      */
     public void loopTickAllRooms(TcpServer server, boolean reloadRooms) {
         while (true) {
