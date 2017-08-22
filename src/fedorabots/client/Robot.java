@@ -3,7 +3,6 @@ package fedorabots.client;
 import java.awt.image.BufferedImage;
 import java.net.ConnectException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
