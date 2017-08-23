@@ -116,7 +116,7 @@ public class Robot {
             throw new RuntimeException("You must join a game to set the robot's acceleration");
         }
         if (Math.sqrt(ax * ax + ay * ay) > Constants.Robot.MAX_ACCELERATION) {
-            throw new RuntimeException("The provided acceleration is too large");
+            System.err.println("Warning: The provided acceleration is too large and has been capped");
         }
         this.ax = ax;
         this.ay = ay;
