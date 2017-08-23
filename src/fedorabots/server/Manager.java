@@ -127,6 +127,7 @@ public class Manager {
                     }
                 }
             } catch (GameAlreadyStartedException e) {
+                handle.getOut().write(66);
                 handle.getOut().flush();
                 throw new ParseException("Robot with id " + id + " tried to join a room with id " +
                                          room.getId() + " that already started its game");
