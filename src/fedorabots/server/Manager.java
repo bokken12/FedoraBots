@@ -157,7 +157,8 @@ public class Manager {
         short robotId = bb.getShort();
         synchronized (idMap) {
             if (robotId != idMap.get(handle.getHid())) {
-                throw new ParseException(handle.getHid() + " does not have permission to edit robot with id " + id + ".");
+                throw new ParseException(handle.getHid() + " does not have permission to edit robot with id " + robotId +
+                                         " (the handler can only edit robot with id " + idMap.get(handle.getHid()) + ").");
             }
         }
 
@@ -194,9 +195,9 @@ public class Manager {
             handle.getOut().write(message.array(), 0, message.limit());
             handle.getOut().flush();
         }
-        
+
         handle.getOut().flush();
-        
+
 
         synchronized (idMap) {
             spectatorMap.put(handle.getHid(), room);
@@ -264,7 +265,7 @@ public class Manager {
                     if(!TcpServer.sendToKey(connection.getKey(), msgBuf, this))
                     	iter.remove();
                 }
-            	
+
             }
             Profiler.timeEnd("Send state");
         }
