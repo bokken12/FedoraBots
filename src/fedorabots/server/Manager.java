@@ -139,7 +139,7 @@ public class Manager {
         short robotId = bb.getShort();
         synchronized (idMap) {
             if (robotId != idMap.get(handle)) {
-                throw new ParseException(handle.getHid() + " does not have permission to edit robot with id " + robotId +
+                throw new ParseException(handle + " does not have permission to edit robot with id " + robotId +
                                          " (the handler can only edit robot with id " + idMap.get(handle) + ").");
             }
         }
@@ -158,11 +158,11 @@ public class Manager {
     }
 
     private void handleRobotShoot(ByteBuffer bb, TcpServer server, Handler handle) throws IOException {
-        LOGGER.fine("Handling robot shoot from " + handle.getHid() + ".");
+        LOGGER.fine("Handling robot shoot from " + handle + ".");
         short robotId = bb.getShort();
         synchronized (idMap) {
             if (robotId != idMap.get(handle)) {
-                throw new ParseException(handle.getHid() + " does not have permission to edit robot with id " + robotId +
+                throw new ParseException(handle + " does not have permission to edit robot with id " + robotId +
                                          " (the handler can only edit robot with id " + idMap.get(handle) + ").");
             }
         }
