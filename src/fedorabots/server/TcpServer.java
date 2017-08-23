@@ -54,7 +54,7 @@ public class TcpServer implements Runnable {
 	 * Sends a message (<code>buf</code>) to a client known by the given
 	 * <code>key</code>.
 	 */
-	public static boolean sendToKey(short key, ByteBuffer buf, Manager manager) {
+	public static boolean sendToHandle(short key, ByteBuffer buf, Manager manager) {
 			Handler h = handlers.get(key);
 			try {
 				h.getOut().write(buf.array(), 0, buf.limit());

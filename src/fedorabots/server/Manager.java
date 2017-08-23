@@ -96,7 +96,7 @@ public class Manager {
                     	Map.Entry<Handler, Short> connection = iter.next();
                     	if (room.equals(robotRooms.get(connection.getValue()))) {
                             message.rewind();
-                            if(!TcpServer.sendToKey(connection.getKey().getHid(), message, this))
+                            if(!TcpServer.sendToHandle(connection.getKey().getHid(), message, this))
                             	iter.remove();
                         }
                     }
@@ -105,7 +105,7 @@ public class Manager {
                     	Map.Entry<Handler, Room> connection = iter2.next();
                     	if (room.equals(connection.getValue())) {
                             message.rewind();
-                            if(!TcpServer.sendToKey(connection.getKey().getHid(), message, this))
+                            if(!TcpServer.sendToHandle(connection.getKey().getHid(), message, this))
                             	iter2.remove();
                         }
                     }
@@ -252,7 +252,7 @@ public class Manager {
                         msgBuf.put(velocityStates.get(id));
                     }
                     msgBuf.rewind();
-                    if(!TcpServer.sendToKey(connection.getKey().getHid(), msgBuf, this))
+                    if(!TcpServer.sendToHandle(connection.getKey().getHid(), msgBuf, this))
                     	iter.remove();
                 }
             }
@@ -261,7 +261,7 @@ public class Manager {
             	Map.Entry<Handler, Room> connection = iter2.next();
             	if (room.equals(connection.getValue())) {
                     msgBuf.rewind();
-                    if(!TcpServer.sendToKey(connection.getKey().getHid(), msgBuf, this))
+                    if(!TcpServer.sendToHandle(connection.getKey().getHid(), msgBuf, this))
                     	iter.remove();
                 }
 
@@ -277,7 +277,7 @@ public class Manager {
         		Map.Entry<Handler, Short> connection = iter.next();
         		if (room.equals(robotRooms.get(connection.getValue()))) {
                     msgBuf.rewind();
-                    if(!TcpServer.sendToKey(connection.getKey().getHid(), msgBuf, this))
+                    if(!TcpServer.sendToHandle(connection.getKey().getHid(), msgBuf, this))
                     	iter.remove();
                 }
         	}
@@ -286,7 +286,7 @@ public class Manager {
         		Map.Entry<Handler, Room> connection = iter2.next();
         		if (room.equals(connection.getValue())) {
                     msgBuf.rewind();
-                    if(!TcpServer.sendToKey(connection.getKey().getHid(), msgBuf, this))
+                    if(!TcpServer.sendToHandle(connection.getKey().getHid(), msgBuf, this))
                     	iter2.remove();
                 }
         	}
