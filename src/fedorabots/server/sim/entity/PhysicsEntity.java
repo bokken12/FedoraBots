@@ -107,16 +107,9 @@ public class PhysicsEntity extends Entity {
 	 * @param vx the vx to set
 	 * @param vy the vy to set
 	 */
-	private void setVelocity(double vx, double vy) {
-		double v = Math.sqrt(vx * vx + vy * vy);
-		if (v > Constants.Robot.MAX_VELOCITY/1e3) {
-			double angle = Math.atan2(vy, vx);
-			setVx(Constants.Robot.MAX_VELOCITY/1e3 * Math.cos(angle));
-			setVy(Constants.Robot.MAX_VELOCITY/1e3 * Math.sin(angle));
-		} else {
-			setVx(vx);
-			setVy(vy);
-		}
+	protected void setVelocity(double vx, double vy) {
+		setVx(vx);
+		setVy(vy);
 	}
 
 	/**

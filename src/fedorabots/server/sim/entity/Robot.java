@@ -58,6 +58,22 @@ public class Robot extends PhysicsEntity {
 		damageAngles.clear();
 	}
 
+
+	/**
+	 * @param vx the vx to set
+	 * @param vy the vy to set
+	 */
+	protected void setVelocity(double vx, double vy) {
+		double v = Math.sqrt(vx * vx + vy * vy);
+		if (v > Constants.Robot.MAX_VELOCITY/1e3) {
+			double angle = Math.atan2(vy, vx);
+			super.setVelocity(Constants.Robot.MAX_VELOCITY/1e3 * Math.cos(angle),
+							  Constants.Robot.MAX_VELOCITY/1e3 * Math.sin(angle));
+		} else {
+			super.setVelocity(vx, vy);
+		}
+	}
+
 	@Override
 	public void resolveCollision(PhysicsEntity other) {
 		super.resolveCollision(other);
