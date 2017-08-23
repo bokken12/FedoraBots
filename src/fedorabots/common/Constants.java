@@ -28,7 +28,7 @@ public class Constants {
         public static final double VELOCITY = 200;
         public static final double RADIUS = 4;
         public static final double MASS = 2;
-        public static final double DAMAGE = 0.25;
+        public static final double DAMAGE = 0.2;
     }
 
     public class Obstacle {
