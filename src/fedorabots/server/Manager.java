@@ -148,7 +148,12 @@ public class Manager {
             throw new ParseException("Invalid robot ID " + robotId + ".");
         }
 
-        ent.setAcceleration(bb.getFloat()/1e6, bb.getFloat()/1e6);
+        double ax = bb.getFloat()/1e6;
+        double ay = bb.getFloat()/1e6;
+        if (!Double.isFinite(ax) || !Double.isFinite(ay)) {
+            throw new ParseException(handle + " set a robot with id " + robotId + " to have a non-finite acceleration.");
+        }
+        ent.setAcceleration(ax, ay);
         ent.setRotation((bb.getShort() & 0xFFFF) * 1.0 / (Short.MAX_VALUE-Short.MIN_VALUE) * 2 * Math.PI);
     }
 
