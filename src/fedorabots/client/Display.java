@@ -278,7 +278,7 @@ public class Display {
         List<DetectedEntity> entities = new ArrayList<DetectedEntity>();
         for (RobotFigure robot : robots.values()) {
             double distance = point.distance(robot.getTranslateX(), robot.getTranslateY());
-            if (distance <= Constants.Robot.DETECTION_RANGE && distance > 1) {
+            if (distance <= Constants.Robot.DETECTION_RANGE && distance > 5) {
                 entities.add(new DetectedRobot((int) robot.getTranslateX(), (int) robot.getTranslateY(), robot.getColor()));
             }
         }
