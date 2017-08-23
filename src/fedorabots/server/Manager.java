@@ -64,7 +64,7 @@ public class Manager {
             //out.rewind();
             handle.getOut().write(65);
             handle.getOut().flush();
-            throw new ParseException("Cannot add a robot to a nonexistent room with id " + id + ".");
+            throw new ParseException("Cannot add a robot to a nonexistent room with id " + roomId + ".");
         }
         Point2D location = RoomLayout.getLocation(room);
         Robot ent = new Robot(id, robotColor,
@@ -139,7 +139,8 @@ public class Manager {
         short robotId = bb.getShort();
         synchronized (idMap) {
             if (robotId != idMap.get(handle)) {
-                throw new ParseException(handle + " does not have permission to edit robot with id " + id + ".");
+                throw new ParseException(handle.getHid() + " does not have permission to edit robot with id " + robotId +
+                                         " (the handler can only edit robot with id " + idMap.get(handle) + ").");
             }
         }
         Robot ent = robotRooms.get(robotId).getRobot(robotId);
@@ -342,6 +343,19 @@ public class Manager {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public void handleClosed(Handler handler) {
+        synchronized (idMap) {
+            Short robotId = idMap.get(handler);
+            if (robotId != null) {
+                if (robotRooms.get(robotId).removeRobotById(robotId)) {
+                    LOGGER.finer("Removed robot with id " + robotId + " from the room since the client closed its session");
+                }
+                idMap.remove(handler);
+            }
+            spectatorMap.remove(handler);
         }
     }
 }

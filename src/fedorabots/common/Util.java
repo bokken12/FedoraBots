@@ -17,13 +17,15 @@ public class Util {
     }
 
     public static String toString(ByteBuffer b) {
-        b.rewind();
+        b.mark();
+        b.position(0);
         String out = "[";
         while (b.hasRemaining()) {
             out += b.get() & 0xFF;
             if (b.hasRemaining())
                 out += ", ";
         }
+        b.reset();
         return out + "]";
     }
 }

@@ -82,23 +82,25 @@ public class TcpServer implements Runnable {
 			try {
 				while(!sock.isClosed()){
 					byte type = (byte) in.read();
-					LOGGER.info("Got message of type: " + type + " which translates to " + (byte) type);
 					int numToRead = Manager.messageLength(type & 0xFF);
-					//buf.clear();
-					//buf.limit(numToRead + 1);
-					//buf.put(type);
-					byte[] bytes = new byte[numToRead + 1];
-					bytes[0] = type;
-					in.read(bytes, 1, numToRead);
-					LOGGER.info("Created buffer " + Util.toString(bytes));
+
+					ByteBuffer bb = ByteBuffer.allocate(numToRead + 1);
+					bb.put(type);
+					for (int i = 0; i < numToRead; i++) {
+						bb.put((byte) in.read());
+					}
+					bb.rewind();
+
+					LOGGER.info("Created buffer " + Util.toString(bb));
 					try {
-						manager.handleSent(ByteBuffer.wrap(bytes), TcpServer.this, this);
+						manager.handleSent(bb, TcpServer.this, this);
 					} catch (ParseException e) {
 						LOGGER.log(Level.WARNING, "bad message type", e);
 					}
 				}
 			} catch(Exception e){
 				LOGGER.log(Level.SEVERE, "Error while running handler", e);
+				manager.handleClosed(this);
 			}
 		}
 
