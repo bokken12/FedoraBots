@@ -6,8 +6,6 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,7 +22,6 @@ public class TcpServer implements Runnable {
 	public static final int PORT = 8090;
 	private static short next_id = 0;
 	private ServerSocket ss;
-	private static Map<Short, Handler> handlers = new HashMap<Short, Handler>();
 
 	private Manager manager;
 
@@ -41,7 +38,6 @@ public class TcpServer implements Runnable {
 			LOGGER.info("Server starting on port " + PORT);
 			while(!ss.isClosed()){
 				Handler handler = new Handler(ss.accept());
-				handlers.put(handler.getHid(), handler);
 				handler.start();
 				LOGGER.info("created handler");
 			}
