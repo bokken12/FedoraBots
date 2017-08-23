@@ -15,6 +15,7 @@ import fedorabots.common.Constants;
 import fedorabots.common.Profiler;
 import javafx.geometry.Point2D;
 import fedorabots.server.Room.GameAlreadyStartedException;
+import fedorabots.server.TcpServer.Handler;
 import fedorabots.server.sim.Sim;
 import fedorabots.server.sim.entity.Bullet;
 import fedorabots.server.sim.entity.Robot;
@@ -29,8 +30,8 @@ public class Manager {
 
     private Map<Short, Room> rooms; // Room id --> Room
     private Map<Short, Room> robotRooms; // Robot id --> Room
-    private Map<SelectionKey, Short> idMap;
-    private Map<SelectionKey, Room> spectatorMap;
+    private Map<Short, Short> idMap;
+    private Map<Short, Room> spectatorMap;
     private short id = 0;
 
     private static final Logger LOGGER = Logger.getLogger(Room.class.getName());
@@ -41,8 +42,8 @@ public class Manager {
         // Used both by the main thread (doing simulation) and the networking
         // thread (adding robots to the room) so make sure to use synchronized
         // with this
-        idMap = new HashMap<SelectionKey, Short>();
-        spectatorMap = new HashMap<SelectionKey, Room>();
+        idMap = new HashMap<Short, Short>();
+        spectatorMap = new HashMap<Short, Room>();
     }
 
 
@@ -54,16 +55,17 @@ public class Manager {
         }
     }
 
-    private void handleRobotJoin(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
-        LOGGER.info("Handling robot join from " + key.attachment() + ".");
+    private void handleRobotJoin(ByteBuffer bb, TcpServer server, Handler handle) throws IOException {
+        LOGGER.info("Handling robot join from " + handle.getHid() + ".");
         short roomId = bb.getShort();
         Color robotColor = new Color(bb.get() & 0xFF, bb.get() & 0xFF, bb.get() & 0xFF);
         Room room = rooms.get(roomId);
         if (room == null) {
-            ByteBuffer out = ByteBuffer.allocate(1);
-            out.put((byte) 65);
-            out.rewind();
-            channel.write(out);
+            //ByteBuffer out = ByteBuffer.allocate(1);
+            //out.put((byte) 65);
+            //out.rewind();
+            handle.getOut().write(65);
+            handle.getOut().flush();
             throw new ParseException("Cannot add a robot to a nonexistent room with id " + id + ".");
         }
         Point2D location = RoomLayout.getLocation(room);
@@ -85,23 +87,24 @@ public class Manager {
                 // the code in the if statement
 
                 robotRooms.put(id, room);
-                idMap.put(key, id);
+                idMap.put(handle.getHid(), id);
+                LOGGER.info("creating robot with id " + id + " of handler " + handle.getHid());
 
                 if (gameStarting) {
                     LOGGER.fine("Sending initial states to relevant robots");
                     ByteBuffer message = room.initialState();
-                    Iterator<Map.Entry<SelectionKey, Short>> iter = idMap.entrySet().iterator();
+                    Iterator<Map.Entry<Short, Short>> iter = idMap.entrySet().iterator();
                     while(iter.hasNext()){
-                    	Map.Entry<SelectionKey, Short> connection = iter.next();
+                    	Map.Entry<Short, Short> connection = iter.next();
                     	if (room.equals(robotRooms.get(connection.getValue()))) {
                             message.rewind();
                             if(!TcpServer.sendToKey(connection.getKey(), message, this))
                             	iter.remove();
                         }
                     }
-                    Iterator<Map.Entry<SelectionKey, Room>> iter2 = spectatorMap.entrySet().iterator();
+                    Iterator<Map.Entry<Short, Room>> iter2 = spectatorMap.entrySet().iterator();
                     while(iter2.hasNext()){
-                    	Map.Entry<SelectionKey, Room> connection = iter2.next();
+                    	Map.Entry<Short, Room> connection = iter2.next();
                     	if (room.equals(connection.getValue())) {
                             message.rewind();
                             if(!TcpServer.sendToKey(connection.getKey(), message, this))
@@ -110,28 +113,21 @@ public class Manager {
                     }
 
                     LOGGER.fine("Telling robots in room with id " + room.getId() + " that the game has begun");
-                    Iterator<Map.Entry<SelectionKey, Short>> iter3 = idMap.entrySet().iterator();
+                    Iterator<Map.Entry<Short, Short>> iter3 = idMap.entrySet().iterator();
                     while(iter3.hasNext()){
-                    	Map.Entry<SelectionKey, Short> connection = iter3.next();
+                    	Map.Entry<Short, Short> connection = iter3.next();
                     	if (room.equals(robotRooms.get(connection.getValue()))) {
-                            LOGGER.finer("Telling " + connection.getKey().attachment());
-                            ByteBuffer out = ByteBuffer.allocate(3);
-                            out.put((byte) 64);
-                            out.putShort(connection.getValue());
-                            out.rewind();
-                            if(!TcpServer.sendToKey(connection.getKey(), out, this))
-                            	iter3.remove();
+                            LOGGER.finer("Telling " + handle.getHid());
+                            handle.getOut().write(64);
+                            short id2 = connection.getValue();
+                            handle.getOut().write((byte)(id2 & 0xff));
+                            handle.getOut().write((byte)((id2 >> 8) & 0xff));
+                            handle.getOut().flush();
                         }
-                    }
-                    for (Map.Entry<SelectionKey, Short> connection : idMap.entrySet()) {
-                        
                     }
                 }
             } catch (GameAlreadyStartedException e) {
-                ByteBuffer out = ByteBuffer.allocate(1);
-                out.put((byte) 66);
-                out.rewind();
-                channel.write(out);
+                handle.getOut().flush();
                 throw new ParseException("Robot with id " + id + " tried to join a room with id " +
                                          room.getId() + " that already started its game");
             }
@@ -139,12 +135,12 @@ public class Manager {
         id++;
     }
 
-    private void handleRobotUpdate(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
-        LOGGER.fine("Handling robot update from " + key.attachment() + ".");
+    private void handleRobotUpdate(ByteBuffer bb, TcpServer server, Handler handle) throws IOException {
+        LOGGER.fine("Handling robot update from " + handle.getHid() + ".");
         short robotId = bb.getShort();
         synchronized (idMap) {
-            if (robotId != idMap.get(key)) {
-                throw new ParseException(key.attachment() + " does not have permission to edit robot with id " + id + ".");
+            if (robotId != idMap.get(handle.getHid())) {
+                throw new ParseException(handle.getHid() + " does not have permission to edit robot with id " + id + ".");
             }
         }
         Robot ent = robotRooms.get(robotId).getRobot(robotId);
@@ -156,12 +152,12 @@ public class Manager {
         ent.setRotation((bb.getShort() & 0xFFFF) * 1.0 / (Short.MAX_VALUE-Short.MIN_VALUE) * 2 * Math.PI);
     }
 
-    private void handleRobotShoot(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
-        LOGGER.fine("Handling robot shoot from " + key.attachment() + ".");
+    private void handleRobotShoot(ByteBuffer bb, TcpServer server, Handler handle) throws IOException {
+        LOGGER.fine("Handling robot shoot from " + handle.getHid() + ".");
         short robotId = bb.getShort();
         synchronized (idMap) {
-            if (robotId != idMap.get(key)) {
-                throw new ParseException(key.attachment() + " does not have permission to edit robot with id " + id + ".");
+            if (robotId != idMap.get(handle.getHid())) {
+                throw new ParseException(handle.getHid() + " does not have permission to edit robot with id " + id + ".");
             }
         }
 
@@ -180,16 +176,14 @@ public class Manager {
         room.addBullet(new Bullet(x, y, Constants.Bullet.RADIUS, Constants.Bullet.MASS, vx, vy));
     }
 
-    private void handleDisplayJoin(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
-        LOGGER.fine("Handling display join from " + key.attachment() + ".");
+    private void handleDisplayJoin(ByteBuffer bb, TcpServer server, Handler handle) throws IOException {
+        LOGGER.fine("Handling display join from " + handle.getHid() + ".");
         short roomId = bb.getShort();
 
         Room room = rooms.get(roomId);
         if (room == null) {
-            ByteBuffer out = ByteBuffer.allocate(1);
-            out.put((byte) 65);
-            out.rewind();
-            channel.write(out);
+            handle.getOut().write(65);
+            handle.getOut().flush();
             throw new ParseException("Cannot add a robot to a nonexistent room with id " + id + ".");
         }
 
@@ -197,26 +191,25 @@ public class Manager {
         if (room.hasStarted()) {
             ByteBuffer message = room.initialState();
             message.rewind();
-            channel.write(message);
+            handle.getOut().write(message.array(), 0, message.limit());
+            handle.getOut().flush();
         }
-
-        ByteBuffer out = ByteBuffer.allocate(1);
-        out.put((byte) 4);
-        out.rewind();
-        channel.write(out);
+        
+        handle.getOut().flush();
+        
 
         synchronized (idMap) {
-            spectatorMap.put(key, room);
+            spectatorMap.put(handle.getHid(), room);
         }
     }
 
-    public void handleSent(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
+    public void handleSent(ByteBuffer bb, TcpServer server, Handler handle) throws IOException {
         int mType = bb.get() & 0xFF;
         switch (mType) {
-            case 128: handleRobotJoin(bb, server, key, channel); break;
-            case 129: handleRobotUpdate(bb, server, key, channel); break;
-            case 130: handleRobotShoot(bb, server, key, channel); break;
-            case 192: handleDisplayJoin(bb, server, key, channel); break;
+            case 128: handleRobotJoin(bb, server, handle); break;
+            case 129: handleRobotUpdate(bb, server, handle); break;
+            case 130: handleRobotShoot(bb, server, handle); break;
+            case 192: handleDisplayJoin(bb, server, handle); break;
             default:  throw new ParseException("Unknown message type " + mType + ".");
         }
     }
@@ -249,9 +242,9 @@ public class Manager {
 
         synchronized (idMap) {
             Profiler.time("Send state");
-            Iterator<Map.Entry<SelectionKey, Short>> iter = idMap.entrySet().iterator();
+            Iterator<Map.Entry<Short, Short>> iter = idMap.entrySet().iterator();
             while(iter.hasNext()){
-            	Map.Entry<SelectionKey, Short> connection = iter.next();
+            	Map.Entry<Short, Short> connection = iter.next();
             	if (room.equals(robotRooms.get(connection.getValue()))) {
                     short id = connection.getValue();
                     if (velocityStates.get(id) != null) {
@@ -263,9 +256,9 @@ public class Manager {
                     	iter.remove();
                 }
             }
-            Iterator<Map.Entry<SelectionKey, Room>> iter2 = spectatorMap.entrySet().iterator();
+            Iterator<Map.Entry<Short, Room>> iter2 = spectatorMap.entrySet().iterator();
             while(iter2.hasNext()){
-            	Map.Entry<SelectionKey, Room> connection = iter2.next();
+            	Map.Entry<Short, Room> connection = iter2.next();
             	if (room.equals(connection.getValue())) {
                     msgBuf.rewind();
                     if(!TcpServer.sendToKey(connection.getKey(), msgBuf, this))
@@ -279,18 +272,18 @@ public class Manager {
 
     public void broadcastBuf(TcpServer server, Room room, ByteBuffer msgBuf) {
         synchronized (idMap) {
-        	Iterator<Map.Entry<SelectionKey, Short>> iter = idMap.entrySet().iterator();
+        	Iterator<Map.Entry<Short, Short>> iter = idMap.entrySet().iterator();
         	while(iter.hasNext()){
-        		Map.Entry<SelectionKey, Short> connection = iter.next();
+        		Map.Entry<Short, Short> connection = iter.next();
         		if (room.equals(robotRooms.get(connection.getValue()))) {
                     msgBuf.rewind();
                     if(!TcpServer.sendToKey(connection.getKey(), msgBuf, this))
                     	iter.remove();
                 }
         	}
-        	Iterator<Map.Entry<SelectionKey, Room>> iter2 = spectatorMap.entrySet().iterator();
+        	Iterator<Map.Entry<Short, Room>> iter2 = spectatorMap.entrySet().iterator();
         	while(iter.hasNext()){
-        		Map.Entry<SelectionKey, Room> connection = iter2.next();
+        		Map.Entry<Short, Room> connection = iter2.next();
         		if (room.equals(connection.getValue())) {
                     msgBuf.rewind();
                     if(!TcpServer.sendToKey(connection.getKey(), msgBuf, this))

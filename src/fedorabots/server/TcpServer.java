@@ -1,13 +1,20 @@
 package fedorabots.server;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,9 +29,11 @@ import fedorabots.server.Manager.ParseException;
  */
 public class TcpServer implements Runnable {
 	public static final int PORT = 8090;
-	private ServerSocketChannel ssc;
+	private static short next_id = 0;
+	private ServerSocket ss;
 	private Selector selector;
 	private ByteBuffer buf = ByteBuffer.allocate(16);
+	private static Map<Short, Handler> handlers = new HashMap<Short, Handler>();
 
 	private Manager manager;
 
@@ -32,31 +41,18 @@ public class TcpServer implements Runnable {
 
 	public TcpServer(Manager manager) throws IOException {
 		this.manager = manager;
-		this.ssc = ServerSocketChannel.open();
-		this.ssc.socket().bind(new InetSocketAddress("0.0.0.0", PORT));
-		this.ssc.configureBlocking(false);
-		this.selector = Selector.open();
-
-		this.ssc.register(selector, SelectionKey.OP_ACCEPT);
+		this.ss  = new ServerSocket(PORT);
 	}
 
 	@Override
     public void run() {
 		try {
 			LOGGER.info("Server starting on port " + PORT);
-
-			Iterator<SelectionKey> iter;
-			SelectionKey key;
-			while (this.ssc.isOpen()) {
-				selector.select();
-				iter = this.selector.selectedKeys().iterator();
-				while(iter.hasNext()) {
-					key = iter.next();
-					iter.remove();
-
-					if(key.isAcceptable()) this.handleAccept(key);
-					if(key.isReadable()) this.handleRead(key);
-				}
+			while(!ss.isClosed()){
+				Handler handler = new Handler(ss.accept());
+				handlers.put(handler.getHid(), handler);
+				handler.start();
+				LOGGER.info("created handler");
 			}
 		} catch(IOException e) {
 			LOGGER.log(Level.SEVERE, "Error while running", e);
@@ -70,62 +66,120 @@ public class TcpServer implements Runnable {
 		sc.register(selector, SelectionKey.OP_READ, address);
 	}
 
-	private void handleRead(SelectionKey key) throws IOException {
-		SocketChannel ch = (SocketChannel) key.channel();
-
-		try {
-			int read = 0;
-			do {
-				buf.clear().limit(1); // Allow for the message type byte to be read
-				if ((read = ch.read(buf)) > 0) {
-					int numToRead = Manager.messageLength(buf.get(0) & 0xFF);
-					buf.limit(numToRead + 1);
-
-					if ((read = ch.read(buf)) == numToRead) {
-						buf.flip();
-						try {
-							manager.handleSent(buf, this, key, ch);
-						} catch (ParseException e) {
-							LOGGER.log(Level.WARNING, "Error parsing input " + Util.toString(buf) + " from " + key.attachment() + ".", e);
-						}
-					} else {
-						LOGGER.warning("Dropped a buffer from " + key.attachment() + ". The buffer is " + Util.toString(buf) + ".");
-					}
-				}
-			} while (read > 0);
-
-			if (read < 0) {
-				LOGGER.info(key.attachment() + " closed its session.");
-				manager.handleClosed(key);
-				ch.close();
-			}
-			else {
-				LOGGER.finest(key.attachment() + " sent something");
-			}
-		} catch (IOException e) {
-			LOGGER.log(Level.WARNING, "Error while reading", e);
-			manager.handleClosed(key);
-			ch.close();
-		}
-	}
-
 	/**
 	 * Sends a message (<code>buf</code>) to a client known by the given
 	 * <code>key</code>.
 	 */
-	public static boolean sendToKey(SelectionKey key, ByteBuffer buf, Manager manager) {
-		if(key.isValid() && key.channel() instanceof SocketChannel) {
-			SocketChannel sch = (SocketChannel) key.channel();
+	public static boolean sendToKey(short key, ByteBuffer buf, Manager manager) {
+			Handler h = handlers.get(key);
 			try {
-				sch.write(buf);
+				h.getOut().write(buf.array(), 0, buf.limit());
 				return true;
 			} catch (IOException e) {
-				LOGGER.log(Level.WARNING, "Could not write to socket from " + key.attachment(), e);
+				LOGGER.log(Level.WARNING, "Could not write to socket from " + h.getHid(), e);
 			}
-		} else {
-			LOGGER.warning("Invalid or socket channel");
-		}
 		return false;
+	}
+	
+	class Handler extends Thread {
+		
+		private Socket sock;
+		private InputStream in;
+		private OutputStream out;
+		private ByteBuffer buf;
+		private short hid;
+		
+		private Handler(Socket sock) throws IOException{
+			this.sock = sock;
+			out = sock.getOutputStream();
+			out.flush();
+			in = sock.getInputStream();
+			buf = ByteBuffer.allocate(16);
+			hid = next_id++;
+			LOGGER.info("creating handler");
+		}
+		
+		public void run(){
+			LOGGER.info("starting handler");
+			try {
+				while(!sock.isClosed()){
+					byte type = (byte) in.read();
+					LOGGER.info("Got message of type: " + type + " which translates to " + (byte) type);
+					int numToRead = Manager.messageLength(type & 0xFF);
+					//buf.clear();
+					//buf.limit(numToRead + 1);
+					//buf.put(type);
+					byte[] bytes = new byte[numToRead + 1];
+					bytes[0] = type;
+					in.read(bytes, 1, numToRead);
+					LOGGER.info("Created buffer " + Util.toString(bytes));
+					try {
+						manager.handleSent(ByteBuffer.wrap(bytes), TcpServer.this, this);
+					} catch (ParseException e) {
+						LOGGER.log(Level.WARNING, "bad message type", e);
+					}
+				}
+			} catch(Exception e){
+				LOGGER.log(Level.SEVERE, "Error while running handler", e);
+			}
+		}
+
+		/**
+		 * @return the sock
+		 */
+		public Socket getSock() {
+			return sock;
+		}
+
+		/**
+		 * @return the in
+		 */
+		public InputStream getIn() {
+			return in;
+		}
+
+		/**
+		 * @return the out
+		 */
+		public OutputStream getOut() {
+			return out;
+		}
+
+		/**
+		 * @return the hid
+		 */
+		public short getHid() {
+			return hid;
+		}
+
+		/**
+		 * @param sock the sock to set
+		 */
+		public void setSock(Socket sock) {
+			this.sock = sock;
+		}
+
+		/**
+		 * @param in the in to set
+		 */
+		public void setIn(InputStream in) {
+			this.in = in;
+		}
+
+		/**
+		 * @param out the out to set
+		 */
+		public void setOut(OutputStream out) {
+			this.out = out;
+		}
+
+		/**
+		 * @param hid the hid to set
+		 */
+		public void setHid(short hid) {
+			this.hid = hid;
+		}
+		
 	}
 
 }

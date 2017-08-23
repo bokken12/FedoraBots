@@ -30,6 +30,7 @@ public class GameNetworkAdapter implements GameAdapter {
 
     public GameNetworkAdapter(String host) throws IOException {
         s = new Socket(host, 8090);
+        s.getOutputStream().flush();
         inp = s.getInputStream();
     }
 
