@@ -95,7 +95,8 @@ public class TcpServer implements Runnable {
 			out.flush();
 			in = sock.getInputStream();
 			buf = ByteBuffer.allocate(16);
-			hid = next_id++;
+			hid = next_id;
+			next_id++;
 			LOGGER.info("creating handler");
 		}
 		
@@ -178,6 +179,40 @@ public class TcpServer implements Runnable {
 		 */
 		public void setHid(short hid) {
 			this.hid = hid;
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#hashCode()
+		 */
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + hid;
+			return result;
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			if(obj == null)
+				return false;
+			if(getClass() != obj.getClass())
+				return false;
+			Handler other = (Handler) obj;
+			if(!getOuterType().equals(other.getOuterType()))
+				return false;
+			if(hid != other.hid)
+				return false;
+			return true;
+		}
+
+		private TcpServer getOuterType() {
+			return TcpServer.this;
 		}
 		
 	}

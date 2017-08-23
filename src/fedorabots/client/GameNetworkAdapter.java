@@ -260,6 +260,7 @@ public class GameNetworkAdapter implements GameAdapter {
 
     private void parseJoined(byte[] buffer) {
         robotId = (short) (((buffer[0] & 0xFF) << 8) + (buffer[1] & 0xFF));
+        System.out.println("I joined a game and got id: " + robotId);
         awaitingId.release();
     }
 
