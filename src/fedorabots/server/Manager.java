@@ -3,8 +3,6 @@ package fedorabots.server;
 import java.awt.Color;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -159,7 +157,7 @@ public class Manager {
         synchronized (idMap) {
             if (robotId != idMap.get(handle.getHid())) {
                 throw new ParseException(handle.getHid() + " does not have permission to edit robot with id " + robotId +
-                                         " (the handler can only edit robot with id " + idMap.get(handle.getHid()) + ").");
+                                         " (the handler can only edit robot with id " + idMap.get(handle) + ").");
             }
         }
 
@@ -344,22 +342,6 @@ public class Manager {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    /**
-     * Handles the closing of a session by a client by the given <code>key</code>.
-     */
-    public void handleClosed(SelectionKey key) {
-        synchronized (idMap) {
-            Short robotId = idMap.get(key);
-            if (robotId != null) {
-                if (robotRooms.get(robotId).removeRobotById(robotId)) {
-                    LOGGER.finer("Removed robot with id " + robotId + " from the room since the client closed its session");
-                }
-                idMap.remove(key);
-            }
-            spectatorMap.remove(key);
         }
     }
 }

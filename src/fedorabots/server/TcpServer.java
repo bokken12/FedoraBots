@@ -3,17 +3,10 @@ package fedorabots.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,8 +24,6 @@ public class TcpServer implements Runnable {
 	public static final int PORT = 8090;
 	private static short next_id = 0;
 	private ServerSocket ss;
-	private Selector selector;
-	private ByteBuffer buf = ByteBuffer.allocate(16);
 	private static Map<Short, Handler> handlers = new HashMap<Short, Handler>();
 
 	private Manager manager;
@@ -59,13 +50,6 @@ public class TcpServer implements Runnable {
 		}
 	}
 
-	private void handleAccept(SelectionKey key) throws IOException {
-		SocketChannel sc = ((ServerSocketChannel) key.channel()).accept();
-		String address = (new StringBuilder(sc.socket().getInetAddress().toString())).append(":").append(sc.socket().getPort()).toString();
-		sc.configureBlocking(false);
-		sc.register(selector, SelectionKey.OP_READ, address);
-	}
-
 	/**
 	 * Sends a message (<code>buf</code>) to a client known by the given
 	 * <code>key</code>.
@@ -86,7 +70,6 @@ public class TcpServer implements Runnable {
 		private Socket sock;
 		private InputStream in;
 		private OutputStream out;
-		private ByteBuffer buf;
 		private short hid;
 
 		private Handler(Socket sock) throws IOException{
@@ -94,7 +77,6 @@ public class TcpServer implements Runnable {
 			out = sock.getOutputStream();
 			out.flush();
 			in = sock.getInputStream();
-			buf = ByteBuffer.allocate(16);
 			hid = next_id;
 			next_id++;
 			LOGGER.info("creating handler");
