@@ -86,16 +86,16 @@ public class TcpServer implements Runnable {
 						try {
 							manager.handleSent(buf, this, key, ch);
 						} catch (ParseException e) {
-							LOGGER.log(Level.WARNING, "Error parsing input " + Util.toString(buf), e);
+							LOGGER.log(Level.WARNING, "Error parsing input " + Util.toString(buf) + " from " + key.attachment() + ".", e);
 						}
 					} else {
-						LOGGER.warning("Dropped a buffer from " + key.attachment() + ".");
+						LOGGER.warning("Dropped a buffer from " + key.attachment() + ". The buffer is " + Util.toString(buf) + ".");
 					}
 				}
 			} while (read > 0);
 
 			if (read < 0) {
-				LOGGER.fine(key.attachment() + " closed its session.");
+				LOGGER.info(key.attachment() + " closed its session.");
 				manager.handleClosed(key);
 				ch.close();
 			}
@@ -120,8 +120,10 @@ public class TcpServer implements Runnable {
 				sch.write(buf);
 				return true;
 			} catch (IOException e) {
-				LOGGER.log(Level.WARNING, "Could not write to socket", e);
+				LOGGER.log(Level.WARNING, "Could not write to socket from " + key.attachment(), e);
 			}
+		} else {
+			LOGGER.warning("Invalid or socket channel");
 		}
 		return false;
 	}

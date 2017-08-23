@@ -55,7 +55,7 @@ public class Manager {
     }
 
     private void handleRobotJoin(ByteBuffer bb, TcpServer server, SelectionKey key, SocketChannel channel) throws IOException {
-        LOGGER.fine("Handling robot join from " + key.attachment() + ".");
+        LOGGER.info("Handling robot join from " + key.attachment() + ".");
         short roomId = bb.getShort();
         Color robotColor = new Color(bb.get() & 0xFF, bb.get() & 0xFF, bb.get() & 0xFF);
         Room room = rooms.get(roomId);
