@@ -118,8 +118,8 @@ public class Manager {
                             LOGGER.finer("Telling " + handle);
                             connection.getKey().getOut().write(64);
                             short id2 = connection.getValue();
-                            connection.getKey().getOut().write((byte)(id2 & 0xff));
-                            connection.getKey().getOut().write((byte)((id2 >> 8) & 0xff));
+                            connection.getKey().getOut().write((id2 >> 8) & 0xff);
+                            connection.getKey().getOut().write(id2 & 0xff);
                             connection.getKey().getOut().flush();
                         }
                     }
