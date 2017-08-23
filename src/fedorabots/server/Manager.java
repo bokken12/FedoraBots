@@ -56,7 +56,7 @@ public class Manager {
     }
 
     private void handleRobotJoin(ByteBuffer bb, TcpServer server, Handler handle) throws IOException {
-        LOGGER.info("Handling robot join from " + handle.getHid() + ".");
+        LOGGER.info("Handling robot join from " + handle + ".");
         short roomId = bb.getShort();
         Color robotColor = new Color(bb.get() & 0xFF, bb.get() & 0xFF, bb.get() & 0xFF);
         Room room = rooms.get(roomId);
@@ -88,7 +88,7 @@ public class Manager {
 
                 robotRooms.put(id, room);
                 idMap.put(handle, id);
-                LOGGER.info("creating robot with id " + id + " of handler " + handle.getHid());
+                LOGGER.info("creating robot with id " + id + " of handler " + handle);
 
                 if (gameStarting) {
                     LOGGER.fine("Sending initial states to relevant robots");
@@ -117,7 +117,7 @@ public class Manager {
                     while(iter3.hasNext()){
                     	Map.Entry<Handler, Short> connection = iter3.next();
                     	if (room.equals(robotRooms.get(connection.getValue()))) {
-                            LOGGER.finer("Telling " + handle.getHid());
+                            LOGGER.finer("Telling " + handle);
                             connection.getKey().getOut().write(64);
                             short id2 = connection.getValue();
                             connection.getKey().getOut().write((byte)(id2 & 0xff));
@@ -137,11 +137,11 @@ public class Manager {
     }
 
     private void handleRobotUpdate(ByteBuffer bb, TcpServer server, Handler handle) throws IOException {
-        LOGGER.fine("Handling robot update from " + handle.getHid() + ".");
+        LOGGER.fine("Handling robot update from " + handle + ".");
         short robotId = bb.getShort();
         synchronized (idMap) {
             if (robotId != idMap.get(handle.getHid())) {
-                throw new ParseException(handle.getHid() + " does not have permission to edit robot with id " + id + ".");
+                throw new ParseException(handle + " does not have permission to edit robot with id " + id + ".");
             }
         }
         Robot ent = robotRooms.get(robotId).getRobot(robotId);
@@ -179,7 +179,7 @@ public class Manager {
     }
 
     private void handleDisplayJoin(ByteBuffer bb, TcpServer server, Handler handle) throws IOException {
-        LOGGER.fine("Handling display join from " + handle.getHid() + ".");
+        LOGGER.fine("Handling display join from " + handle + ".");
         short roomId = bb.getShort();
 
         Room room = rooms.get(roomId);

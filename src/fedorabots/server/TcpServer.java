@@ -80,15 +80,15 @@ public class TcpServer implements Runnable {
 			}
 		return false;
 	}
-	
+
 	class Handler extends Thread {
-		
+
 		private Socket sock;
 		private InputStream in;
 		private OutputStream out;
 		private ByteBuffer buf;
 		private short hid;
-		
+
 		private Handler(Socket sock) throws IOException{
 			this.sock = sock;
 			out = sock.getOutputStream();
@@ -99,7 +99,7 @@ public class TcpServer implements Runnable {
 			next_id++;
 			LOGGER.info("creating handler");
 		}
-		
+
 		public void run(){
 			LOGGER.info("starting handler");
 			try {
@@ -181,6 +181,10 @@ public class TcpServer implements Runnable {
 			this.hid = hid;
 		}
 
+		public String toString() {
+			return sock.getRemoteSocketAddress().toString();
+		}
+
 		/* (non-Javadoc)
 		 * @see java.lang.Object#hashCode()
 		 */
@@ -214,7 +218,7 @@ public class TcpServer implements Runnable {
 		private TcpServer getOuterType() {
 			return TcpServer.this;
 		}
-		
+
 	}
 
 }
