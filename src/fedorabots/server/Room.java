@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import fedorabots.common.Constants;
 import fedorabots.common.Profiler;
 import javafx.geometry.Point2D;
 import fedorabots.server.sim.Sim;
@@ -244,7 +245,7 @@ public class Room {
      * no robots in it).
      */
     public Room resetCopy() {
-        World w = world.emptyClone();
+        World w = World.generateScrollingWorld(0, 0, Constants.World.WIDTH, Constants.World.HEIGHT); //world.emptyClone();
         Room r = new Room(getRobotLimit(), w, getId());
         r.setManager(manager);
 
